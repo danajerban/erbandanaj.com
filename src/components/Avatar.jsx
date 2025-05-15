@@ -4,17 +4,17 @@ Command: npx gltfjsx@6.5.3 public/models/6825312ee036577fe0f1257a.glb -o src/com
 */
 
 import React, { useRef, useState, useEffect } from "react";
-import { useGraph } from "@react-three/fiber";
-import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
+import { useFrame, useGraph } from "@react-three/fiber";
+import { useAnimations, useFBX, useGLTF, useScroll } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
-
+import * as THREE from "three";
 export function Avatar(props) {
   const group = useRef();
-  const [animation, setAnimation] = useState("Walking");
+  const [animation, setAnimation] = useState("Idle");
   const { scene } = useGLTF("/models/6825312ee036577fe0f1257a.glb");
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes, materials } = useGraph(clone);
-  const { animations: idleAnimation } = useFBX("/animations/HappyIdle.fbx");
+  const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
   const { animations: walkingAnimation } = useFBX("/animations/Walking.fbx");
 
   idleAnimation[0].name = "Idle";
@@ -23,6 +23,30 @@ export function Avatar(props) {
     [idleAnimation[0], walkingAnimation[0]],
     group
   );
+
+  const scrollData = useScroll();
+  const lastScroll = useRef(0); // useRef not useState to not cause re-renders when on the last scroll value
+
+  useFrame(() => {
+    const scrollDelta = scrollData.offset - lastScroll.current;
+    let rotationTarget = 0;
+    if (Math.abs(scrollDelta) > 0.00001) {
+      setAnimation("Walking");
+      if (scrollDelta > 0) {
+        rotationTarget = 0;
+      } else {
+        rotationTarget = Math.PI;
+      }
+    } else {
+      setAnimation("Idle");
+    }
+    group.current.rotation.y = THREE.MathUtils.lerp(
+      group.current.rotation.y,
+      rotationTarget,
+      0.1
+    );
+    lastScroll.current = scrollData.offset;
+  });
 
   useEffect(() => {
     actions[animation].reset().fadeIn(0.5).play();
