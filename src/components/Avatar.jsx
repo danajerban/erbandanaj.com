@@ -10,11 +10,11 @@ import { SkeletonUtils } from "three-stdlib";
 
 export function Avatar(props) {
   const group = useRef();
-  const [animation, setAnimation] = useState("Idle");
+  const [animation, setAnimation] = useState("Walking");
   const { scene } = useGLTF("/models/6825312ee036577fe0f1257a.glb");
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes, materials } = useGraph(clone);
-  const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
+  const { animations: idleAnimation } = useFBX("/animations/HappyIdle.fbx");
   const { animations: walkingAnimation } = useFBX("/animations/Walking.fbx");
 
   idleAnimation[0].name = "Idle";
