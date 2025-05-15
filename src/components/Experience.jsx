@@ -1,4 +1,11 @@
-import { Environment, useScroll, Float, Center, MeshDistortMaterial } from "@react-three/drei";
+import {
+  Environment,
+  useScroll,
+  Float,
+  Center,
+  MeshDistortMaterial,
+  RoundedBox,
+} from "@react-three/drei";
 import { Avatar } from "./Avatar";
 import { useRef } from "react";
 import { SectionTitle } from "./SectionTitle";
@@ -11,6 +18,7 @@ import { Lamp } from "./Lamp";
 import { BookCase } from "./BookCase";
 import * as THREE from "three";
 import { config } from "../config";
+import { Monitor } from "./Monitor";
 
 const SECTIONS_DISTANCE = 10;
 
@@ -75,7 +83,7 @@ export const Experience = () => {
         <group position-z={SECTIONS_DISTANCE}>
           <group position-x={-2}>
             <SectionTitle position-z={1.5} rotation-y={Math.PI / 6}>
-              SKILLS
+              Skills
             </SectionTitle>
             <BookCase position-z={-2} />
             <CouchSmall
@@ -98,13 +106,40 @@ export const Experience = () => {
               transparent
               distort={1}
               speed={4}
-              color="#9D5634"
+              color="#904133"
             />
           </mesh>
         </group>
+        {/* PROJECTS */}
         <group position-z={SECTIONS_DISTANCE * 2}>
-          <SectionTitle position-x={0.5}>Projects</SectionTitle>
+          <group position-x={1}>
+            <SectionTitle
+              position-x={-0.5}
+              position-z={0}
+              rotation-y={-Math.PI / 6}
+            >
+              Projects
+            </SectionTitle>
+
+            <group
+              position-x={0.5}
+              position-z={0}
+              rotation-y={-Math.PI / 6}
+              scale={0.8}
+            >
+              <Monitor
+                scale={0.02}
+                position-y={1}
+                rotation-y={-Math.PI / 2}
+                position-z={-1}
+              />
+              <RoundedBox scale-x={2} position-y={0.5} position-z={-1}>
+                <meshStandardMaterial color="white" />
+              </RoundedBox>
+            </group>
+          </group>
         </group>
+        {/* CONTACT */}
         <group position-z={SECTIONS_DISTANCE * 3}>
           <SectionTitle position-x={0.5}>Contact</SectionTitle>
         </group>
