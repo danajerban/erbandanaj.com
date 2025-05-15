@@ -4,14 +4,42 @@ Command: npx gltfjsx@6.2.3 public/models/Mailbox v2.glb -o src/components/Mailbo
 Mailbox v2 by sirkitree [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/6Y4sEKDNxcP)
 */
 
-import { useGLTF } from "@react-three/drei";
-import React from "react";
+import { useCursor, useGLTF } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import React, { useEffect, useState } from "react";
+import * as THREE from "three";
+import { config } from "../config";
 
 export function Mailbox(props) {
   const { nodes, materials } = useGLTF("/models/Mailbox v2.glb");
+  const [mailboxHovered, setMailboxHovered] = useState(false);
+  useCursor(mailboxHovered);
+
+  useEffect(() => {
+    const emissiveColor = new THREE.Color("#359F5C");
+    Object.values(materials).forEach((material) => {
+      material.emissive = emissiveColor;
+    });
+  }, []);
+
+  useFrame(() => {
+    Object.values(materials).forEach((material) => {
+      material.emissiveIntensity = THREE.MathUtils.lerp(
+        material.emissiveIntensity,
+        mailboxHovered ? 0.9 : 0,
+        0.1
+      );
+    });
+  });
 
   return (
-    <group {...props} dispose={null}>
+    <group
+      {...props}
+      dispose={null}
+      onPointerEnter={() => setMailboxHovered(true)}
+      onPointerLeave={() => setMailboxHovered(false)}
+      onClick={() => window.open(`mailto:${config.contact.mail}`)}
+    >
       <mesh
         geometry={nodes.group2028911354.geometry}
         material={materials.mat17}
