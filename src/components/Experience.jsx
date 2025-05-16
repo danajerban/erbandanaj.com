@@ -8,7 +8,7 @@ import {
   ContactShadows,
 } from "@react-three/drei";
 import { Avatar } from "./Avatar";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { SectionTitle } from "./SectionTitle";
 import { useFrame } from "@react-three/fiber";
 import { Star } from "./Star";
@@ -52,7 +52,24 @@ export const Experience = () => {
     );
   });
 
-  console.log(section);
+  useEffect(() => {
+    const handleHashChange = () => {
+      const sectionIndex = config.sections.indexOf(
+        window.location.hash.replace("#", "")
+      );
+      if (sectionIndex !== -1) {
+        scrollData.el.scrollTo(
+          0,
+          (sectionIndex / (config.sections.length - 1)) *
+            (scrollData.el.scrollHeight - scrollData.el.clientHeight)
+        );
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    handleHashChange();
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   return (
     <>
       <Environment preset="sunset" />
