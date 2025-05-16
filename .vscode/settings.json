@@ -1,0 +1,57 @@
+{
+  "liveServer.settings.donotShowInfoMsg": true,
+  "security.workspace.trust.untrustedFiles": "open",
+  "workbench.iconTheme": "symbols",
+  "editor.fontFamily": "Fira Code",
+  "editor.fontLigatures": true,
+  "cSpell.userWords": ["htmldocument"],
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "files.trimTrailingWhitespace": true,
+  "window.commandCenter": true,
+  "files.eol": "\n",
+  "[python]": {
+    "editor.formatOnType": true
+  },
+  "workbench.startupEditor": "none",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "editor.inlineSuggest.enabled": true,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "explorer.confirmDragAndDrop": false,
+  "workbench.editor.empty.hint": "hidden",
+  "editor.renderWhitespace": "all",
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": "true",
+    "scminput": false
+  },
+  "editor.tabCompletion": "on",
+  "terminal.integrated.fontFamily": "monospace",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "github.copilot.advanced": {},
+  "editor.cursorSmoothCaretAnimation": "on",
+  "github.copilot.editor.enableAutoCompletions": true,
+  "editor.formatOnSave": true,
+  "git.suggestSmartCommit": false,
+  "cursor.cpp.disabledLanguages": ["plaintext", "scminput"],
+  "window.zoomLevel": 0.7,
+  "css.lint.unknownAtRules": "ignore",
+  "todohighlight.keywords": [
+    {
+      "text": "NOTE:",
+      "color": "#ff0000",
+      "backgroundColor": "yellow",
+      "overviewRulerColor": "grey"
+    }
+  ],
+  "diffEditor.maxComputationTime": 0,
+  "files.autoSave": "afterDelay",
+  "editor.minimap.enabled": true,
+  "editor.accessibilitySupport": "off",
+  "editor.fontSize": 13,
+  "breadcrumbs.enabled": false,
+  "workbench.colorCustomizations": {},
+  "workbench.colorTheme": "Tokyo Night"
+}
