@@ -1,32 +1,32 @@
 import {
-  Environment,
-  useScroll,
-  Float,
   Center,
+  ContactShadows,
+  Environment,
+  Float,
   MeshDistortMaterial,
   RoundedBox,
-  ContactShadows,
+  useScroll,
 } from "@react-three/drei";
-import { Avatar } from "./Avatar";
-import { useRef, useState, useEffect } from "react";
-import { SectionTitle } from "./SectionTitle";
 import { useFrame } from "@react-three/fiber";
-import { Star } from "./Star";
-import { MacBookPro } from "./MacBookPro";
-import { PalmTree } from "./PalmTree";
-import { CouchSmall } from "./CouchSmall";
-import { Lamp } from "./Lamp";
-import { BookCase } from "./BookCase";
+import { motion } from "framer-motion-3d";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { config } from "../config";
-import { Monitor } from "./Monitor";
-import { Balloon } from "./Balloon";
-import { Mailbox } from "./Mailbox";
-import { Pigeon } from "./Pigeon";
-import { ParkBench } from "./ParkBench";
-import { motion } from "framer-motion-3d";
 import { useMobile } from "../hooks/useMobile";
+import { Avatar } from "./Avatar";
+import { Balloon } from "./Balloon";
+import { BookCase } from "./BookCase";
+import { CouchSmall } from "./CouchSmall";
+import { Lamp } from "./Lamp";
+import { MacBookPro } from "./MacBookPro";
+import { Mailbox } from "./Mailbox";
+import { Monitor } from "./Monitor";
 import { MonitorScreen } from "./MonitorScreen";
+import { PalmTree } from "./PalmTree";
+import { ParkBench } from "./ParkBench";
+import { Pigeon } from "./Pigeon";
+import { SectionTitle } from "./SectionTitle";
+import { Star } from "./Star";
 
 const SECTIONS_DISTANCE = 10;
 
@@ -35,7 +35,6 @@ export const Experience = () => {
   const [section, setSection] = useState(config.sections[0]);
   const sceneContainer = useRef();
   const scrollData = useScroll();
-
   useFrame(() => {
     if (isMobile) {
       sceneContainer.current.position.x =
@@ -51,7 +50,6 @@ export const Experience = () => {
       config.sections[Math.round(scrollData.offset * (scrollData.pages - 1))]
     );
   });
-
   useEffect(() => {
     const handleHashChange = () => {
       const sectionIndex = config.sections.indexOf(
@@ -111,11 +109,11 @@ export const Experience = () => {
             <Float floatIntensity={0.6}>
               <Center disableY disableZ>
                 <SectionTitle
-                  size={0.8}
+                  size={0.7}
                   position-y={1.6}
                   position-z={-3}
                   bevelEnabled
-                  bevelThickness={0.3}
+                  bevelThickness={0.2}
                 >
                   {config.home.title}
                 </SectionTitle>
