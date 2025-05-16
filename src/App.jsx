@@ -5,10 +5,12 @@ import { config } from "./config";
 import { MotionConfig } from "framer-motion";
 import { Interface } from "./components/Interface";
 import { Menu } from "./components/Menu";
+import { LoadingScreen } from "./components/LoadingScreen";
 
 function App() {
   return (
     <>
+      <LoadingScreen />
       <Canvas camera={{ position: [0, 0.5, 5], fov: 42 }}>
         <color attach="background" args={["#faeaea"]} />
         <fog attach="fog" args={["#faeaea", 10, 50]} />

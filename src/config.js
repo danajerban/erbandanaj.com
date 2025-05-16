@@ -1,4 +1,5 @@
 export const config = {
+  title: "3D World",
   sections: ["home", "skills", "projects", "contact"],
   home: {
     title: "Erban",
