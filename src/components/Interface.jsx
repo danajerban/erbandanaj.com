@@ -1,8 +1,11 @@
-import { useState } from "react";
 import { useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { motion } from "framer-motion";
+import { atom, useAtom } from "jotai";
+import { useState } from "react";
 import { config } from "../config";
+
+export const projectAtom = atom(config.projects[0]);
 
 export const Interface = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -10,6 +13,7 @@ export const Interface = () => {
   useFrame(() => {
     setHasScrolled(scrollData.offset > 0);
   }); // its either true or false because normally we dont use state in useFrame to avoid re-renders
+  const [_project, setProject] = useAtom(projectAtom);
 
   return (
     <div className="interface">
@@ -48,6 +52,7 @@ export const Interface = () => {
             >
               {config.skills.map((skill, idx) => (
                 <motion.div
+                  onMouseEnter={() => setProject(project)}
                   key={skill.name}
                   className="skill"
                   initial={{ opacity: 0 }}

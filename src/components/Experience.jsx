@@ -27,6 +27,7 @@ import { ParkBench } from "./ParkBench";
 import { motion } from "framer-motion-3d";
 import { useMobile } from "../hooks/useMobile";
 import { MonitorScreen } from "./MonitorScreen";
+
 const SECTIONS_DISTANCE = 10;
 
 export const Experience = () => {
