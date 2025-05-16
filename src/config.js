@@ -21,6 +21,68 @@ export const config = {
       level: "30",
     },
   ],
+  projects: [
+    {
+      name: "Car Showroom",
+      description: "A car rental showroom with 3d models",
+      image: "projects/project1.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "3D Personal Portfolio Website",
+      description: "A 3d personal portfolio website",
+      image: "projects/project2.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "Car Showroom",
+      description: "A car rental showroom with 3d models",
+      image: "projects/project1.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "3D Personal Portfolio Website",
+      description: "A 3d personal portfolio website",
+      image: "projects/project2.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "Car Showroom",
+      description: "A car rental showroom with 3d models",
+      image: "projects/project1.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "3D Personal Portfolio Website",
+      description: "A 3d personal portfolio website",
+      image: "projects/project2.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "Car Showroom",
+      description: "A car rental showroom with 3d models",
+      image: "projects/project1.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "3D Personal Portfolio Website",
+      description: "A 3d personal portfolio website",
+      image: "projects/project2.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "Car Showroom",
+      description: "A car rental showroom with 3d models",
+      image: "projects/project1.jpg",
+      link: "https://google.com",
+    },
+    {
+      name: "3D Personal Portfolio Website",
+      description: "A 3d personal portfolio website",
+      image: "projects/project2.jpg",
+      link: "https://google.com",
+    },
+  ],
   contact: {
     name: "Erban Danaj",
     address: "Warsaw, Poland",
