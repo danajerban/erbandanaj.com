@@ -7,7 +7,7 @@ import {
   RoundedBox,
 } from "@react-three/drei";
 import { Avatar } from "./Avatar";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { SectionTitle } from "./SectionTitle";
 import { useFrame } from "@react-three/fiber";
 import { Star } from "./Star";
@@ -23,25 +23,39 @@ import { Balloon } from "./Balloon";
 import { Mailbox } from "./Mailbox";
 import { Pigeon } from "./Pigeon";
 import { ParkBench } from "./ParkBench";
+import { motion } from "framer-motion-3d";
 
 const SECTIONS_DISTANCE = 10;
 
 export const Experience = () => {
+  const [section, setSection] = useState(0);
   const sceneContainer = useRef();
   const scrollData = useScroll();
 
   useFrame(() => {
     sceneContainer.current.position.z =
       -scrollData.offset * SECTIONS_DISTANCE * (scrollData.pages - 1);
+
+    setSection(
+      config.sections[Math.round(scrollData.offset * (scrollData.pages - 1))]
+    );
   });
 
+  console.log(section);
   return (
     <>
       <Environment preset="sunset" />
       <Avatar />
-      <group ref={sceneContainer}>
+      <motion.group ref={sceneContainer} animate={section}>
         {/* HOME */}
-        <group>
+        <motion.group
+          position-y={-5}
+          variants={{
+            home: {
+              y: 0,
+            },
+          }}
+        >
           <Star position-z={0} position-y={2.2} scale={0.3} />
           <Float floatIntensity={2} speed={2}>
             <MacBookPro
@@ -82,9 +96,17 @@ export const Experience = () => {
               {config.home.subtitle}
             </SectionTitle>
           </Center>
-        </group>
+        </motion.group>
         {/* SKILLS */}
-        <group position-z={SECTIONS_DISTANCE}>
+        <motion.group
+          position-z={SECTIONS_DISTANCE}
+          position-y={-5}
+          variants={{
+            skills: {
+              y: 0,
+            },
+          }}
+        >
           <group position-x={-2}>
             <SectionTitle position-z={1.5} rotation-y={Math.PI / 6}>
               Skills
@@ -113,9 +135,17 @@ export const Experience = () => {
               color="#904133"
             />
           </mesh>
-        </group>
+        </motion.group>
         {/* PROJECTS */}
-        <group position-z={SECTIONS_DISTANCE * 2}>
+        <motion.group
+          position-z={SECTIONS_DISTANCE * 2}
+          position-y={-5}
+          variants={{
+            projects: {
+              y: 0,
+            },
+          }}
+        >
           <group position-x={1}>
             <SectionTitle
               position-x={-0.5}
@@ -142,9 +172,17 @@ export const Experience = () => {
               </RoundedBox>
             </group>
           </group>
-        </group>
+        </motion.group>
         {/* CONTACT */}
-        <group position-z={SECTIONS_DISTANCE * 3}>
+        <motion.group
+          position-z={SECTIONS_DISTANCE * 3}
+          position-y={-5}
+          variants={{
+            contact: {
+              y: 0,
+            },
+          }}
+        >
           <SectionTitle position-x={-2} position-z={0.6}>
             Contact
           </SectionTitle>
@@ -187,8 +225,8 @@ export const Experience = () => {
               scale={0.2}
             />
           </Float>
-        </group>
-      </group>
+        </motion.group>
+      </motion.group>
     </>
   );
 };
