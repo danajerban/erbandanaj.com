@@ -164,11 +164,11 @@ export const Interface = () => {
                   alt="linkedin"
                 />
               </a>
-              <a href={config.contact.socials.twitter} target="_blank">
+              <a href={config.contact.socials.github} target="_blank">
                 <img
                   className="contact__socials__icon"
-                  src="icons/twitter.png"
-                  alt="twitter"
+                  src="icons/github.png"
+                  alt="github"
                 />
               </a>
               <a href={`mailto:${config.contact.mail}`} target="_blank">
