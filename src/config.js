@@ -7,13 +7,13 @@ export const config = {
   },
   skills: [
     {
-      name: "JavaScript/TypeScript",
-      subtitle: "React, Next.js, Node.js, Redux",
+      name: "Frontend Development",
+      subtitle: "React, Next.js, TypeScript, Redux",
       icon: "icons/typescript.png",
     },
     {
       name: "Backend Development",
-      subtitle: "Python/Django, Node.js, Data Processing, GraphQL",
+      subtitle: "Python/Django, Node.js, System Design, GraphQL",
       icon: "icons/backend.png",
     },
     {
@@ -25,6 +25,11 @@ export const config = {
       name: "Database Management",
       subtitle: "SQL/Postgres, MongoDB, Prisma, Data Modeling",
       icon: "icons/database.png",
+    },
+    {
+      name: "AI Engineering",
+      subtitle: "LLMs, RAG, AI Agents, Generative AI",
+      icon: "icons/ai.png",
     },
     {
       name: "Testing & Quality",
@@ -40,44 +45,69 @@ export const config = {
   projects: [
     {
       name: "Car Showroom",
-      description: "A car rental showroom with 3d models",
+      description:
+        "A 3D car rental showroom demo inspired by a similar enterprise project.",
       image: "projects/project1.jpg",
-      link: "https://google.com",
+      link: "https://car-showroom-chi.vercel.app/",
     },
     {
-      name: "3D Personal Portfolio Website",
-      description: "A 3d personal portfolio website",
+      name: "Real Estate Marketplace",
+      description: "A real estate app with property listings, search, and maps",
+      image: "projects/project3.jpg",
+      link: "https://real-estate-marketplace-iota.vercel.app/",
+    },
+    {
+      name: "Covid-19 Dashboard",
+      description:
+        "Interactive dashboard visualizing global COVID-19 statistics with charts and maps",
+      image: "projects/project6.jpg",
+      link: "https://github.com/danajerban/covid19-dashboard",
+    },
+    {
+      name: "Personal Portfolio Website",
+      description:
+        "A developer portfolio website featuring interactive 3D models and animations",
+      image: "projects/project9.jpg",
+      link: "https://paolomiraka.vercel.app/",
+    },
+    {
+      name: "Sushi Tirana",
+      description:
+        "Animated landing page for a upcoming local sushi restaurant",
+      image: "projects/project5.jpg",
+      link: "https://sushi-tirana.vercel.app/",
+    },
+    {
+      name: "Pet Game",
+      description: "A fun, interactive virtual pet game built in JavaScript",
       image: "projects/project2.jpg",
-      link: "https://google.com",
+      link: "https://virtual-pet-fox.vercel.app/",
     },
     {
-      name: "Car Showroom",
-      description: "A car rental showroom with 3d models",
-      image: "projects/project1.jpg",
-      link: "https://google.com",
+      name: "Camp Guide",
+      description:
+        "An upcoming mobile app for outdoor adventurers with offline maps and AR features.",
+      image: "projects/project4.jpg",
+      link: "https://camp-guide.vercel.app/",
     },
     {
-      name: "3D Personal Portfolio Website",
-      description: "A 3d personal portfolio website",
-      image: "projects/project2.jpg",
-      link: "https://google.com",
+      name: "Smart Trip",
+      description:
+        "AI-powered travel assistant for vacation planning with AI and maps integration",
+      image: "projects/project7.jpg",
+      link: "https://github.com/danajerban/smart-trip",
     },
     {
-      name: "Car Showroom",
-      description: "A car rental showroom with 3d models",
-      image: "projects/project1.jpg",
-      link: "https://google.com",
-    },
-    {
-      name: "3D Personal Portfolio Website",
-      description: "A 3d personal portfolio website",
-      image: "projects/project2.jpg",
-      link: "https://google.com",
+      name: "Metaverse Intro",
+      description:
+        "An informative, animated webpage introducing users to the metaverse and its platforms.",
+      image: "projects/project8.jpg",
+      link: "https://metaverse-intro.vercel.app/",
     },
   ],
   contact: {
     name: "Erban Danaj",
-    address: "Warsaw, Poland",
+    address: "Contact me via:",
     socials: {
       linkedin: "https://www.linkedin.com/in/erban-danaj/",
       github: "https://github.com/danajerban",
