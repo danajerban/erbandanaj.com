@@ -19,7 +19,7 @@ export const Menu = () => {
         </a>
         <a
           className="menu__button"
-          href="/resume.pdf"
+          href="/CV.pdf"
           download="Erban Danaj CV"
         >
           CV

@@ -3,7 +3,7 @@ export const config = {
   sections: ["home", "skills", "projects", "contact"],
   home: {
     title: "ErbanDanaj",
-    subtitle: "SoftwareEngineer",
+    subtitle: "InnovativeSolutions",
   },
   skills: [
     {
@@ -107,7 +107,7 @@ export const config = {
   ],
   contact: {
     name: "Erban Danaj",
-    address: "Contact me via:",
+    address: "Software Engineer",
     socials: {
       linkedin: "https://www.linkedin.com/in/erban-danaj/",
       github: "https://github.com/danajerban",

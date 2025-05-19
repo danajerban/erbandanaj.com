@@ -110,7 +110,7 @@ export const Experience = () => {
               <Center disableY disableZ>
                 <SectionTitle
                   size={0.6}
-                  position-y={1.4}
+                  position-y={1.2}
                   position-z={-3}
                   bevelEnabled
                   bevelThickness={0.2}

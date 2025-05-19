@@ -179,7 +179,7 @@ export const Interface = () => {
                   alt="email"
                 />
               </a>
-              <a href="/resume.pdf" download="Erban Danaj CV">
+              <a href="/CV.pdf" download="Erban Danaj CV">
                 <img
                   className="contact__socials__icon"
                   src="icons/cv.png"
