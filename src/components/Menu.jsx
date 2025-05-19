@@ -21,7 +21,7 @@ export const Menu = () => {
           className="menu__button"
           href="/src/assets/erban-danaj-cv.pdf"
           target="_blank"
-          download
+          download="Erban Danaj CV"
         >
           CV
         </a>
