@@ -1,7 +1,9 @@
 export const Menu = () => {
   return (
     <div className="menu">
-      <img className="menu__logo" src="logo.png" alt="logo" />
+      <a href="#home">
+        <img className="menu__logo" src="logo.png" alt="logo" />
+      </a>
       <div className="menu__buttons">
         <a className="menu__button" href="#home">
           Home
@@ -14,6 +16,14 @@ export const Menu = () => {
         </a>
         <a className="menu__button" href="#contact">
           Contact
+        </a>
+        <a
+          className="menu__button"
+          href="/src/assets/erban-danaj-cv.pdf"
+          target="_blank"
+          download
+        >
+          CV
         </a>
       </div>
     </div>

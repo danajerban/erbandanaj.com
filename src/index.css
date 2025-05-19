@@ -115,18 +115,11 @@ a {
   margin: 0;
 }
 
-.skill__level {
-  background: #000;
-  height: 8px;
-  border-radius: 8px;
-  width: 100%;
-}
-
-.skill__level__bar {
-  background: var(--primary-color);
-  height: 100%;
-  border-radius: 8px;
-  width: 0px;
+.skill__subtitle {
+  color: var(--text-light-color);
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.4;
 }
 
 /* PROJECTS */
@@ -228,7 +221,7 @@ a {
 }
 
 .menu__logo {
-  height: 100px;
+  height: 42px;
   width: 120px;
   object-fit: contain;
 }
@@ -333,8 +326,8 @@ a {
   }
 
   .skill {
-    padding: 0.5rem;
-    min-width: 220px;
+    padding: 0.75rem;
+    min-width: 300px;
     margin: 0;
   }
 

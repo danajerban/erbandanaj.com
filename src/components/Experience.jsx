@@ -91,7 +91,7 @@ export const Experience = () => {
           }}
         >
           <Star position-z={isMobile ? -5 : 0} position-y={2.2} scale={0.3} />
-          <Float floatIntensity={2} speed={2}>
+          <Float floatIntensity={2} speed={2.5}>
             <MacBookPro
               position-x={isMobile ? -0.5 : -1}
               position-y={isMobile ? 1 : 0.5}
@@ -109,11 +109,12 @@ export const Experience = () => {
             <Float floatIntensity={0.6}>
               <Center disableY disableZ>
                 <SectionTitle
-                  size={0.7}
-                  position-y={1.6}
+                  size={0.6}
+                  position-y={1.4}
                   position-z={-3}
                   bevelEnabled
                   bevelThickness={0.2}
+                  letterSpacing={0.05}
                 >
                   {config.home.title}
                 </SectionTitle>
@@ -121,12 +122,13 @@ export const Experience = () => {
             </Float>
             <Center disableY disableZ>
               <SectionTitle
-                size={1.2}
-                position-x={-2.6}
+                size={isMobile ? 0 : 0.7}
+                position-x={-2.2}
                 position-z={-3}
                 bevelEnabled
-                bevelThickness={0.3}
-                rotation-y={Math.PI / 10}
+                bevelThickness={0.1}
+                rotation-y={Math.PI / 9}
+                letterSpacing={0.05}
               >
                 {config.home.subtitle}
               </SectionTitle>
@@ -168,8 +170,8 @@ export const Experience = () => {
               opacity={0.8}
               transparent
               distort={1}
-              speed={5}
-              color="yellow"
+              speed={3.5}
+              color="#924435"
             />
           </mesh>
         </motion.group>
@@ -229,7 +231,8 @@ export const Experience = () => {
         >
           <SectionTitle
             position-x={isMobile ? -1.1 : -2 * scaleFactor}
-            position-z={0.6}
+            position-z={0.5}
+            rotation-y={Math.PI / 6}
           >
             CONTACT
           </SectionTitle>
@@ -264,12 +267,12 @@ export const Experience = () => {
             position-y={0.25}
             position-z={0.5}
           />
-          <Float floatIntensity={1.5} speed={3}>
+          <Float floatIntensity={1.8} speed={4}>
             <Pigeon
               position-x={isMobile ? 0 : 2 * scaleFactor}
               position-y={isMobile ? 2.2 : 1.5}
               position-z={-0.5}
-              scale={0.3}
+              scale={0.25}
             />
           </Float>
         </motion.group>

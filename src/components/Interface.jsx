@@ -65,7 +65,7 @@ export const Interface = () => {
           >
             {config.skills.map((skill, idx) => (
               <motion.div
-                key={skill.name}
+                key={skill.name + idx}
                 className="skill"
                 initial={{ opacity: 0 }}
                 variants={{
@@ -86,21 +86,7 @@ export const Interface = () => {
                   />
                   <h2 className="skill__label__name">{skill.name}</h2>
                 </div>
-                <div className="skill__level">
-                  <motion.div
-                    className="skill__level__bar"
-                    initial={{ width: 0 }}
-                    variants={{
-                      visible: {
-                        width: `${skill.level}%`,
-                      },
-                    }}
-                    transition={{
-                      duration: 1,
-                      delay: idx * 0.62,
-                    }}
-                  ></motion.div>
-                </div>
+                <p className="skill__subtitle">{skill.subtitle}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -125,7 +111,7 @@ export const Interface = () => {
             {config.projects.map((project, idx) => (
               <motion.div
                 onMouseEnter={() => setProject(project)}
-                key={project.name}
+                key={project.name + idx}
                 className="project"
                 initial={{ opacity: 0 }}
                 variants={{
@@ -189,8 +175,15 @@ export const Interface = () => {
               <a href={`mailto:${config.contact.mail}`} target="_blank">
                 <img
                   className="contact__socials__icon"
-                  src="icons/email.png"
+                  src="icons/gmail.png"
                   alt="email"
+                />
+              </a>
+              <a href="/src/assets/erban-danaj-cv.pdf" target="_blank" download>
+                <img
+                  className="contact__socials__icon"
+                  src="icons/cv.png"
+                  alt="download cv"
                 />
               </a>
             </div>
