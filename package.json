@@ -1,7 +1,7 @@
 {
-  "name": "erbandanaj.com",
+  "name": "react-three-fiber-starter",
   "private": true,
-  "version": "1.0",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -18,8 +18,7 @@
     "jotai": "^2.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "three": "^0.153.0",
-    "three-stdlib": "^2.36.0"
+    "three": "^0.153.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",
