@@ -350,6 +350,10 @@ a {
     gap: 0.5rem;
   }
 
+  .menu__logo {
+    display: none;
+  }
+
   .loading-screen__title {
     font-size: 2rem;
   }
