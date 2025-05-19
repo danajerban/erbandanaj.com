@@ -216,8 +216,7 @@ a {
   top: 0;
   left: 4rem;
   right: 4rem;
-  background: #faeaea;
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0);
 }
 
 .menu__logo {
