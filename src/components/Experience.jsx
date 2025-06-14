@@ -91,10 +91,10 @@ export const Experience = () => {
           }}
         >
           <Star position-z={isMobile ? -5 : 0} position-y={2.2} scale={0.3} />
-          <Float floatIntensity={2} speed={2.5}>
+          <Float floatIntensity={1.5} speed={isMobile ? 1 : 2.5}>
             <MacBookPro
-              position-x={isMobile ? -0.5 : -1}
-              position-y={isMobile ? 1 : 0.5}
+              position-x={isMobile ? -0.4 : -1}
+              position-y={isMobile ? 0.6 : 0.5}
               position-z={isMobile ? -2 : 0}
               scale={0.3}
               rotation-y={Math.PI / 4}
@@ -106,21 +106,21 @@ export const Experience = () => {
             position={isMobile ? [1, 0, -4] : [scaleFactor * 4, 0, -5]}
           />
           <group scale={isMobile ? 0.3 : 1}>
-            <Float floatIntensity={0.6}>
+            <Float floatIntensity={isMobile ? 0.2 : 0.5}>
               <Center disableY disableZ>
                 <SectionTitle
-                  size={0.6}
-                  position-y={1.2}
-                  position-z={-3}
+                  size={isMobile ? 0.75 : 0.7}
+                  position-y={isMobile ? 0.6 : 1.1}
+                  position-z={isMobile ? -2.5 : -3}
                   bevelEnabled
-                  bevelThickness={0.2}
+                  bevelThickness={isMobile ? 0.1 : 0.2}
                   letterSpacing={0.05}
                 >
                   {config.home.title}
                 </SectionTitle>
               </Center>
             </Float>
-            <Center disableY disableZ>
+            {/* <Center disableY disableZ>
               <SectionTitle
                 size={isMobile ? 0 : 0.7}
                 position-x={-2.2}
@@ -132,7 +132,7 @@ export const Experience = () => {
               >
                 {config.home.subtitle}
               </SectionTitle>
-            </Center>
+            </Center> */}
           </group>
         </motion.group>
         {/* SKILLS */}
