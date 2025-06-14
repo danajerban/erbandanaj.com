@@ -1,20 +1,16 @@
 # [Erban Danaj | Software Engineer](https://www.erbandanaj.com)
 
-This is my personal portfolio website built with React (Vite) and Three.js, featuring 3D elements and modern web technologies. It features a responsive 3D world environment that showcases my professional experience and projects. With over 4 years of hands-on experience in full-stack development, I specialize in building scalable web applications using modern JavaScript technologies.
+Welcome to my portfolio's source code! This is where TypeScript meets Three.js to create an interactive 3D experience that showcases my work. Built with React (Vite) and Three.js, featuring a responsive 3D world environment that brings my professional journey to life. With 4+ years crafting scalable web applications, I've turned this portfolio into a playground for modern web technologies.
 
+### 🌐 Visit the live site [@ erbandanaj.com](https://erbandanaj.com)
 
-### You can visit the live site [@ www.erbandanaj.com](https://erbandanaj.com)
-
-## 📫 Contact me
-
-- LinkedIn: [Erban Danaj](https://www.linkedin.com/in/erban-danaj/)
-- GitHub: [Erban Danaj](https://github.com/danajerban)
+## 📫 Let's Connect
+- LinkedIn: [@erban-danaj](https://www.linkedin.com/in/erban-danaj/)
+- GitHub: [@danajerban](https://github.com/danajerban)
 - Email: danajerban@gmail.com
 
 ## ⭐ Contributing
-
-Feel free to fork this repo and create your own portfolio based on this work. If you do use it, please give it a star! ⭐ It means a lot and helps others discover this project.
+Feel free to fork this repo and create your own 3D portfolio! If you do use it, please give it a star ⭐ — it helps others discover this project and makes my day.
 
 ---
-
-Built with ❤️ by Erban Danaj
+Built with ❤️ and probably too much coffee by Erban Danaj
