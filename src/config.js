@@ -13,17 +13,12 @@ export const config = {
     },
     {
       name: "Backend Development",
-      subtitle: "Python/Django, Node.js, System Design, GraphQL",
-      icon: "icons/backend.png",
-    },
-    {
-      name: "Cloud & DevOps",
-      subtitle: "AWS, Docker, Kubernetes, CI/CD",
+      subtitle: "Node.js, Java/Spring Boot, Python/Django, Docker, AWS, CI/CD",
       icon: "icons/cloud.png",
     },
     {
       name: "Database Management",
-      subtitle: "SQL/Postgres, MongoDB, Prisma, Data Modeling",
+      subtitle: "PostgreSQL, MongoDB, Prisma, Data Modeling",
       icon: "icons/database.png",
     },
     {
@@ -33,12 +28,12 @@ export const config = {
     },
     {
       name: "Testing & Quality",
-      subtitle: "Cypress, Jest, Testing Library, Accessibility",
+      subtitle: "Cypress, Jest, Testing Library, TDD",
       icon: "icons/testing.png",
     },
     {
       name: "UI/UX Engineering",
-      subtitle: "Tailwind, Styled Components, Three.js, Framer Motion",
+      subtitle: "Tailwind, Three.js, Framer Motion, Figma",
       icon: "icons/design.png",
     },
   ],
