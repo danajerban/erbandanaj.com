@@ -12,7 +12,7 @@ import { useMobile } from "../hooks/useMobile";
 
 export function Avatar(props) {
   const { nodes, materials } = useGLTF("/models/68275e863c5ab94b9eacc586.glb");
-  const { animations: idleAnimation } = useFBX("/animations/Idle.fbx");
+  const { animations: idleAnimation } = useFBX("/animations/Happy-Idle.fbx");
   const { animations: walkingAnimation } = useFBX("/animations/Walking.fbx");
 
   idleAnimation[0].name = "Idle";
@@ -131,5 +131,5 @@ export function Avatar(props) {
 }
 
 useGLTF.preload("/models/68275e863c5ab94b9eacc586.glb");
-useFBX.preload("/animations/Idle.fbx");
+useFBX.preload("/animations/Happy-Idle.fbx");
 useFBX.preload("/animations/Walking.fbx");
