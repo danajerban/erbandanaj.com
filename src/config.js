@@ -8,27 +8,29 @@ export const config = {
   skills: [
     {
       name: "Frontend Development",
-      subtitle: "React, Next.js, TypeScript, Redux",
+      subtitle: "React, Next.js, TypeScript, Redux, WebSockets/Socket.io, SEO",
       icon: "icons/typescript.png",
     },
     {
       name: "Backend Development",
-      subtitle: "Node.js, Java/Spring Boot, Python/Django, Docker, AWS, CI/CD",
+      subtitle:
+        "NestJS, Java/Spring Boot, Python/Django, Docker, AWS, System Design, GraphQL",
       icon: "icons/cloud.png",
     },
     {
       name: "Database Management",
-      subtitle: "PostgreSQL, MongoDB, Prisma, Data Modeling",
+      subtitle: "PostgreSQL, MongoDB, Prisma, Data Modeling, Redis",
       icon: "icons/database.png",
     },
     {
       name: "AI Engineering",
-      subtitle: "LLMs, RAG, AI Agents, Generative AI",
+      subtitle:
+        "LLM Integration & Prompt Engineering, RAG, Agentic AI, Generative AI",
       icon: "icons/ai.png",
     },
     {
       name: "Testing & Quality",
-      subtitle: "Cypress, Jest, Testing Library, TDD",
+      subtitle: "Cypress, Jest, Testing Library, Accessibility, TDD",
       icon: "icons/testing.png",
     },
     {
