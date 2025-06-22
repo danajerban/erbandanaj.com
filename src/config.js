@@ -61,7 +61,7 @@ export const config = {
       link: "https://github.com/danajerban/covid19-dashboard",
     },
     {
-      name: "Personal Portfolio Website",
+      name: "Portfolio Website",
       description:
         "A developer portfolio website featuring interactive 3D models and animations",
       image: "projects/project9.jpg",
@@ -83,7 +83,7 @@ export const config = {
     {
       name: "Camp Guide",
       description:
-        "An upcoming mobile app for outdoor adventurers with offline maps and AR features.",
+        "An upcoming mobile app for outdoor adventurers with offline maps and AR",
       image: "projects/project4.jpg",
       link: "https://camp-guide.vercel.app/",
     },
@@ -95,11 +95,10 @@ export const config = {
       link: "https://github.com/danajerban/smart-trip",
     },
     {
-      name: "Metaverse Intro",
-      description:
-        "An informative, animated webpage introducing users to the metaverse and its platforms.",
-      image: "projects/project8.jpg",
-      link: "https://metaverse-intro.vercel.app/",
+      name: "Spin City Records",
+      description: "Initial prototype for a peer-to-peer vinyl e-marketplace",
+      image: "projects/project10.jpg",
+      link: "https://github.com/danajerban/spin-city-records",
     },
   ],
   contact: {
