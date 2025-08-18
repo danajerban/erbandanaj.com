@@ -14,7 +14,7 @@ export const config = {
     {
       name: "Backend Development",
       subtitle:
-        "NestJS, Java/Spring Boot, Python/Django, Docker, AWS, System Design, GraphQL",
+        "NestJS, Java/Spring Boot, Python/Django, Docker, AWS, Ruby on Rails, GraphQL",
       icon: "icons/cloud.png",
     },
     {
