@@ -17,4 +17,5 @@ export function Monitor(props) {
   );
 }
 
-useGLTF.preload("/models/Monitor.glb");
+// Lazy load - not needed for home section
+// useGLTF.preload("/models/Monitor.glb");

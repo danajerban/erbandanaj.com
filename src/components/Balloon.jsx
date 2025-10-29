@@ -18,4 +18,5 @@ export function Balloon(props) {
   );
 }
 
-useGLTF.preload("/models/Balloon.glb");
+// Lazy load - not needed for home section
+// useGLTF.preload("/models/Balloon.glb");

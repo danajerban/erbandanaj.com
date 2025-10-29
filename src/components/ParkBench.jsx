@@ -23,4 +23,5 @@ export function ParkBench(props) {
   );
 }
 
-useGLTF.preload("/models/Park Bench.glb");
+// Lazy load - not needed for home section
+// useGLTF.preload("/models/Park Bench.glb");

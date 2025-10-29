@@ -61,4 +61,5 @@ export function Pigeon(props) {
   );
 }
 
-useGLTF.preload("/models/Pigeon.gltf");
+// Lazy load - not needed for home section
+// useGLTF.preload("/models/Pigeon.gltf");

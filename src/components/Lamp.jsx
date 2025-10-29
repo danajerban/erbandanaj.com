@@ -39,4 +39,5 @@ export function Lamp(props) {
   );
 }
 
-useGLTF.preload("/models/Lamp.glb");
+// Lazy load - not needed for home section
+// useGLTF.preload("/models/Lamp.glb");

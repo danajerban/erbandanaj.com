@@ -31,4 +31,5 @@ export function Laptop(props) {
   );
 }
 
-useGLTF.preload("/models/Laptop.glb");
+// Not currently used - removed preload
+// useGLTF.preload("/models/Laptop.glb");

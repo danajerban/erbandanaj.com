@@ -25,4 +25,5 @@ export function CouchSmall(props) {
   );
 }
 
-useGLTF.preload("/models/Couch Small.glb");
+// Lazy load - not needed for home section
+// useGLTF.preload("/models/Couch Small.glb");

@@ -190,4 +190,5 @@ export function Mailbox(props) {
   );
 }
 
-useGLTF.preload("/models/Mailbox v2.glb");
+// Lazy load - not needed for home section
+// useGLTF.preload("/models/Mailbox v2.glb");

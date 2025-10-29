@@ -53,4 +53,5 @@ export function BookCase(props) {
   );
 }
 
-useGLTF.preload("/models/BookCaseWide.glb");
+// Lazy load - not needed for home section
+// useGLTF.preload("/models/BookCaseWide.glb");
