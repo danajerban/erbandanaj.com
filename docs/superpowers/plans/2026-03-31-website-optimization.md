@@ -32,10 +32,6 @@ export const ANIMATION_CONSTANTS = {
   MOBILE_BACKWARD_ROTATION: -Math.PI / 2,
   DESKTOP_BACKWARD_ROTATION: Math.PI,
 
-  // Float animations
-  MOBILE_FLOAT_SPEED: 1,
-  DESKTOP_FLOAT_SPEED: 2.5,
-
   // Animation transitions
   ANIMATION_FADE_IN_DURATION: 0.5,
   ANIMATION_FADE_OUT_DURATION: 0.7,
@@ -510,7 +506,18 @@ With:
 import { useMobile } from "../contexts/MobileContext";
 ```
 
-- [ ] **Step 2: Fix stale closure and add reduced motion**
+- [ ] **Step 2: Add `prefersReducedMotion` to destructuring**
+
+Replace:
+```js
+  const { isMobile } = useMobile();
+```
+With:
+```js
+  const { isMobile, prefersReducedMotion } = useMobile();
+```
+
+- [ ] **Step 3: Add stale closure ref and reduced motion to useFrame**
 
 Replace:
 ```js
@@ -543,15 +550,6 @@ With:
       animationRef.current = targetAnimation;
       setAnimation(targetAnimation);
     }
-```
-
-Replace:
-```js
-  const { isMobile } = useMobile();
-```
-With:
-```js
-  const { isMobile, prefersReducedMotion } = useMobile();
 ```
 
 ---
@@ -614,7 +612,7 @@ With:
 ```jsx
       onPointerEnter={() => setAnimation("Yes")}
       onPointerLeave={() => setAnimation("Flying_Idle")}
-      onClick={() => setAnimation("Yes")}
+      onClick={() => setAnimation((a) => a === "Flying_Idle" ? "Yes" : "Flying_Idle")}
 ```
 
 ---
@@ -693,6 +691,46 @@ Replace:
 With:
 ```jsx
           {import.meta.env.DEV && (
+```
+
+- [ ] **Step 2: Remove dead `LoadingFallback` export (no longer imported anywhere after Task 3)**
+
+Delete the entire `LoadingFallback` component and its export (lines 75-108):
+```jsx
+export const LoadingFallback = () => (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100vh",
+      backgroundColor: "#faeaea",
+    }}
+  >
+    <div style={{ textAlign: "center" }}>
+      <div
+        style={{
+          width: "50px",
+          height: "50px",
+          border: "5px solid #f3f3f3",
+          borderTop: "5px solid #4668ee",
+          borderRadius: "50%",
+          animation: "spin 1s linear infinite",
+          margin: "0 auto 1rem",
+        }}
+      />
+      <p style={{ fontSize: "1rem", color: "#555" }}>Loading 3D scene...</p>
+    </div>
+    <style>
+      {`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}
+    </style>
+  </div>
+);
 ```
 
 ---
