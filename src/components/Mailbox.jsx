@@ -6,13 +6,14 @@ Mailbox v2 by sirkitree [CC-BY] (https://creativecommons.org/licenses/by/3.0/) v
 
 import { useCursor, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { config } from "../config";
 
 export function Mailbox(props) {
   const { nodes, materials } = useGLTF("/models/Mailbox v2.glb");
   const [mailboxHovered, setMailboxHovered] = useState(false);
+  const mailboxHoveredRef = useRef(false);
   useCursor(mailboxHovered);
 
   useEffect(() => {
@@ -20,13 +21,13 @@ export function Mailbox(props) {
     Object.values(materials).forEach((material) => {
       material.emissive = emissiveColor;
     });
-  }, []);
+  }, [materials]);
 
   useFrame(() => {
     Object.values(materials).forEach((material) => {
       material.emissiveIntensity = THREE.MathUtils.lerp(
         material.emissiveIntensity,
-        mailboxHovered ? 0.9 : 0,
+        mailboxHoveredRef.current ? 0.9 : 0,
         0.1
       );
     });
@@ -36,8 +37,9 @@ export function Mailbox(props) {
     <group
       {...props}
       dispose={null}
-      onPointerEnter={() => setMailboxHovered(true)}
-      onPointerLeave={() => setMailboxHovered(false)}
+      onPointerEnter={() => { mailboxHoveredRef.current = true; setMailboxHovered(true); }}
+      onPointerLeave={() => { mailboxHoveredRef.current = false; setMailboxHovered(false); }}
+      onPointerDown={() => { mailboxHoveredRef.current = true; setMailboxHovered(true); }}
       onClick={() => window.open(`mailto:${config.contact.mail}`)}
     >
       <mesh

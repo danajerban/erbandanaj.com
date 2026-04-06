@@ -5,13 +5,12 @@ Balloon by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/)
 */
 
 import { useGLTF } from "@react-three/drei";
-import React from "react";
 
 export function Balloon(props) {
   const { nodes, materials } = useGLTF("/models/Balloon.glb");
   return (
     <group {...props} dispose={null}>
-      <mesh geometry={nodes.Balloon007.geometry} material={materials.phong1SG}>
+      <mesh geometry={nodes.Balloon007.geometry}>
         <meshStandardMaterial {...materials.phong1SG} color={props.color} />
       </mesh>
     </group>

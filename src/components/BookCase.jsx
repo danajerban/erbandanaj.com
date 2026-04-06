@@ -5,7 +5,6 @@ Bookcase Wide by Kay Lousberg (https://market.pmnd.rs/model/bookcase-wide)
 */
 
 import { useGLTF } from "@react-three/drei";
-import React from "react";
 
 export function BookCase(props) {
   const { nodes, materials } = useGLTF("/models/BookCaseWide.glb");

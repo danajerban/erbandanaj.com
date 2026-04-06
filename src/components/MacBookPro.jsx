@@ -5,7 +5,6 @@ Laptop / MacBook Pro by Alex Safayan [CC-BY] (https://creativecommons.org/licens
 */
 
 import { useGLTF, useTexture } from "@react-three/drei";
-import React from "react";
 
 export function MacBookPro(props) {
   const { nodes, materials } = useGLTF("/models/MacBook Pro.glb");

@@ -5,7 +5,6 @@ Palm tree by jeremy [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via P
 */
 
 import { useGLTF } from "@react-three/drei";
-import React from "react";
 
 export function PalmTree(props) {
   const { nodes, materials } = useGLTF("/models/Palm tree.glb");

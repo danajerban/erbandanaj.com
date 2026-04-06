@@ -5,7 +5,6 @@ Monitor by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/)
 */
 
 import { useGLTF } from "@react-three/drei";
-import React from "react";
 
 export function Monitor(props) {
   const { nodes, materials } = useGLTF("/models/Monitor.glb");

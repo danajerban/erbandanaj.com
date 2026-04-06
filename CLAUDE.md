@@ -36,7 +36,7 @@ npm run lint     # ESLint
 ## R3F Rules
 
 - **Never render HTML (`<div>`, `<span>`) inside `<Canvas>`** — only Three.js components. Use drei's `<Html>` if you need DOM inside the scene.
-- **Never read React state directly in `useFrame`** — it creates stale closures. Use a `useRef` to track current values.
+- **Never call `setState` unconditionally inside `useFrame`** — it causes 60fps re-renders. Use a `useRef` to track the current value and only call `setState` when it actually changes (ref-mirroring pattern). Reading context values (e.g., `isMobile`) directly is safe in R3F v8, which re-captures the closure on each render.
 - **Use `delta` from `useFrame((state, delta) => ...)` for animations** — never hardcode frame-rate-dependent increments.
 - **All `useGLTF.preload()` / `useFBX.preload()` calls are at module level** — this is intentional for eager loading.
 
