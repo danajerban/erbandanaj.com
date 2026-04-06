@@ -5,7 +5,7 @@ Command: npx gltfjsx@6.5.3 public/models/68275e863c5ab94b9eacc586.glb -o src/com
 
 import { useAnimations, useFBX, useGLTF, useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
@@ -18,7 +18,7 @@ export function Avatar(props) {
 
   // Clone animations and strip tracks targeting "Armature" — the FBX skeleton
   // root node that doesn't exist in the GLB avatar model (whose root is "Hips")
-  const animations = React.useMemo(() => {
+  const animations = useMemo(() => {
     const cloneAndFilter = (clip, name) => {
       const cloned = clip.clone();
       cloned.name = name;
