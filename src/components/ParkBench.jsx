@@ -5,7 +5,6 @@ Park Bench by J-Toastie [CC-BY] (https://creativecommons.org/licenses/by/3.0/) v
 */
 
 import { useGLTF } from "@react-three/drei";
-import React from "react";
 
 export function ParkBench(props) {
   const { nodes, materials } = useGLTF("/models/Park Bench.glb");

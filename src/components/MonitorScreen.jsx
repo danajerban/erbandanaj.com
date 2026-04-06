@@ -1,10 +1,10 @@
 import { useTexture } from "@react-three/drei";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { config } from "../config";
-import { projectAtom } from "./Interface";
+import { projectAtom } from "../store";
 
 export const MonitorScreen = ({ ...props }) => {
-  const [project] = useAtom(projectAtom);
+  const project = useAtomValue(projectAtom);
   const projectTexture = useTexture(project.image);
 
   return (

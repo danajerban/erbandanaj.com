@@ -5,7 +5,6 @@ Lamp by burunduk [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly
 */
 
 import { useGLTF } from "@react-three/drei";
-import React from "react";
 
 export function Lamp(props) {
   const { nodes, materials } = useGLTF("/models/Lamp.glb");

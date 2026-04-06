@@ -5,7 +5,8 @@ Pigeon by Quaternius (https://poly.pizza/m/9NGlBTpDEr)
 */
 
 import { useAnimations, useGLTF } from "@react-three/drei";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
 
 export function Pigeon(props) {
   const group = useRef();
@@ -14,9 +15,20 @@ export function Pigeon(props) {
   const { actions } = useAnimations(animations, group);
   const [animation, setAnimation] = useState("Flying_Idle");
   useEffect(() => {
-    actions[animation].reset().fadeIn(0.5).play();
-    return () => actions[animation].fadeOut(0.5);
-  }, [animation]);
+    if (actions[animation]) {
+      actions[animation]
+        .reset()
+        .fadeIn(ANIMATION_CONSTANTS.ANIMATION_FADE_IN_DURATION)
+        .play();
+      return () => {
+        if (actions[animation]) {
+          actions[animation].fadeOut(
+            ANIMATION_CONSTANTS.ANIMATION_FADE_OUT_DURATION,
+          );
+        }
+      };
+    }
+  }, [animation, actions]);
 
   return (
     <group
@@ -25,6 +37,7 @@ export function Pigeon(props) {
       ref={group}
       onPointerEnter={() => setAnimation("Yes")}
       onPointerLeave={() => setAnimation("Flying_Idle")}
+      onClick={() => setAnimation((a) => a === "Flying_Idle" ? "Yes" : "Flying_Idle")}
     >
       <group name="Scene">
         <group name="CharacterArmature">

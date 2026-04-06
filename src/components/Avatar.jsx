@@ -8,49 +8,89 @@ import { useFrame } from "@react-three/fiber";
 import React, { useEffect, useRef, useState } from "react";
 
 import * as THREE from "three";
-import { useMobile } from "../hooks/useMobile";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
+import { useMobile } from "../contexts/MobileContext";
 
 export function Avatar(props) {
   const { nodes, materials } = useGLTF("/models/68275e863c5ab94b9eacc586.glb");
   const { animations: idleAnimation } = useFBX("/animations/Happy-Idle.fbx");
   const { animations: walkingAnimation } = useFBX("/animations/Walking.fbx");
 
-  idleAnimation[0].name = "Idle";
-  walkingAnimation[0].name = "Walking";
+  // Clone animations and strip tracks targeting "Armature" — the FBX skeleton
+  // root node that doesn't exist in the GLB avatar model (whose root is "Hips")
+  const animations = React.useMemo(() => {
+    const cloneAndFilter = (clip, name) => {
+      const cloned = clip.clone();
+      cloned.name = name;
+      cloned.tracks = cloned.tracks.filter(
+        (track) => !track.name.startsWith("Armature."),
+      );
+      return cloned;
+    };
+    return [
+      cloneAndFilter(idleAnimation[0], "Idle"),
+      cloneAndFilter(walkingAnimation[0], "Walking"),
+    ];
+  }, [idleAnimation, walkingAnimation]);
 
   const group = useRef();
-  const { actions } = useAnimations(
-    [idleAnimation[0], walkingAnimation[0]],
-    group
-  );
+  const { actions } = useAnimations(animations, group);
 
   const [animation, setAnimation] = useState("Idle");
+  const animationRef = useRef(animation);
   useEffect(() => {
-    actions[animation].reset().fadeIn(0.5).play();
-    return () => actions[animation].fadeOut(0.7);
-  }, [animation]);
+    if (actions[animation]) {
+      actions[animation]
+        .reset()
+        .fadeIn(ANIMATION_CONSTANTS.ANIMATION_FADE_IN_DURATION)
+        .play();
+      return () => {
+        if (actions[animation]) {
+          actions[animation].fadeOut(
+            ANIMATION_CONSTANTS.ANIMATION_FADE_OUT_DURATION,
+          );
+        }
+      };
+    }
+  }, [animation, actions]);
 
   const scrollData = useScroll();
   const lastScroll = useRef(0);
-  const { isMobile } = useMobile();
+  const { isMobile, prefersReducedMotion } = useMobile();
 
+  // Safe: R3F v8 useFrame re-captures the closure on each render
   useFrame(() => {
     const scrollDelta = scrollData.offset - lastScroll.current;
     let rotationTarget = 0;
-    if (Math.abs(scrollDelta) > 0.00001) {
-      setAnimation("Walking");
+    let targetAnimation = "Idle";
+
+    if (Math.abs(scrollDelta) > ANIMATION_CONSTANTS.SCROLL_DELTA_THRESHOLD) {
+      targetAnimation = "Walking";
       if (scrollDelta > 0) {
-        rotationTarget = isMobile ? Math.PI / 2 : 0;
+        rotationTarget = isMobile
+          ? ANIMATION_CONSTANTS.MOBILE_FORWARD_ROTATION
+          : 0;
       } else {
-        rotationTarget = isMobile ? -Math.PI / 2 : Math.PI;
+        rotationTarget = isMobile
+          ? ANIMATION_CONSTANTS.MOBILE_BACKWARD_ROTATION
+          : ANIMATION_CONSTANTS.DESKTOP_BACKWARD_ROTATION;
       }
-    } else {
-      setAnimation("Idle");
     }
+
+    // Skip walk/idle transitions when user prefers reduced motion
+    if (prefersReducedMotion) {
+      targetAnimation = "Idle";
+    }
+
+    if (animationRef.current !== targetAnimation) {
+      animationRef.current = targetAnimation;
+      setAnimation(targetAnimation);
+    }
+
     group.current.rotation.y = THREE.MathUtils.lerp(
       group.current.rotation.y,
       rotationTarget,
-      0.1
+      ANIMATION_CONSTANTS.ROTATION_LERP_SPEED,
     );
     lastScroll.current = scrollData.offset;
   });

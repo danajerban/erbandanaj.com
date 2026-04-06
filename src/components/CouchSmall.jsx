@@ -5,7 +5,6 @@ Couch Small by Quaternius (https://poly.pizza/m/ZOPP3KzNIk)
 */
 
 import { useGLTF } from "@react-three/drei";
-import React from "react";
 
 export function CouchSmall(props) {
   const { nodes, materials } = useGLTF("/models/Couch Small.glb");

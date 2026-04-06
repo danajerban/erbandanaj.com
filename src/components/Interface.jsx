@@ -1,19 +1,25 @@
 import { useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { motion } from "framer-motion";
-import { atom, useAtom } from "jotai";
-import { useState } from "react";
+import { useSetAtom } from "jotai";
+import { useRef, useState } from "react";
 import { config } from "../config";
-import { useMobile } from "../hooks/useMobile";
+import { useMobile } from "../contexts/MobileContext";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
+import { projectAtom } from "../store";
 
-export const projectAtom = atom(config.projects[0]);
 export const Interface = () => {
   const scrollData = useScroll();
   const [hasScrolled, setHasScrolled] = useState(false);
+  const hasScrolledRef = useRef(false);
   useFrame(() => {
-    setHasScrolled(scrollData.offset > 0); // its either true or false because normally we dont use state in useFrame to avoid re-renders
+    const newHasScrolled = scrollData.offset > 0;
+    if (newHasScrolled !== hasScrolledRef.current) {
+      hasScrolledRef.current = newHasScrolled;
+      setHasScrolled(newHasScrolled);
+    }
   });
-  const [_project, setProject] = useAtom(projectAtom);
+  const setProject = useSetAtom(projectAtom);
   const { isMobile } = useMobile();
   return (
     <div className="interface">
@@ -75,7 +81,7 @@ export const Interface = () => {
                 }}
                 transition={{
                   duration: 1,
-                  delay: isMobile ? 0 : idx * 0.62,
+                  delay: isMobile ? 0 : idx * ANIMATION_CONSTANTS.SKILL_STAGGER_DELAY,
                 }}
               >
                 <div className="skill__label">
@@ -110,7 +116,9 @@ export const Interface = () => {
           >
             {config.projects.map((project, idx) => (
               <motion.div
-                onMouseEnter={() => setProject(project)}
+                onPointerEnter={() => setProject(project)}
+                onPointerLeave={() => setProject(config.projects[0])}
+                onFocus={() => setProject(project)}
                 key={project.name + idx}
                 className="project"
                 initial={{ opacity: 0 }}
@@ -121,14 +129,20 @@ export const Interface = () => {
                 }}
                 transition={{
                   duration: 1,
-                  delay: isMobile ? 0 : idx * 0.5,
+                  delay: isMobile ? 0 : idx * ANIMATION_CONSTANTS.PROJECT_STAGGER_DELAY,
                 }}
               >
-                <a href={project.link} target="_blank">
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${project.name} - ${project.description}`}
+                >
                   <img
                     className="project__image"
                     src={project.image}
                     alt={project.name}
+                    loading="lazy"
                   />
                   <div className="project__details">
                     <h2 className="project__details__name">{project.name}</h2>
@@ -158,28 +172,42 @@ export const Interface = () => {
             <h1 className="contact__name">{config.contact.name}</h1>
             <p className="contact__address">{config.contact.address}</p>
             <div className="contact__socials">
-              <a href={config.contact.socials.linkedin} target="_blank">
+              <a
+                href={config.contact.socials.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn profile"
+              >
                 <img
                   className="contact__socials__icon"
                   src="icons/linkedin.png"
-                  alt="linkedin"
+                  alt="LinkedIn"
                 />
               </a>
-              <a href={config.contact.socials.github} target="_blank">
+              <a
+                href={config.contact.socials.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub profile"
+              >
                 <img
                   className="contact__socials__icon"
                   src="icons/github.png"
-                  alt="github"
+                  alt="GitHub"
                 />
               </a>
-              <a href={`mailto:${config.contact.mail}`} target="_blank">
+              <a href={`mailto:${config.contact.mail}`} aria-label="Send email">
                 <img
                   className="contact__socials__icon"
                   src="icons/gmail.png"
-                  alt="email"
+                  alt="Email"
                 />
               </a>
-              <a href="/Erban Danaj - Software Engineer.pdf" download="Erban Danaj - Software Engineer">
+              <a
+                href="/Erban Danaj - Software Engineer.pdf"
+                download="Erban-Danaj-Software-Engineer.pdf"
+                aria-label="Download CV as PDF"
+              >
                 <img
                   className="contact__socials__icon"
                   src="icons/cv.png"

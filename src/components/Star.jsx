@@ -6,13 +6,17 @@ Star by Kay Lousberg (https://market.pmnd.rs/model/star)
 
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import React, { useRef } from "react";
+import { useRef } from "react";
+import { useMobile } from "../contexts/MobileContext";
 
 export function Star(props) {
   const { nodes, materials } = useGLTF("/models/Star.gltf");
+  const { prefersReducedMotion } = useMobile();
   const ref = useRef();
-  useFrame(() => {
-    ref.current.rotation.y += 0.03;
+  useFrame((_, delta) => {
+    if (!prefersReducedMotion) {
+      ref.current.rotation.y += delta * 1.8;
+    }
   });
   return (
     <group {...props} dispose={null} ref={ref}>

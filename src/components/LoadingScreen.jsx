@@ -8,7 +8,13 @@ export const LoadingScreen = () => {
     <div className={`loading-screen ${active ? "" : "loading-screen--hidden"}`}>
       <div className="loading-screen__container">
         <h1 className="loading-screen__title">{config.title}</h1>
-        <div className="progress__container">
+        <div
+          className="progress__container"
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className="progress__bar"
             style={{ width: `${progress}%` }}
