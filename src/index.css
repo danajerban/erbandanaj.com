@@ -376,6 +376,10 @@ a {
     font-size: 2rem;
   }
 
+  .scroll-down {
+    margin-bottom: 8rem;
+  }
+
   /* MOBILE_PERF: disable expensive backdrop-filter on mobile — revert by removing this block */
   .skill,
   .project,
