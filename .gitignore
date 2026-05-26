@@ -23,3 +23,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local tool output (per-developer, never commit)
+.claude/
+.desloppify/
+scorecard.png
