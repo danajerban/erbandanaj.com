@@ -8,7 +8,7 @@ import { useGLTF, useTexture } from "@react-three/drei";
 
 export function MacBookPro(props) {
   const { nodes, materials } = useGLTF("/models/MacBook Pro.glb");
-  const screenTexture = useTexture("textures/screen.jpg");
+  const screenTexture = useTexture("textures/screen.webp");
   return (
     <group {...props} dispose={null}>
       <mesh position={[0.02, 0.85, -0.66]}>
@@ -51,4 +51,4 @@ export function MacBookPro(props) {
   );
 }
 useGLTF.preload("/models/MacBook Pro.glb");
-useTexture.preload("textures/screen.jpg");
+useTexture.preload("textures/screen.webp");
