@@ -260,6 +260,7 @@ a {
 
 .menu__button {
   font-weight: bold;
+  font-size: 1.1rem;
   color: var(--text-color);
 }
 
@@ -382,6 +383,10 @@ a {
 
   .menu__logo {
     display: none;
+  }
+
+  .menu__button {
+    font-size: 1rem;
   }
 
   .loading-screen__title {
