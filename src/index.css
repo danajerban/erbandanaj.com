@@ -15,7 +15,7 @@
 }
 
 #root {
-  width: 100vw;
+  width: 100%;
   height: 100dvh; /* Dynamic viewport height for mobile */
   min-height: -webkit-fill-available; /* Safari fallback */
 }
@@ -41,7 +41,7 @@ a {
 }
 
 .interface {
-  width: 100vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -238,6 +238,7 @@ a {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
+  padding-top: calc(1rem + env(safe-area-inset-top));
   position: fixed;
   top: 0;
   left: 4rem;
@@ -274,7 +275,7 @@ a {
   top: 0;
   left: 0;
   padding: 4rem;
-  width: 100vw;
+  width: 100%;
   height: 100dvh;
   z-index: 1;
   display: grid;
@@ -333,6 +334,7 @@ a {
 
   .mobile--section--bottom {
     align-items: flex-end;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .mobile--section--right {
@@ -374,8 +376,8 @@ a {
   .menu {
     flex-direction: column;
     gap: 0.5rem;
-    left: 1rem;
-    right: 1rem;
+    left: max(1rem, env(safe-area-inset-left));
+    right: max(1rem, env(safe-area-inset-right));
   }
 
   .menu__logo {
@@ -387,7 +389,7 @@ a {
   }
 
   .scroll-down {
-    margin-bottom: 8rem;
+    display: none;
   }
 
   /* MOBILE_PERF: disable expensive backdrop-filter on mobile — revert by removing this block */
