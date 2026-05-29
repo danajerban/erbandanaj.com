@@ -6,7 +6,7 @@ Mailbox v2 by sirkitree [CC-BY] (https://creativecommons.org/licenses/by/3.0/) v
 
 import { useCursor, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { config } from "../config";
 
@@ -16,18 +16,27 @@ export function Mailbox(props) {
   const mailboxHoveredRef = useRef(false);
   useCursor(mailboxHovered);
 
+  // Materials are static after load — resolve the unique list once instead of
+  // allocating a fresh array via Object.values() on every frame.
+  const materialList = useMemo(() => Object.values(materials), [materials]);
+
   useEffect(() => {
     const emissiveColor = new THREE.Color("#359F5C");
-    Object.values(materials).forEach((material) => {
+    materialList.forEach((material) => {
       material.emissive = emissiveColor;
     });
-  }, [materials]);
+  }, [materialList]);
 
   useFrame(() => {
-    Object.values(materials).forEach((material) => {
+    const target = mailboxHoveredRef.current ? 0.9 : 0;
+    // Skip per-frame work once the glow has settled at rest (the common case).
+    if (!mailboxHoveredRef.current && materialList[0]?.emissiveIntensity < 0.001) {
+      return;
+    }
+    materialList.forEach((material) => {
       material.emissiveIntensity = THREE.MathUtils.lerp(
         material.emissiveIntensity,
-        mailboxHoveredRef.current ? 0.9 : 0,
+        target,
         0.1
       );
     });
