@@ -10,7 +10,7 @@ import { useRef } from "react";
 import { useMobile } from "../contexts/MobileContext";
 
 export function Star(props) {
-  const { nodes, materials } = useGLTF("/models/Star.gltf");
+  const { nodes, materials } = useGLTF("/models/Star.glb");
   const { prefersReducedMotion } = useMobile();
   const ref = useRef();
   useFrame((_, delta) => {
@@ -29,4 +29,4 @@ export function Star(props) {
   );
 }
 
-useGLTF.preload("/models/Star.gltf");
+useGLTF.preload("/models/Star.glb");
