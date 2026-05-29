@@ -7,7 +7,7 @@ Lamp by burunduk [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly
 import { useGLTF } from "@react-three/drei";
 
 export function Lamp(props) {
-  const { nodes, materials } = useGLTF("/models/Lamp.glb");
+  const { nodes, materials } = useGLTF("/models/Lamp.glb", "/draco/");
   return (
     <group {...props} dispose={null}>
       <group position={[0.326, 0.78, -0.505]} rotation={[-1.419, 0.087, 2.088]}>
@@ -38,4 +38,4 @@ export function Lamp(props) {
   );
 }
 
-useGLTF.preload("/models/Lamp.glb");
+useGLTF.preload("/models/Lamp.glb", "/draco/");

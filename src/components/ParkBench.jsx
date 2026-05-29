@@ -7,7 +7,7 @@ Park Bench by J-Toastie [CC-BY] (https://creativecommons.org/licenses/by/3.0/) v
 import { useGLTF } from "@react-three/drei";
 
 export function ParkBench(props) {
-  const { nodes, materials } = useGLTF("/models/Park Bench.glb");
+  const { nodes, materials } = useGLTF("/models/Park Bench.glb", "/draco/");
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -22,4 +22,4 @@ export function ParkBench(props) {
   );
 }
 
-useGLTF.preload("/models/Park Bench.glb");
+useGLTF.preload("/models/Park Bench.glb", "/draco/");

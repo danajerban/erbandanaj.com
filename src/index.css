@@ -1,3 +1,13 @@
+/* Self-hosted Roboto Slab (latin, variable 400–700) — replaces the
+   render-blocking Google Fonts <link>. */
+@font-face {
+  font-family: "Roboto Slab";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/roboto-slab-latin.woff2") format("woff2");
+}
+
 :root {
   --primary-color: #4668ee;
   --text-color: #1a202c;

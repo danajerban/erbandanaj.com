@@ -11,7 +11,7 @@ import * as THREE from "three";
 import { config } from "../config";
 
 export function Mailbox(props) {
-  const { nodes, materials } = useGLTF("/models/Mailbox v2.glb");
+  const { nodes, materials } = useGLTF("/models/Mailbox v2.glb", "/draco/");
   const [mailboxHovered, setMailboxHovered] = useState(false);
   const mailboxHoveredRef = useRef(false);
   useCursor(mailboxHovered);
@@ -201,4 +201,4 @@ export function Mailbox(props) {
   );
 }
 
-useGLTF.preload("/models/Mailbox v2.glb");
+useGLTF.preload("/models/Mailbox v2.glb", "/draco/");

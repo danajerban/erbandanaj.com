@@ -13,3 +13,9 @@
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
 /fonts/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+# Self-hosted Draco decoder + lighting HDRI — stable, cache a month.
+/draco/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+/hdri/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400

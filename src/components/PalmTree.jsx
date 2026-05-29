@@ -7,7 +7,7 @@ Palm tree by jeremy [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via P
 import { useGLTF } from "@react-three/drei";
 
 export function PalmTree(props) {
-  const { nodes, materials } = useGLTF("/models/Palm tree.glb");
+  const { nodes, materials } = useGLTF("/models/Palm tree.glb", "/draco/");
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -26,4 +26,4 @@ export function PalmTree(props) {
   );
 }
 
-useGLTF.preload("/models/Palm tree.glb");
+useGLTF.preload("/models/Palm tree.glb", "/draco/");

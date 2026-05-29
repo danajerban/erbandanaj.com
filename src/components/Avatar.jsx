@@ -12,7 +12,7 @@ import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 
 export function Avatar(props) {
-  const { nodes, materials } = useGLTF("/models/68275e863c5ab94b9eacc586.glb");
+  const { nodes, materials } = useGLTF("/models/68275e863c5ab94b9eacc586.glb", "/draco/");
   const { animations: idleAnimation } = useFBX("/animations/Happy-Idle.fbx");
   const { animations: walkingAnimation } = useFBX("/animations/Walking.fbx");
 
@@ -170,6 +170,6 @@ export function Avatar(props) {
   );
 }
 
-useGLTF.preload("/models/68275e863c5ab94b9eacc586.glb");
+useGLTF.preload("/models/68275e863c5ab94b9eacc586.glb", "/draco/");
 useFBX.preload("/animations/Happy-Idle.fbx");
 useFBX.preload("/animations/Walking.fbx");

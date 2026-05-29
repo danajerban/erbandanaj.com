@@ -7,7 +7,7 @@ Laptop / MacBook Pro by Alex Safayan [CC-BY] (https://creativecommons.org/licens
 import { useGLTF, useTexture } from "@react-three/drei";
 
 export function MacBookPro(props) {
-  const { nodes, materials } = useGLTF("/models/MacBook Pro.glb");
+  const { nodes, materials } = useGLTF("/models/MacBook Pro.glb", "/draco/");
   const screenTexture = useTexture("textures/screen.webp");
   return (
     <group {...props} dispose={null}>
@@ -50,5 +50,5 @@ export function MacBookPro(props) {
     </group>
   );
 }
-useGLTF.preload("/models/MacBook Pro.glb");
+useGLTF.preload("/models/MacBook Pro.glb", "/draco/");
 useTexture.preload("textures/screen.webp");

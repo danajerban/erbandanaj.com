@@ -86,7 +86,7 @@ export const Experience = () => {
 
   return (
     <>
-      <Environment preset="sunset" />
+      <Environment files="/hdri/venice_sunset_1k.hdr" />
       <Avatar position-z={isMobile ? -5 : 0} />
 
       {/* SHADOWS & FLOOR */}

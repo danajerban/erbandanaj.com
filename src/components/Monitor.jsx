@@ -7,7 +7,7 @@ Monitor by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/)
 import { useGLTF } from "@react-three/drei";
 
 export function Monitor(props) {
-  const { nodes, materials } = useGLTF("/models/Monitor.glb");
+  const { nodes, materials } = useGLTF("/models/Monitor.glb", "/draco/");
 
   return (
     <group {...props} dispose={null}>
@@ -16,4 +16,4 @@ export function Monitor(props) {
   );
 }
 
-useGLTF.preload("/models/Monitor.glb");
+useGLTF.preload("/models/Monitor.glb", "/draco/");

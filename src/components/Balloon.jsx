@@ -7,7 +7,7 @@ Balloon by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/)
 import { useGLTF } from "@react-three/drei";
 
 export function Balloon(props) {
-  const { nodes, materials } = useGLTF("/models/Balloon.glb");
+  const { nodes, materials } = useGLTF("/models/Balloon.glb", "/draco/");
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Balloon007.geometry}>
@@ -17,4 +17,4 @@ export function Balloon(props) {
   );
 }
 
-useGLTF.preload("/models/Balloon.glb");
+useGLTF.preload("/models/Balloon.glb", "/draco/");

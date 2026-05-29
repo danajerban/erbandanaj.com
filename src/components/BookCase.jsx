@@ -7,7 +7,7 @@ Bookcase Wide by Kay Lousberg (https://market.pmnd.rs/model/bookcase-wide)
 import { useGLTF } from "@react-three/drei";
 
 export function BookCase(props) {
-  const { nodes, materials } = useGLTF("/models/BookCaseWide.glb");
+  const { nodes, materials } = useGLTF("/models/BookCaseWide.glb", "/draco/");
   return (
     <group {...props} dispose={null}>
       <group rotation={[Math.PI / 2, 0, 0]}>
@@ -52,4 +52,4 @@ export function BookCase(props) {
   );
 }
 
-useGLTF.preload("/models/BookCaseWide.glb");
+useGLTF.preload("/models/BookCaseWide.glb", "/draco/");

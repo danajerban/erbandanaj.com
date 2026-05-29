@@ -10,7 +10,7 @@ import { ANIMATION_CONSTANTS } from "../constants/animation";
 
 export function Pigeon(props) {
   const group = useRef();
-  const { nodes, materials, animations } = useGLTF("/models/Pigeon.glb");
+  const { nodes, materials, animations } = useGLTF("/models/Pigeon.glb", "/draco/");
 
   const { actions } = useAnimations(animations, group);
   const [animation, setAnimation] = useState("Flying_Idle");
@@ -74,4 +74,4 @@ export function Pigeon(props) {
   );
 }
 
-useGLTF.preload("/models/Pigeon.glb");
+useGLTF.preload("/models/Pigeon.glb", "/draco/");
