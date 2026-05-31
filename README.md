@@ -7,51 +7,26 @@ glassmorphism UI layered on top of the WebGL canvas.
 
 ### 🌐 Live at [erbandanaj.com](https://erbandanaj.com)
 
-## ✨ Features
+## ✨ Highlights
 
-- **Scroll-based 4-section journey** powered by drei's `ScrollControls` — the scene
-  travels along the x-axis on mobile and the z-axis on desktop.
+- **Scroll-based 4-section journey** powered by drei's `ScrollControls`.
 - **Animated Ready Player Me avatar** with idle and walking states.
-- **Glassmorphism HTML overlay** rendered on top of the 3D scene.
 - **Mobile-tuned performance** — reduced `dpr`, geometry, and shadow resolution,
   plus full `prefers-reduced-motion` support.
 - **Zero third-party requests** — self-hosted fonts, HDRI lighting, and Draco
   decoder; Draco-compressed models and WebP textures for fast loads.
 
-## 🛠 Tech Stack
+## 🛠 Tech
 
-- **React 18** + **Vite** (ES modules, JSX — no TypeScript)
-- **Three.js** via **@react-three/fiber** (R3F) + **@react-three/drei**
-- **Framer Motion** + `framer-motion-3d` for animation
-- **Jotai** for state
-- Plain CSS with custom properties (single stylesheet)
-- Deployed on **Cloudflare Pages**
+**React 18** · **Vite** (JSX — no TypeScript) · **Three.js** via
+`@react-three/fiber` + `@react-three/drei` · **Framer Motion** · **Jotai** ·
+plain CSS · deployed on **Cloudflare Pages**.
 
-## 🚀 Getting Started
+## 🧩 Development
 
-Requires Node 18+ and [pnpm](https://pnpm.io).
-
-```bash
-pnpm install
-pnpm dev      # start the dev server
-pnpm build    # production build → dist/
-pnpm preview  # preview the production build
-pnpm lint     # run ESLint
-```
-
-## 📁 Project Structure
-
-| Path | Purpose |
-|------|---------|
-| `src/App.jsx` | Root: Canvas, ScrollControls, providers, error boundary |
-| `src/config.js` | All display content — skills, projects, contact |
-| `src/components/Experience.jsx` | 3D scene orchestrator (models per section) |
-| `src/components/Interface.jsx` | HTML overlay — skills, project cards, contact |
-| `src/components/Avatar.jsx` | Animated avatar with idle/walking states |
-| `public/` | Self-hosted models, textures, fonts, HDRI, Draco decoder |
-
-To update content, edit **`src/config.js`** and drop new screenshots into
-`public/projects/`.
+Architecture, scripts (`pnpm dev` / `build` / `preview` / `lint`), the key-files
+map, and the R3F / CSS / mobile-performance conventions all live in
+**[CLAUDE.md](CLAUDE.md)**.
 
 ## 📫 Connect
 
@@ -61,8 +36,8 @@ To update content, edit **`src/config.js`** and drop new screenshots into
 
 ## 📄 License
 
-[MIT](LICENSE) — feel free to fork and build your own 3D portfolio. If you do, a
-⭐ is always appreciated; it helps others discover the project.
+© 2026 Erban Danaj — **all rights reserved**. This source is published for
+viewing and reference only; it is not open source. See [LICENSE](LICENSE).
 
 ---
 
