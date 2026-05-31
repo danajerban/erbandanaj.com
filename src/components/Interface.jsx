@@ -81,7 +81,9 @@ export const Interface = () => {
                 }}
                 transition={{
                   duration: 1,
-                  delay: isMobile ? 0 : idx * ANIMATION_CONSTANTS.SKILL_STAGGER_DELAY,
+                  delay: isMobile
+                    ? 0
+                    : idx * ANIMATION_CONSTANTS.SKILL_STAGGER_DELAY,
                 }}
               >
                 <div className="skill__label">
@@ -116,8 +118,10 @@ export const Interface = () => {
           >
             {config.projects.map((project, idx) => (
               <motion.div
-                onPointerEnter={() => setProject(project)}
-                onPointerLeave={() => setProject(config.projects[0])}
+                {...(!isMobile && {
+                  onPointerEnter: () => setProject(project),
+                  onPointerLeave: () => setProject(config.projects[0]),
+                })}
                 onFocus={() => setProject(project)}
                 key={project.name + idx}
                 className="project"
@@ -129,7 +133,9 @@ export const Interface = () => {
                 }}
                 transition={{
                   duration: 1,
-                  delay: isMobile ? 0 : idx * ANIMATION_CONSTANTS.PROJECT_STAGGER_DELAY,
+                  delay: isMobile
+                    ? 0
+                    : idx * ANIMATION_CONSTANTS.PROJECT_STAGGER_DELAY,
                 }}
               >
                 <a

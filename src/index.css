@@ -10,14 +10,69 @@
 
 :root {
   --primary-color: #4668ee;
+  --scene-sky-color: #f1cfc4;
+  --scene-floor-color: #efd1c7;
+  --scene-background:
+    radial-gradient(
+      circle at 82% 28%,
+      rgba(198, 72, 58, 0.24) 0,
+      rgba(207, 80, 63, 0.22) 9rem,
+      rgba(222, 106, 79, 0.15) 16rem,
+      rgba(238, 151, 108, 0.07) 25rem,
+      rgba(238, 151, 108, 0) 34rem
+    ),
+    linear-gradient(
+      180deg,
+      var(--scene-sky-color) 0%,
+      #efc3b7 48%,
+      var(--scene-floor-color) 100%
+    );
   --text-color: #1a202c;
   --text-light-color: #555;
+}
+
+@media (max-width: 990px) {
+  :root {
+    --scene-background:
+      radial-gradient(
+        circle at 86% 30%,
+        rgba(198, 72, 58, 0.24) 0,
+        rgba(207, 80, 63, 0.21) 7rem,
+        rgba(222, 106, 79, 0.14) 13rem,
+        rgba(238, 151, 108, 0.07) 20rem,
+        rgba(238, 151, 108, 0) 27rem
+      ),
+      linear-gradient(
+        180deg,
+        var(--scene-sky-color) 0%,
+        #efc3b7 50%,
+        var(--scene-floor-color) 100%
+      );
+  }
+}
+
+html,
+body {
+  height: 100dvh;
+  color-scheme: light;
+  overflow: hidden; /* lock document scroll — only drei's scroll container (the section nav) scrolls */
+  background: var(--scene-background);
+  background-color: var(--scene-sky-color);
 }
 
 #root {
   width: 100vw;
   height: 100dvh; /* Dynamic viewport height for mobile */
-  min-height: -webkit-fill-available; /* Safari fallback */
+  background: var(--scene-background);
+  background-color: var(--scene-sky-color);
+}
+
+@supports (height: 100lvh) {
+  html,
+  body,
+  #root {
+    height: 100lvh;
+  }
 }
 
 body {
@@ -142,11 +197,12 @@ a {
 .projects {
   padding: 1rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   width: 100%;
-  max-width: 725px;
+  max-width: 520px;
   justify-content: flex-start;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  transform: translateX(clamp(-4rem, -4vw, -2rem));
 }
 
 .project {
@@ -159,10 +215,14 @@ a {
     background-color 0.2s ease-in-out;
 }
 
-.project:hover {
-  background: rgba(255, 255, 255, 0.8);
-  transform: scale(1.05);
-  cursor: pointer;
+/* Hover styles only where a real (mouse) pointer exists. On touch, :hover
+   sticks after a tap and "tricks" the user into thinking a card is active. */
+@media (hover: hover) {
+  .project:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.05);
+    cursor: pointer;
+  }
 }
 
 .skill:active {
@@ -175,12 +235,15 @@ a {
 }
 
 .project__image {
+  aspect-ratio: 16 / 9;
+  display: block;
   width: 100%;
   object-fit: cover;
 }
 
 .project__details {
-  padding: 0.5rem;
+  min-height: 116px;
+  padding: 0.625rem;
 }
 
 .project__details__name {
@@ -192,7 +255,8 @@ a {
 
 .project__details__description {
   color: var(--text-light-color);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.3;
   margin: 0;
 }
 
@@ -247,8 +311,8 @@ a {
 }
 
 .menu__logo {
-  height: 42px;
-  width: 120px;
+  height: 126px;
+  width: 360px;
   object-fit: contain;
 }
 
@@ -264,9 +328,11 @@ a {
   color: var(--text-color);
 }
 
-.menu__button:hover {
-  color: var(--primary-color);
-  cursor: pointer;
+@media (hover: hover) {
+  .menu__button:hover {
+    color: var(--primary-color);
+    cursor: pointer;
+  }
 }
 
 /* LOADING SCREEN */
@@ -282,8 +348,8 @@ a {
   display: grid;
   place-items: center;
   text-align: center;
-  background-color: #b8c6db;
-  background-image: linear-gradient(0deg, #b8c6db 0%, #f5f7fa 74%);
+  background: var(--scene-background);
+  background-color: var(--scene-sky-color);
   opacity: 1;
   transition: opacity 1s ease-in-out;
 }
@@ -335,7 +401,7 @@ a {
 
   .mobile--section--bottom {
     align-items: flex-end;
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: max(6rem, calc(env(safe-area-inset-bottom) + 4.5rem));
   }
 
   .mobile--section--right {
@@ -351,6 +417,13 @@ a {
     gap: 1rem;
     overflow-x: auto;
     width: 100%;
+    touch-action: pan-x; /* iOS: a finger-swipe on the cards pans the carousel instead of being captured by drei's vertical scroll */
+    overscroll-behavior-x: contain;
+    /* iOS: stop a finger-drag on the card TEXT from starting a text selection,
+       which hijacks the swipe-scroll. Projects already scroll because their
+       content lives inside an <a> (not text-selectable); this gives skills parity. */
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .skill {
@@ -363,11 +436,21 @@ a {
     display: flex;
     justify-content: flex-start;
     overflow-x: auto;
+    max-width: none;
     width: 100%;
+    transform: none;
+    touch-action: pan-x; /* iOS: a finger-swipe on the cards pans the carousel instead of being captured by drei's vertical scroll */
+    overscroll-behavior-x: contain;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .project {
-    min-width: 220px;
+    min-width: 280px;
+  }
+
+  .project__details {
+    min-height: 126px;
   }
 
   .contact {

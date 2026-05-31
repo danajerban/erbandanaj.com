@@ -17,9 +17,9 @@ function SceneCanvas() {
       camera={{ position: [0, 0.5, 5], fov: 42 }}
       // MOBILE_PERF: limit DPR on mobile — revert by removing the ternary
       dpr={[1, isMobile ? 1.5 : 2]}
+      gl={{ alpha: true }}
     >
-      <color attach="background" args={["#faeaea"]} />
-      <fog attach="fog" args={["#faeaea", 10, 50]} />
+      <fog attach="fog" args={["#f8d9ce", 10, 50]} />
       <ScrollControls
         pages={config.sections.length}
         damping={0.1}
