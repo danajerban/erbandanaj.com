@@ -41,64 +41,32 @@ export const config = {
   ],
   projects: [
     {
-      name: "Car Showroom",
+      name: "Vila Emes",
       description:
-        "A 3D car rental showroom demo inspired by a similar enterprise project.",
-      image: "projects/project1.webp",
-      link: "https://car-showroom-chi.vercel.app/",
+        "Astro-powered hotel website for a local family business, optimized for speed, SEO, and multilingual discovery.",
+      image: "projects/project13.webp",
+      link: "https://vilaemes.com/",
     },
     {
-      name: "Real Estate Marketplace",
-      description: "A real estate app with property listings, search, and maps",
-      image: "projects/project3.webp",
-      link: "https://real-estate-marketplace-iota.vercel.app/",
-    },
-    {
-      name: "Covid-19 Dashboard",
+      name: "Student Card Albania",
       description:
-        "Interactive dashboard visualizing global COVID-19 statistics with charts and maps",
-      image: "projects/project6.webp",
-      link: "https://github.com/danajerban/covid19-dashboard",
+        "ISIC platform for Albanian students to buy digital or physical cards and access local and global benefits.",
+      image: "projects/project14.webp",
+      link: "https://studentcard.al/",
     },
     {
-      name: "Portfolio Website",
+      name: "Bioloupe",
       description:
-        "A developer portfolio website featuring interactive 3D models and animations",
-      image: "projects/project9.webp",
-      link: "https://paolomiraka.vercel.app/",
+        "Biopharma intelligence platform with structured data pipelines, agentic workflows, and Monte Carlo forecasting tools.",
+      image: "projects/project11.webp",
+      link: "https://bioloupe.com/",
     },
     {
-      name: "Sushi Tirana",
+      name: "The Coaching Masters",
       description:
-        "Animated landing page for a upcoming local sushi restaurant",
-      image: "projects/project5.webp",
-      link: "https://sushi-tirana.vercel.app/",
-    },
-    {
-      name: "Pet Game",
-      description: "A fun, interactive virtual pet game built in JavaScript",
-      image: "projects/project2.webp",
-      link: "https://virtual-pet-fox.vercel.app/",
-    },
-    {
-      name: "Camp Guide",
-      description:
-        "An upcoming mobile app for outdoor adventurers with offline maps and AR",
-      image: "projects/project4.webp",
-      link: "https://camp-guide.vercel.app/",
-    },
-    {
-      name: "Smart Trip",
-      description:
-        "AI-powered travel assistant for vacation planning with AI and maps integration",
-      image: "projects/project7.webp",
-      link: "https://github.com/danajerban/smart-trip",
-    },
-    {
-      name: "Spin City Records",
-      description: "Initial prototype for a peer-to-peer vinyl e-marketplace",
-      image: "projects/project10.webp",
-      link: "https://github.com/danajerban/spin-city-records",
+        "Video learning, social community, marketplace, and AI coaching platform serving 16K+ users.",
+      image: "projects/project12.webp",
+      link: "https://thecoachingmasters.com/",
     },
   ],
   contact: {
