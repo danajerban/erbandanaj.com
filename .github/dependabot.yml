@@ -1,0 +1,16 @@
+# Dependabot configuration — https://docs.github.com/code-security/dependabot
+# pnpm is handled by the "npm" ecosystem (Dependabot reads pnpm-lock.yaml).
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # Collapse all minor + patch bumps into a single weekly PR to cut noise;
+      # major bumps still arrive as individual PRs for deliberate review.
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
