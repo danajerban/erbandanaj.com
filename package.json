@@ -5,7 +5,7 @@
   "description": "Interactive 3D portfolio built with React, Three.js (R3F), and Vite.",
   "homepage": "https://www.erbandanaj.com",
   "author": "Erban Danaj",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "type": "module",
   "scripts": {
     "dev": "vite",
