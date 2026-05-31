@@ -9,7 +9,7 @@ import {
 } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { motion } from "framer-motion-3d";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
@@ -29,10 +29,69 @@ import { Pigeon } from "./Pigeon";
 import { SectionTitle } from "./SectionTitle";
 import { Star } from "./Star";
 
+const createSunTexture = () => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+
+  const context = canvas.getContext("2d");
+  const center = canvas.width / 2;
+  const gradient = context.createRadialGradient(
+    center,
+    center,
+    canvas.width * 0.08,
+    center,
+    center,
+    canvas.width * 0.5,
+  );
+
+  gradient.addColorStop(0, "rgba(198, 72, 58, 0.34)");
+  gradient.addColorStop(0.36, "rgba(216, 92, 72, 0.26)");
+  gradient.addColorStop(0.56, "rgba(231, 120, 88, 0.16)");
+  gradient.addColorStop(0.78, "rgba(236, 148, 108, 0.08)");
+  gradient.addColorStop(1, "rgba(236, 148, 108, 0)");
+
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+};
+
+const SunsetSun = ({ isMobile }) => {
+  const sunTexture = useMemo(createSunTexture, []);
+  const size = isMobile ? 3.2 : 7;
+  const position = isMobile ? [1.35, 2.62, -8.5] : [5.25, 3.02, -13];
+
+  useEffect(() => {
+    return () => sunTexture.dispose();
+  }, [sunTexture]);
+
+  return (
+    <sprite position={position} scale={[size, size, 1]}>
+      <spriteMaterial
+        map={sunTexture}
+        transparent
+        opacity={0.9}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </sprite>
+  );
+};
+
 export const Experience = () => {
   const { isMobile, scaleFactor, prefersReducedMotion } = useMobile();
   const [section, setSection] = useState(config.sections[0]);
   const sectionRef = useRef(section);
+  // Sections are hidden once they finish dropping back to y=-5, so inactive
+  // sections never bleed through the transparent canvas (no occluder floor).
+  // A section is kept visible while active or while still mid-drop; it is
+  // removed once its fall animation settles (see handleSectionSettled).
+  const [visibleSections, setVisibleSections] = useState(
+    () => new Set([config.sections[0]]),
+  );
   const sceneContainer = useRef();
   const scrollData = useScroll();
   const sectionsDistance = getSectionsDistance(isMobile);
@@ -57,6 +116,31 @@ export const Experience = () => {
       setSection(newSection);
     }
   });
+
+  // Mark the active section visible so it stays rendered through its drop after
+  // it becomes inactive (the active section itself is always shown via the
+  // `section === name` check on the `visible` prop). Done in an effect rather
+  // than in useFrame to avoid allocating in the frame loop.
+  useEffect(() => {
+    setVisibleSections((prev) => {
+      if (prev.has(section)) return prev;
+      const next = new Set(prev);
+      next.add(section);
+      return next;
+    });
+  }, [section]);
+
+  // Hide a section once it has dropped back to y=-5 (and is no longer active),
+  // so it stops bleeding through the transparent canvas.
+  const handleSectionSettled = (name) => {
+    if (sectionRef.current === name) return;
+    setVisibleSections((prev) => {
+      if (!prev.has(name)) return prev;
+      const next = new Set(prev);
+      next.delete(name);
+      return next;
+    });
+  };
   useEffect(() => {
     const handleHashChange = () => {
       const sectionIndex = config.sections.indexOf(
@@ -87,21 +171,18 @@ export const Experience = () => {
   return (
     <>
       <Environment files="/hdri/venice_sunset_1k.hdr" />
+      <SunsetSun isMobile={isMobile} />
       <Avatar position-z={isMobile ? -5 : 0} />
 
-      {/* SHADOWS & FLOOR */}
+      {/* SHADOWS */}
       {/* MOBILE_PERF: reduce shadow resolution on mobile — revert by removing ternaries */}
       <ContactShadows
-        opacity={0.5}
+        opacity={0.42}
         scale={[30, 30]}
-        color="#9c8e66"
+        color="#b07a62"
         resolution={isMobile ? 128 : 256}
         blur={isMobile ? 1.5 : 2}
       />
-      <mesh position-y={-0.001} rotation-x={-Math.PI / 2}>
-        <planeGeometry args={[100, 100]} />
-        <meshBasicMaterial color="#f5f3ee" />
-      </mesh>
 
       <motion.group ref={sceneContainer} animate={section}>
         {/* HOME */}
@@ -112,6 +193,8 @@ export const Experience = () => {
               y: 0,
             },
           }}
+          visible={section === "home" || visibleSections.has("home")}
+          onAnimationComplete={() => handleSectionSettled("home")}
         >
           <Star position-z={isMobile ? -5 : 0} position-y={2.2} scale={0.3} />
           <Float floatIntensity={1.5} speed={prefersReducedMotion ? 0 : (isMobile ? 1 : 2.5)}>
@@ -155,6 +238,8 @@ export const Experience = () => {
               y: 0,
             },
           }}
+          visible={section === "skills" || visibleSections.has("skills")}
+          onAnimationComplete={() => handleSectionSettled("skills")}
         >
           <group position-x={isMobile ? 0 : -2}>
             <SectionTitle position-z={1.5} rotation-y={Math.PI / 6}>
@@ -175,14 +260,18 @@ export const Experience = () => {
             />
           </group>
           {/* MOBILE_PERF: reduce geometry and shader speed on mobile — revert by removing ternaries */}
-          <mesh position-y={2} position-z={-4} position-x={2}>
+          <mesh
+            position-y={isMobile ? 2.35 : 2}
+            position-z={isMobile ? -5.4 : -4}
+            position-x={isMobile ? 2.45 : 2}
+          >
             <sphereGeometry args={[1, isMobile ? 32 : 64, isMobile ? 32 : 64]} />
             <MeshDistortMaterial
-              opacity={0.8}
+              opacity={isMobile ? 0.34 : 0.5}
               transparent
-              distort={1}
-              speed={prefersReducedMotion ? 0 : (isMobile ? 2 : 3.5)}
-              color="#924435"
+              distort={isMobile ? 0.28 : 0.45}
+              speed={prefersReducedMotion ? 0 : (isMobile ? 0.8 : 1.4)}
+              color="#d95a41"
             />
           </mesh>
         </motion.group>
@@ -196,6 +285,8 @@ export const Experience = () => {
               y: 0,
             },
           }}
+          visible={section === "projects" || visibleSections.has("projects")}
+          onAnimationComplete={() => handleSectionSettled("projects")}
         >
           <group position-x={isMobile ? -0.25 : 1}>
             <SectionTitle
@@ -239,6 +330,8 @@ export const Experience = () => {
               y: 0,
             },
           }}
+          visible={section === "contact" || visibleSections.has("contact")}
+          onAnimationComplete={() => handleSectionSettled("contact")}
         >
           <SectionTitle
             position-x={isMobile ? -1.1 : -2 * scaleFactor}
