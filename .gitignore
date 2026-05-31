@@ -10,10 +10,11 @@ node_modules
 **/node_modules
 dist
 dist-ssr
+.vercel
+.wrangler
 *.local
 
-.env
-.env.local
+.env*
 
 !.vscode/extensions.json
 .idea
@@ -28,3 +29,6 @@ dist-ssr
 .claude/
 .desloppify/
 scorecard.png
+
+# Internal planning/spec docs (agent workflow — not for the public repo)
+docs/superpowers/
