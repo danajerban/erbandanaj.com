@@ -49,7 +49,7 @@ export function Mailbox(props) {
       onPointerEnter={() => { mailboxHoveredRef.current = true; setMailboxHovered(true); }}
       onPointerLeave={() => { mailboxHoveredRef.current = false; setMailboxHovered(false); }}
       onPointerDown={() => { mailboxHoveredRef.current = true; setMailboxHovered(true); }}
-      onClick={() => window.open(`mailto:${config.contact.mail}`)}
+      onClick={() => { window.location.href = `mailto:${config.contact.mail}`; }}
     >
       <mesh
         geometry={nodes.group2028911354.geometry}
