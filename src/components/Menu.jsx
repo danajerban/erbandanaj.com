@@ -1,3 +1,12 @@
+// Clicking an anchor whose hash is already in the URL fires no native
+// hashchange event, so re-dispatch one to re-trigger the scroll listener
+// in Experience.jsx (it reads window.location.hash, not the event payload).
+const handleSectionClick = (event) => {
+  if (window.location.hash === event.currentTarget.hash) {
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+  }
+};
+
 export const Menu = () => {
   return (
     <div className="menu">
@@ -9,16 +18,24 @@ export const Menu = () => {
         />
       </a>
       <div className="menu__buttons">
-        <a className="menu__button" href="#home">
+        <a className="menu__button" href="#home" onClick={handleSectionClick}>
           Home
         </a>
-        <a className="menu__button" href="#skills">
+        <a className="menu__button" href="#skills" onClick={handleSectionClick}>
           Skills
         </a>
-        <a className="menu__button" href="#projects">
+        <a
+          className="menu__button"
+          href="#projects"
+          onClick={handleSectionClick}
+        >
           Projects
         </a>
-        <a className="menu__button" href="#contact">
+        <a
+          className="menu__button"
+          href="#contact"
+          onClick={handleSectionClick}
+        >
           Contact
         </a>
         <a
