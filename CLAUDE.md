@@ -2,7 +2,7 @@
 
 ## Tech Stack
 
-- **React 18** + **Vite 4** (ES modules, JSX — no TypeScript)
+- **React 18** + **Vite 7** (ES modules, JSX — no TypeScript)
 - **Three.js** via `@react-three/fiber` (R3F) + `@react-three/drei`
 - **Framer Motion** + `framer-motion-3d` for animations
 - **Jotai** for state (single atom: `projectAtom`)
