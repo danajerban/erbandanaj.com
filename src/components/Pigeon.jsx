@@ -37,7 +37,7 @@ export function Pigeon(props) {
       ref={group}
       onPointerEnter={() => setAnimation("Yes")}
       onPointerLeave={() => setAnimation("Flying_Idle")}
-      onClick={() => setAnimation((a) => a === "Flying_Idle" ? "Yes" : "Flying_Idle")}
+      onClick={() => setAnimation("Yes")}
     >
       <group name="Scene">
         <group name="CharacterArmature">
