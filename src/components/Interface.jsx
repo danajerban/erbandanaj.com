@@ -58,6 +58,9 @@ export const Interface = () => {
           <h2 className="sr-only">Skills</h2>
           <motion.div
             className="skills"
+            role="region"
+            aria-label="Skills"
+            tabIndex={isMobile ? 0 : undefined}
             whileInView={"visible"}
             initial={{
               opacity: 0,
