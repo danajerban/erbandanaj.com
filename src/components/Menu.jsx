@@ -10,7 +10,7 @@ const handleSectionClick = (event) => {
 export const Menu = () => {
   return (
     <div className="menu">
-      <a href="#home">
+      <a href="#home" onClick={handleSectionClick}>
         <img
           className="menu__logo"
           src="/logos/Vila%20Emes%20(3).svg"
