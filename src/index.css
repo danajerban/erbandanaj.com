@@ -127,10 +127,6 @@ a {
   align-items: center;
 }
 
-.section--top {
-  align-items: flex-start;
-}
-
 .section--bottom {
   align-items: flex-end;
 }
@@ -409,17 +405,9 @@ a {
 /* RESPONSIVE */
 
 @media (max-width: 990px) {
-  .mobile--section--top {
-    align-items: flex-start;
-  }
-
   .mobile--section--bottom {
     align-items: flex-end;
     padding-bottom: max(6rem, calc(env(safe-area-inset-bottom) + 4.5rem));
-  }
-
-  .mobile--section--right {
-    justify-content: flex-end;
   }
 
   .mobile--section--left {
