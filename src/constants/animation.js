@@ -6,6 +6,7 @@ export const ANIMATION_CONSTANTS = {
 
   // Rotation
   ROTATION_DAMP_LAMBDA: 6, // MathUtils.damp lambda ≈ lerp alpha 0.1 @ 60fps
+  EMISSIVE_DAMP_LAMBDA: 6, // mailbox glow ease — same response curve as rotation
   MOBILE_FORWARD_ROTATION: Math.PI / 2,
   MOBILE_BACKWARD_ROTATION: -Math.PI / 2,
   DESKTOP_BACKWARD_ROTATION: Math.PI,

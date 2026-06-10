@@ -9,6 +9,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { config } from "../config";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
 
 export function Mailbox(props) {
   const { nodes, materials } = useGLTF("/models/Mailbox v2.glb", "/draco/");
@@ -27,17 +28,18 @@ export function Mailbox(props) {
     });
   }, [materialList]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     const target = mailboxHoveredRef.current ? 0.9 : 0;
     // Skip per-frame work once the glow has settled at rest (the common case).
     if (!mailboxHoveredRef.current && materialList[0]?.emissiveIntensity < 0.001) {
       return;
     }
     materialList.forEach((material) => {
-      material.emissiveIntensity = THREE.MathUtils.lerp(
+      material.emissiveIntensity = THREE.MathUtils.damp(
         material.emissiveIntensity,
         target,
-        0.1
+        ANIMATION_CONSTANTS.EMISSIVE_DAMP_LAMBDA,
+        delta
       );
     });
   });
