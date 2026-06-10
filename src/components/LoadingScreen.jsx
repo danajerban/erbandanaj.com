@@ -5,7 +5,10 @@ export const LoadingScreen = () => {
   const { progress, active } = useProgress();
 
   return (
-    <div className={`loading-screen ${active ? "" : "loading-screen--hidden"}`}>
+    <div
+      className={`loading-screen ${active ? "" : "loading-screen--hidden"}`}
+      aria-hidden={!active}
+    >
       <div className="loading-screen__container">
         <h1 className="loading-screen__title">{config.title}</h1>
         <div
