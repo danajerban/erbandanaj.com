@@ -26,6 +26,7 @@ export const Interface = () => {
       <div className="sections">
         {/* HOME */}
         <section className="section section--bottom">
+          <h2 className="sr-only">Home</h2>
           <motion.div
             className="scroll-down"
             initial={{
@@ -54,6 +55,7 @@ export const Interface = () => {
         </section>
         {/* SKILLS */}
         <section className="section section--right mobile--section--left mobile--section--bottom">
+          <h2 className="sr-only">Skills</h2>
           <motion.div
             className="skills"
             whileInView={"visible"}
@@ -101,6 +103,7 @@ export const Interface = () => {
         </section>
         {/* PROJECTS */}
         <section className="section section--left mobile--section--bottom">
+          <h2 className="sr-only">Projects</h2>
           <motion.div
             className="projects"
             whileInView={"visible"}
@@ -163,6 +166,7 @@ export const Interface = () => {
         </section>
         {/* CONTACT */}
         <section className="section section--left mobile--section--bottom">
+          <h2 className="sr-only">Contact</h2>
           <motion.div
             className="contact"
             whileInView={"visible"}
