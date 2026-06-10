@@ -461,6 +461,9 @@ a {
 
   .project {
     min-width: 280px;
+    /* Blur is disabled on mobile (MOBILE_PERF below) — raise alpha so text
+       stays readable over dark 3D elements (was 2.56:1 worst case). */
+    background: rgba(255, 255, 255, 0.45);
   }
 
   .project__details {
