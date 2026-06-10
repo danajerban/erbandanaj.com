@@ -13,7 +13,7 @@ export const Menu = () => {
       <a href="#home" onClick={handleSectionClick}>
         <img
           className="menu__logo"
-          src="/logos/Vila%20Emes%20(3).svg"
+          src="/logos/logo.svg"
           alt="Erban Danaj"
         />
       </a>
