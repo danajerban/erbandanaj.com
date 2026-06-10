@@ -478,7 +478,7 @@ a {
   }
 
   .loading-screen__title {
-    font-size: 2rem;
+    font-size: clamp(1.4rem, 8vw, 2rem); /* one line down to ~280px viewports */
   }
 
   .scroll-down {
