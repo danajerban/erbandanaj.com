@@ -7,7 +7,7 @@ If you find a security vulnerability in this project, please report it
 
 - **Preferred:** use GitHub's private vulnerability reporting — the
   **"Report a vulnerability"** button on the repository's
-  [Security tab](https://github.com/danajerban/erbandanaj/security/advisories/new).
+  [Security tab](https://github.com/danajerban/erbandanaj.com/security/advisories/new).
 - **Alternatively:** email **danajerban@gmail.com** with a description and steps
   to reproduce.
 

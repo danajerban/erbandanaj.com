@@ -5,7 +5,7 @@ that walks through my work across four scenes: **Home → Skills → Projects �
 Contact**. The 3D environment moves as you scroll, with an animated avatar and a
 glassmorphism UI layered on top of the WebGL canvas.
 
-### 🌐 Live at [erbandanaj.com](https://erbandanaj.com)
+### 🌐 Live at [erbandanaj.com](https://www.erbandanaj.com)
 
 ## ✨ Highlights
 

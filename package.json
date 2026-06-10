@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "description": "Interactive 3D portfolio built with React, Three.js (R3F), and Vite.",
   "homepage": "https://www.erbandanaj.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danajerban/erbandanaj.com.git"
+  },
   "author": "Erban Danaj",
   "license": "UNLICENSED",
   "type": "module",
