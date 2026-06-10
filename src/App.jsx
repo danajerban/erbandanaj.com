@@ -2,7 +2,7 @@ import { Scroll, ScrollControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { MotionConfig } from "framer-motion";
 import { Suspense } from "react";
-import { SceneErrorBoundary } from "./components/ErrorBoundary";
+import { OverlayErrorBoundary, SceneErrorBoundary } from "./components/ErrorBoundary";
 import { Experience } from "./components/Experience";
 import { Interface } from "./components/Interface";
 import { LoadingScreen } from "./components/LoadingScreen";
@@ -38,7 +38,9 @@ function SceneCanvas() {
         </group>
         <Scroll html>
           <MotionConfig transition={{ duration: 1 }} reducedMotion="user">
-            <Interface />
+            <OverlayErrorBoundary>
+              <Interface />
+            </OverlayErrorBoundary>
           </MotionConfig>
         </Scroll>
       </ScrollControls>
