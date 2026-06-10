@@ -170,7 +170,7 @@ export const Experience = () => {
 
   return (
     <>
-      <Environment files="/hdri/venice_sunset_1k.hdr" />
+      <Environment files="/hdri/venice_sunset_512.hdr" />
       <SunsetSun isMobile={isMobile} />
       <Avatar position-z={isMobile ? -5 : 0} />
 
