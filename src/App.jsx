@@ -51,11 +51,11 @@ function SceneCanvas() {
 function App() {
   return (
     <MobileProvider>
+      <Menu />
       <SceneErrorBoundary>
         <LoadingScreen />
         <SceneCanvas />
       </SceneErrorBoundary>
-      <Menu />
     </MobileProvider>
   );
 }
