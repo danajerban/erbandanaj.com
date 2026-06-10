@@ -37,7 +37,7 @@ function SceneCanvas() {
           </MotionConfig>
         </group>
         <Scroll html>
-          <MotionConfig transition={{ duration: 1 }}>
+          <MotionConfig transition={{ duration: 1 }} reducedMotion="user">
             <Interface />
           </MotionConfig>
         </Scroll>
