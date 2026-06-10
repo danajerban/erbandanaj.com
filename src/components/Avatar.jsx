@@ -59,7 +59,7 @@ export function Avatar(props) {
   const { isMobile, prefersReducedMotion } = useMobile();
 
   // Safe: R3F v8 useFrame re-captures the closure on each render
-  useFrame(() => {
+  useFrame((_, delta) => {
     const scrollDelta = scrollData.offset - lastScroll.current;
     let rotationTarget = 0;
     let targetAnimation = "Idle";
@@ -87,10 +87,12 @@ export function Avatar(props) {
       setAnimation(targetAnimation);
     }
 
-    group.current.rotation.y = THREE.MathUtils.lerp(
+    // damp() is frame-rate independent (unlike fixed-alpha lerp per frame)
+    group.current.rotation.y = THREE.MathUtils.damp(
       group.current.rotation.y,
       rotationTarget,
-      ANIMATION_CONSTANTS.ROTATION_LERP_SPEED,
+      ANIMATION_CONSTANTS.ROTATION_DAMP_LAMBDA,
+      delta,
     );
     lastScroll.current = scrollData.offset;
   });
