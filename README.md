@@ -5,9 +5,9 @@ that walks through my work across four scenes: **Home → Skills → Projects �
 Contact**. The 3D environment moves as you scroll, with an animated avatar and a
 glassmorphism UI layered on top of the WebGL canvas.
 
-### 🌐 Live at [erbandanaj.com](https://www.erbandanaj.com)
+### Live at [erbandanaj.com](https://www.erbandanaj.com)
 
-## ✨ Highlights
+## Highlights
 
 - **Scroll-based 4-section journey** powered by drei's `ScrollControls`.
 - **Animated Ready Player Me avatar** with idle and walking states.
@@ -17,25 +17,20 @@ glassmorphism UI layered on top of the WebGL canvas.
   Draco-compressed models and WebP textures for fast loads. The only
   third-party request is the Cloudflare Web Analytics beacon.
 
-## 🛠 Tech
-
-**React 18** · **Vite** (JSX — no TypeScript) · **Three.js** via
+Built with **React 18** · **Vite** (JSX — no TypeScript) · **Three.js** via
 `@react-three/fiber` + `@react-three/drei` · **Framer Motion** · **Jotai** ·
-plain CSS · deployed on **Cloudflare Pages**.
+plain CSS, and deployed on **Cloudflare Pages**. Architecture, scripts
+(`pnpm dev` / `build` / `preview` / `lint`), the key-files map, and the
+R3F / CSS / mobile-performance conventions all live in **[CLAUDE.md](CLAUDE.md)**.
 
-## 🧩 Development
+## Connect
 
-Architecture, scripts (`pnpm dev` / `build` / `preview` / `lint`), the key-files
-map, and the R3F / CSS / mobile-performance conventions all live in
-**[CLAUDE.md](CLAUDE.md)**.
-
-## 📫 Connect
-
+- CV: [View / download (PDF)](https://www.erbandanaj.com/Erban%20Danaj%20-%20Software%20Engineer.pdf)
 - LinkedIn: [@erban-danaj](https://www.linkedin.com/in/erban-danaj/)
 - GitHub: [@danajerban](https://github.com/danajerban)
 - Email: danajerban@gmail.com
 
-## 📄 License
+## License
 
 © 2026 Erban Danaj — **all rights reserved**. This source is published for
 viewing and reference only; it is not open source. See [LICENSE](LICENSE).
