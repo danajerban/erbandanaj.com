@@ -18,8 +18,8 @@ importers:
         specifier: 10.15.0
         version: 10.15.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       framer-motion-3d:
-        specifier: 10.15.0
-        version: 10.15.0(@react-three/fiber@8.13.3(@types/react@19.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0)
+        specifier: 12.4.13
+        version: 12.4.13(@emotion/is-prop-valid@0.8.8)(@react-three/fiber@8.13.3(@types/react@19.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0)
       jotai:
         specifier: 2.2.3
         version: 2.2.3(@types/react@19.2.14)(react@18.2.0)
@@ -926,8 +926,8 @@ packages:
   fflate@0.6.10:
     resolution: {integrity: sha512-IQrh3lEPM93wVCEczc9SaAOvkmcoQn/G8Bo1e8ZPlY3X3bnAxWaBdvTdvM1hP62iZp0BXWDy4vTAy4fF0+Dlpg==}
 
-  fflate@0.8.2:
-    resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
@@ -948,11 +948,11 @@ packages:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
 
-  framer-motion-3d@10.15.0:
-    resolution: {integrity: sha512-LgAmsSgDNbReJTbmR3TqGHpmk6j1y2N1c6v/+AOgJzijmDxcXYJwRL1X78JKr7sVm+41xhS5L1T/I0UnotM9jA==}
+  framer-motion-3d@12.4.13:
+    resolution: {integrity: sha512-QE5JTZHE+bguGNLsnu3raLJP5QR8PVKiB0GXXWLg1paxa0GF8QDJx2G13J8TevAzZ+8HI7O5ishk1VnDd2jzTQ==}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
-      '@react-three/fiber': ^8.2.2
+      '@react-three/fiber': 8.2.2
       react: '>=18.0'
       react-dom: '>=18.0'
       three: '>=0.133'
@@ -963,6 +963,20 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
     peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
+  framer-motion@12.40.0:
+    resolution: {integrity: sha512-uaBd3qC1v3KQqBEjwTUd183K6PbS+j0yR9w9VmEOLWA/tnUcSn8Xa3uck7t4dgpDoUss8xQTcj8W2L07lrnLFg==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
       react:
         optional: true
       react-dom:
@@ -1286,6 +1300,12 @@ packages:
 
   minimatch@3.1.5:
     resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
+
+  motion-dom@12.40.0:
+    resolution: {integrity: sha512-HxU3ZaBwNPVQUBQf1xxgq+7JrPNZvjLVxgbpEZL7RrWJnsxOf0/OM+yrHG9ogLQ31Do/r57Oz2gQWPK+6q62mg==}
+
+  motion-utils@12.39.0:
+    resolution: {integrity: sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ==}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -2247,7 +2267,7 @@ snapshots:
       '@tweenjs/tween.js': 23.1.3
       '@types/stats.js': 0.17.4
       '@types/webxr': 0.5.24
-      fflate: 0.8.2
+      fflate: 0.8.3
       meshoptimizer: 1.1.1
 
   '@types/webxr@0.5.24': {}
@@ -2700,7 +2720,7 @@ snapshots:
 
   fflate@0.6.10: {}
 
-  fflate@0.8.2: {}
+  fflate@0.8.3: {}
 
   file-entry-cache@6.0.1:
     dependencies:
@@ -2723,17 +2743,29 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
-  framer-motion-3d@10.15.0(@react-three/fiber@8.13.3(@types/react@19.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0):
+  framer-motion-3d@12.4.13(@emotion/is-prop-valid@0.8.8)(@react-three/fiber@8.13.3(@types/react@19.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0):
     dependencies:
       '@react-three/fiber': 8.13.3(@types/react@19.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(three@0.153.0)
-      framer-motion: 10.15.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      framer-motion: 12.40.0(@emotion/is-prop-valid@0.8.8)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-merge-refs: 2.1.1
       three: 0.153.0
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
 
   framer-motion@10.15.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
+      tslib: 2.8.1
+    optionalDependencies:
+      '@emotion/is-prop-valid': 0.8.8
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+
+  framer-motion@12.40.0(@emotion/is-prop-valid@0.8.8)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
+      motion-dom: 12.40.0
+      motion-utils: 12.39.0
       tslib: 2.8.1
     optionalDependencies:
       '@emotion/is-prop-valid': 0.8.8
@@ -3050,6 +3082,12 @@ snapshots:
   minimatch@3.1.5:
     dependencies:
       brace-expansion: 1.1.14
+
+  motion-dom@12.40.0:
+    dependencies:
+      motion-utils: 12.39.0
+
+  motion-utils@12.39.0: {}
 
   ms@2.1.3: {}
 
