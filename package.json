@@ -18,7 +18,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-three/drei": "9.74.14",
+    "@react-three/drei": "10.7.7",
     "@react-three/fiber": "8.13.3",
     "framer-motion": "10.15.0",
     "framer-motion-3d": "10.15.0",
