@@ -16,10 +16,21 @@ export default defineConfig({
     chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
-        manualChunks: {
-          three: ['three'],
-          r3f: ['@react-three/fiber', '@react-three/drei'],
-          'framer-motion': ['framer-motion', 'framer-motion-3d'],
+        // The explicit react chunk is load-bearing for the React.lazy split
+        // in App.jsx: react-dom is shared between the entry and the r3f
+        // chunk, and without its own manual chunk Rollup merges it INTO r3f
+        // — handing the entry a static import of r3f (and transitively
+        // three), which drags ~330KB gzip back onto the critical path.
+        manualChunks(id) {
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/scheduler/')
+          )
+            return 'react'
+          if (id.includes('node_modules/three/')) return 'three'
+          if (id.includes('@react-three/')) return 'r3f'
+          if (id.includes('framer-motion')) return 'framer-motion'
         },
       },
     },

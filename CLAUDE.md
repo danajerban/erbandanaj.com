@@ -25,7 +25,8 @@ pnpm lint     # ESLint
 ### Key files
 | File | Purpose |
 |------|---------|
-| `src/App.jsx` | Root: Canvas, ScrollControls, MobileProvider, ErrorBoundary |
+| `src/App.jsx` | Root: Menu, MobileProvider, SceneErrorBoundary; `React.lazy`-loads SceneCanvas (Suspense fallback `null` — the `index.html` splash covers it) |
+| `src/components/SceneCanvas.jsx` | Canvas + ScrollControls subtree — the code-split seam keeping three/r3f/drei/framer-motion out of the entry chunk; never import it statically from eager code |
 | `src/config.js` | All content data (skills, projects, contact, sections) |
 | `src/components/Experience.jsx` | 3D scene orchestrator — places all models per section |
 | `src/components/Interface.jsx` | HTML overlay — skills list, project cards, contact |
