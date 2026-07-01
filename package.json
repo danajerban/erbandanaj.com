@@ -24,7 +24,7 @@
     "framer-motion-3d": "10.15.0",
     "jotai": "2.2.3",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react-dom": "19.2.7",
     "three": "0.153.0",
     "three-stdlib": "2.36.1"
   },
