@@ -10,8 +10,8 @@
 
 :root {
   --primary-color: #4668ee;
-  --scene-sky-color: #f1cfc4;
-  --scene-floor-color: #efd1c7;
+  --scene-sky-color: #efc5b8;
+  --scene-floor-color: #efc5b8;
   --scene-background:
     radial-gradient(
       circle at 82% 28%,
@@ -24,7 +24,7 @@
     linear-gradient(
       180deg,
       var(--scene-sky-color) 0%,
-      #efc3b7 48%,
+      #efc5b8 48%,
       var(--scene-floor-color) 100%
     );
   --text-color: #1a202c;
@@ -45,7 +45,7 @@
       linear-gradient(
         180deg,
         var(--scene-sky-color) 0%,
-        #efc3b7 50%,
+        #efc5b8 50%,
         var(--scene-floor-color) 100%
       );
   }
@@ -137,6 +137,19 @@ a {
 
 .section--left {
   justify-content: flex-start;
+}
+
+/* Each section MUST be the same height as drei's scroll-page stride, which is
+   the canvas height (size.height = #root height = 100lvh — see @supports above).
+   drei translates the HTML overlay by `size.height * (pages-1) * offset`, so any
+   gap between this unit and the stride accumulates per section. On iOS Safari
+   dvh < lvh (dynamic toolbar), so a 100dvh section drifted up by i*(lvh-dvh) for
+   section i, pushing content out of view. Must come AFTER the 100dvh base rule
+   to win on source order. */
+@supports (height: 100lvh) {
+  .section {
+    height: 100lvh;
+  }
 }
 
 /* HOME SECTION */
@@ -365,7 +378,10 @@ a {
 }
 
 .loading-screen--hidden {
-  animation: fade-out 0.5s ease-in-out forwards 1s;
+  /* Reveal almost immediately once assets finish; the small 0.2s delay just
+     lets the first 3D frame paint before the overlay fades (was 1s hold +
+     0.5s fade ≈ 1.5s of dead time after load). */
+  animation: fade-out 0.45s ease-in-out forwards 0.2s;
   pointer-events: none;
 }
 
@@ -399,7 +415,16 @@ a {
   width: 0;
   height: 100%;
   background-color: var(--text-color);
-  transition: width 0.5s ease-in-out;
+  transition: width 0.4s ease-out;
+}
+
+.loading-screen__percent {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-light-color);
+  font-variant-numeric: tabular-nums;
 }
 
 /* RESPONSIVE */

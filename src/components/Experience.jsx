@@ -7,10 +7,11 @@ import {
   RoundedBox,
   useScroll,
 } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { motion } from "framer-motion-3d";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { RGBELoader } from "three-stdlib";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
@@ -28,6 +29,17 @@ import { ParkBench } from "./ParkBench";
 import { Pigeon } from "./Pigeon";
 import { SectionTitle } from "./SectionTitle";
 import { Star } from "./Star";
+
+// Register the environment HDR with THREE.DefaultLoadingManager at module-eval,
+// in the same batch as the models' useGLTF.preload() calls, so LoadingScreen's
+// useProgress().active stays true until the env map is ready. Without this, the
+// GLBs finish and the loading screen hides *before* <Environment> registers its
+// HDR load — causing a lighting pop-in on reveal. Uses drei's exact RGBELoader
+// (from "three-stdlib") + the same URL as <Environment> below, so r3f's
+// suspend-react cache dedupes both to a single fetch/decode. Keep "three-stdlib"
+// pinned to the version drei resolves (2.36.1) — a mismatched class reference
+// silently double-loads.
+useLoader.preload(RGBELoader, "/hdri/venice_sunset_256.hdr");
 
 const createSunTexture = () => {
   const canvas = document.createElement("canvas");
@@ -170,7 +182,7 @@ export const Experience = () => {
 
   return (
     <>
-      <Environment files="/hdri/venice_sunset_512.hdr" />
+      <Environment files="/hdri/venice_sunset_256.hdr" />
       <SunsetSun isMobile={isMobile} />
       <Avatar position-z={isMobile ? -5 : 0} />
 

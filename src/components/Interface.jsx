@@ -154,6 +154,7 @@ export const Interface = () => {
                     className="project__image"
                     src={project.image}
                     alt={project.name}
+                    crossOrigin="anonymous"
                     loading="lazy"
                   />
                   <div className="project__details">

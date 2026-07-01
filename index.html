@@ -12,6 +12,22 @@
       type="font/woff2"
       crossorigin
     />
+    <!-- Preload the heavy 3D assets that gate the loading screen so they download
+         in parallel with the JS bundle instead of after it. They are otherwise
+         requested by module-level useGLTF.preload() *inside* the bundle, so they
+         can't start until three.js + r3f finish downloading and executing. three
+         fetches via fetch() (cors mode, same-origin creds), so as="fetch"
+         crossorigin matches the real request and avoids a double-download. -->
+    <link rel="preload" href="/models/68275e863c5ab94b9eacc586.glb" as="fetch" crossorigin />
+    <link rel="preload" href="/animations/Happy-Idle.glb" as="fetch" crossorigin />
+    <link rel="preload" href="/animations/Walking.glb" as="fetch" crossorigin />
+    <link rel="preload" href="/models/Pigeon.glb" as="fetch" crossorigin />
+    <link rel="preload" href="/models/Mailbox%20v2.glb" as="fetch" crossorigin />
+    <link rel="preload" href="/draco/draco_decoder.wasm" as="fetch" crossorigin />
+    <!-- Environment HDR: warm the HTTP cache early so the eval-time RGBELoader
+         preload (see Experience.jsx) resolves instantly. crossorigin is required
+         to match three FileLoader's same-origin cors fetch (no double download). -->
+    <link rel="preload" href="/hdri/venice_sunset_256.hdr" as="fetch" crossorigin />
     <title>Erban Danaj | Software Engineer</title>
     <meta name="title" content="Erban Danaj | Software Engineer" />
     <meta
@@ -55,7 +71,7 @@
       property="twitter:image"
       content="https://www.erbandanaj.com/og-image.png"
     />
-    <meta name="theme-color" content="#f1cfc4" />
+    <meta name="theme-color" content="#efc5b8" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <script type="application/ld+json">
       {

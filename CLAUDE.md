@@ -44,7 +44,8 @@ pnpm lint     # ESLint
 
 - Single responsive breakpoint: `@media (max-width: 990px)`
 - Colors via CSS custom properties: `--primary-color`, `--text-color`, `--text-light-color`
-- Use `100dvh` (not `100vh`) for full-height elements (Safari address bar fix)
+- Non-scroll full-height elements: use `100dvh` (not `100vh`) for the Safari address-bar fix
+- **Scroll-page `.section` height must be `100lvh`, not `100dvh`** — it has to match the drei `<Scroll html>` overlay stride (`size.height` = `#root` = `lvh`). On iOS Safari `dvh < lvh` (dynamic toolbar), so `100dvh` drifts each section progressively up; desktop/headless can't reproduce it (`dvh == lvh`). See the `@supports (height: 100lvh)` rule in `src/index.css`.
 - Glassmorphism via `backdrop-filter: blur(8px)` — use sparingly, expensive on mobile
 
 ## Mobile Performance

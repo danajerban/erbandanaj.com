@@ -23,6 +23,7 @@ export const LoadingScreen = () => {
             style={{ width: `${progress}%` }}
           ></div>
         </div>
+        <p className="loading-screen__percent">{Math.round(progress)}%</p>
       </div>
     </div>
   );

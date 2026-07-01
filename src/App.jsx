@@ -19,7 +19,7 @@ function SceneCanvas() {
       dpr={[1, isMobile ? 1.5 : 2]}
       gl={{ alpha: true }}
     >
-      <fog attach="fog" args={["#f8d9ce", 10, 50]} />
+      <fog attach="fog" args={["#efc5b8", 10, 50]} />
       <ScrollControls
         pages={config.sections.length}
         damping={0.1}
