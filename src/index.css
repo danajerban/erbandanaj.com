@@ -358,75 +358,6 @@ a {
   }
 }
 
-/* LOADING SCREEN */
-
-.loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  padding: 4rem;
-  width: 100vw;
-  height: 100dvh;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  background: var(--scene-background);
-  background-color: var(--scene-sky-color);
-  opacity: 1;
-  transition: opacity 1s ease-in-out;
-}
-
-.loading-screen--hidden {
-  /* Reveal almost immediately once assets finish; the small 0.2s delay just
-     lets the first 3D frame paint before the overlay fades (was 1s hold +
-     0.5s fade ≈ 1.5s of dead time after load). */
-  animation: fade-out 0.45s ease-in-out forwards 0.2s;
-  pointer-events: none;
-}
-
-@keyframes fade-out {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.loading-screen__title {
-  font-size: 4rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  color: var(--text-color);
-  margin: 0;
-}
-
-.progress__container {
-  width: 100%;
-  height: 1rem;
-  background-color: rgb(102 106 113 / 42%);
-  position: relative;
-  overflow: hidden;
-  border-radius: 4px;
-}
-
-.progress__bar {
-  width: 0;
-  height: 100%;
-  background-color: var(--text-color);
-  transition: width 0.4s ease-out;
-}
-
-.loading-screen__percent {
-  margin: 0.75rem 0 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-light-color);
-  font-variant-numeric: tabular-nums;
-}
-
 /* RESPONSIVE */
 
 @media (max-width: 990px) {
@@ -500,10 +431,6 @@ a {
 
   .menu__button {
     font-size: 1rem;
-  }
-
-  .loading-screen__title {
-    font-size: clamp(1.4rem, 8vw, 2rem); /* one line down to ~280px viewports */
   }
 
   .scroll-down {

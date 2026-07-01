@@ -1,11 +1,15 @@
 # Security headers for every response (spec decision #20).
+# style-src includes 'unsafe-inline': the instant loading splash's CSS is an
+# inline <style> in index.html <head> (must paint before any stylesheet loads).
+# A hash would be stricter but silently breaks on any splash-CSS edit, and CSP
+# is only applied on Cloudflare deploys — untestable in local preview.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=63072000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; worker-src blob:; child-src blob:; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; worker-src blob:; child-src blob:; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'none'
 
 # Cloudflare Pages reads this file and applies these Cache-Control headers to
 # static asset responses. See https://developers.cloudflare.com/pages/configuration/headers/

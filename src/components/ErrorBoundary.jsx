@@ -1,5 +1,6 @@
 import React from "react";
 import { config } from "../config";
+import { hideInitialLoader } from "../lib/initialLoader";
 
 export class SceneErrorBoundary extends React.Component {
   state = { hasError: false, error: null };
@@ -10,6 +11,9 @@ export class SceneErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error("3D Scene Error:", error, errorInfo);
+    // the scene will never signal its first frame — release the splash so it
+    // can't cover the error fallback
+    hideInitialLoader();
   }
 
   render() {

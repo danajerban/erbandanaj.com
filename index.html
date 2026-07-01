@@ -4,6 +4,152 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logos/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Instant loading splash ("Ember"). Inlined so it paints on the first
+         frame, before the JS bundle or the built stylesheet arrives. Colors
+         and the radial gradient duplicate --scene-background in src/index.css
+         so the fade-out reveals the scene with no color jump — keep in sync. -->
+    <style>
+      @font-face {
+        font-family: "Roboto Slab";
+        font-style: normal;
+        font-weight: 400 700;
+        font-display: swap;
+        src: url("/fonts/roboto-slab-latin.woff2") format("woff2");
+      }
+      #app-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        font-family: "Roboto Slab", Georgia, serif;
+        background:
+          radial-gradient(
+            circle at 82% 28%,
+            rgba(198, 72, 58, 0.24) 0,
+            rgba(207, 80, 63, 0.22) 9rem,
+            rgba(222, 106, 79, 0.15) 16rem,
+            rgba(238, 151, 108, 0.07) 25rem,
+            rgba(238, 151, 108, 0) 34rem
+          )
+          #efc5b8;
+        opacity: 1;
+        transition: opacity 0.45s ease-in-out 0.2s;
+      }
+      #app-loader.app-loader--hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .app-loader__stack {
+        display: grid;
+        /* minmax(0, 1fr): the wordmark can't wrap (&nbsp;), and an implicit
+           column grows to its max-content — wider than the stack — which
+           drags .app-loader__track (width:100%) off-center. Pinning the
+           column to the container keeps any overflow symmetric. */
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        gap: 1.6rem;
+        /* 100% of the padded grid area — a viewport unit here can exceed it
+           and overflow resolves as start-alignment on iOS, off-centering the
+           whole stack */
+        width: 100%;
+        max-width: 460px;
+      }
+      .app-loader__title {
+        margin: 0;
+        /* 3.15rem cap: at 3.4rem the tracked wordmark is ~488px — wider than
+           the 460px stack */
+        font-size: clamp(1.9rem, 6vw, 3.15rem);
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        text-align: center;
+        color: #1a202c;
+      }
+      .app-loader__subtitle {
+        margin: -0.6rem 0 0;
+        padding-left: 0.42em;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.42em;
+        text-transform: uppercase;
+        color: #555;
+      }
+      .app-loader__track {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(26, 32, 44, 0.12);
+      }
+      .app-loader__bar {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 38%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #c6483a, #de6a4f);
+        /* transform-only sweep: it runs on the compositor, so the bar keeps
+           moving while the main thread parses/executes the JS bundle —
+           animating left/width would freeze exactly when this splash matters */
+        will-change: transform;
+        animation: app-loader-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+      @keyframes app-loader-sweep {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(264%);
+        }
+      }
+      @keyframes app-loader-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.55;
+        }
+      }
+      .app-loader__sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      @media (max-width: 990px) {
+        #app-loader {
+          background:
+            radial-gradient(
+              circle at 86% 30%,
+              rgba(198, 72, 58, 0.24) 0,
+              rgba(207, 80, 63, 0.21) 7rem,
+              rgba(222, 106, 79, 0.14) 13rem,
+              rgba(238, 151, 108, 0.07) 20rem,
+              rgba(238, 151, 108, 0) 27rem
+            )
+            #efc5b8;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        /* static partial-width bar with a gentle pulse instead of the sweep
+           (the global reduced-motion kill-switch in src/index.css later
+           freezes even the pulse — acceptable, spec allows fully static) */
+        .app-loader__bar {
+          animation: app-loader-pulse 2.4s ease-in-out infinite;
+        }
+      }
+    </style>
     <!-- Self-hosted Roboto Slab (see @font-face in src/index.css) — no render-blocking third-party request -->
     <link
       rel="preload"
@@ -12,7 +158,8 @@
       type="font/woff2"
       crossorigin
     />
-    <!-- Preload the heavy 3D assets that gate the loading screen so they download
+    <!-- Preload the heavy 3D assets that gate the scene reveal (the splash hides
+         on the first rendered frame after they all resolve) so they download
          in parallel with the JS bundle instead of after it. They are otherwise
          requested by module-level useGLTF.preload() *inside* the bundle, so they
          can't start until three.js + r3f finish downloading and executing. three
@@ -90,6 +237,17 @@
     </script>
   </head>
   <body>
+    <!-- Hidden by src/lib/initialLoader.js on the first rendered WebGL frame -->
+    <div id="app-loader" role="status" aria-live="polite">
+      <div class="app-loader__stack">
+        <p class="app-loader__title">Erban&nbsp;Danaj</p>
+        <p class="app-loader__subtitle">Software&nbsp;Engineer</p>
+        <div class="app-loader__track" aria-hidden="true">
+          <div class="app-loader__bar"></div>
+        </div>
+        <span class="app-loader__sr">Loading 3D scene&hellip;</span>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -5,8 +5,8 @@ import { Suspense } from "react";
 import { OverlayErrorBoundary, SceneErrorBoundary } from "./components/ErrorBoundary";
 import { Experience } from "./components/Experience";
 import { Interface } from "./components/Interface";
-import { LoadingScreen } from "./components/LoadingScreen";
 import { Menu } from "./components/Menu";
+import { SceneReady } from "./components/SceneReady";
 import { config } from "./config";
 import { MobileProvider, useMobile } from "./contexts/MobileContext";
 
@@ -33,6 +33,7 @@ function SceneCanvas() {
           >
             <Suspense fallback={null}>
               <Experience />
+              <SceneReady />
             </Suspense>
           </MotionConfig>
         </group>
@@ -53,7 +54,6 @@ function App() {
     <MobileProvider>
       <Menu />
       <SceneErrorBoundary>
-        <LoadingScreen />
         <SceneCanvas />
       </SceneErrorBoundary>
     </MobileProvider>
