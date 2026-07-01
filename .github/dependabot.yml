@@ -48,8 +48,12 @@ updates:
       # The eslint 9 / flat-config migration is one deliberate unit: eslint 9
       # + eslint-plugin-react-hooks 7 + eslint-plugin-react-refresh 0.5+
       # (ESM-only, flat-config-only — its 0.x minors are breaking, so minors
-      # are ignored too; 0.4.x patches still flow).
+      # are ignored too; 0.4.x patches still flow). eslint-plugin-react 7.x is
+      # already eslint-9-compatible, but its majors are frozen with the chain
+      # anyway (owner decision 2026-07-02); its minors/patches still flow.
       - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-plugin-react"
         update-types: ["version-update:semver-major"]
       - dependency-name: "eslint-plugin-react-hooks"
         update-types: ["version-update:semver-major"]
