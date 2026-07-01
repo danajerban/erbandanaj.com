@@ -8,3 +8,9 @@ dangerouslyAllowAllBuilds: false
 savePrefix: ""
 allowBuilds:
   esbuild: true
+
+overrides:
+  # Dependabot alert #42: esbuild <0.28.1. vite 7.3.5 declares ^0.27.0, so the
+  # patched version needs this override. Drop it once vite's own range moves
+  # to >=0.28.1.
+  "vite>esbuild": "^0.28.1"

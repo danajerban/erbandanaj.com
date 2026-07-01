@@ -5,12 +5,44 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 5
     groups:
-      # Collapse all minor + patch bumps into a single weekly PR to cut noise;
+      # Collapse all minor + patch bumps into a single monthly PR to cut noise;
       # major bumps still arrive as individual PRs for deliberate review.
       minor-and-patch:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # The 3D stack is intentionally pinned and interdependent: React 18 +
+      # @react-three/fiber v8 + @react-three/drei v9 + framer-motion(-3d) v10.
+      # Their majors form one migration chain (React 19 requires r3f v9 + drei
+      # v10; framer-motion-3d is discontinued past v12 in favor of "motion") —
+      # merging any one alone breaks the build. Decision 2026-07-02: pin until
+      # a deliberate whole-stack migration. No security impact: all known
+      # alerts are development-scope and fixed via targeted patch bumps.
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-three/fiber"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-three/drei"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "framer-motion"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "framer-motion-3d"
+        update-types: ["version-update:semver-major"]
+      # v7 targets newer eslint/flat config than this repo's eslint 8 setup.
+      - dependency-name: "eslint-plugin-react-hooks"
+        update-types: ["version-update:semver-major"]
+      # three releases breaking changes as 0.x minors, and three-stdlib must
+      # stay exactly on the version drei v9 resolves (2.36.1) — a mismatched
+      # RGBELoader class reference silently double-loads the environment HDR
+      # (see the comment in src/components/Experience.jsx). Ignore ALL updates
+      # for both; they move only with a deliberate stack migration. Known
+      # tradeoff: a bare ignore also suppresses Dependabot SECURITY-update PRs
+      # for these two — vulns still surface as alerts in the Security tab.
+      - dependency-name: "three"
+      - dependency-name: "three-stdlib"
