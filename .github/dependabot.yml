@@ -15,34 +15,44 @@ updates:
           - "minor"
           - "patch"
     ignore:
-      # The 3D stack is intentionally pinned and interdependent: React 18 +
-      # @react-three/fiber v8 + @react-three/drei v9 + framer-motion(-3d) v10.
-      # Their majors form one migration chain (React 19 requires r3f v9 + drei
-      # v10; framer-motion-3d is discontinued past v12 in favor of "motion") —
-      # merging any one alone breaks the build. Decision 2026-07-02: pin until
-      # a deliberate whole-stack migration. No security impact: all known
-      # alerts are development-scope and fixed via targeted patch bumps.
+      # React majors form one migration chain with the 3D stack (React 19
+      # requires r3f v9 + drei v10) — pinned to 18.x until a deliberate
+      # whole-stack migration (decision 2026-07-02). Minors/patches still flow.
       - dependency-name: "react"
         update-types: ["version-update:semver-major"]
       - dependency-name: "react-dom"
         update-types: ["version-update:semver-major"]
+      # The 3D runtime is intentionally pinned as a unit: fiber v8 + drei v9 +
+      # framer-motion(-3d) v10 + three 0.153 + three-stdlib 2.36.1. Even MINOR
+      # bumps carry runtime-behavior risk to the hand-tuned scene (drei ships
+      # animation/clock behavior changes in minors) and cannot be visually
+      # verified by automation — the whole set moves only in a deliberate
+      # migration. three-stdlib must stay exactly on the version drei resolves
+      # or the RGBELoader dedupe silently double-loads the environment HDR
+      # (see src/components/Experience.jsx). Known tradeoff: bare ignores also
+      # suppress Dependabot SECURITY-update PRs for these six — vulns still
+      # surface as alerts in the Security tab (decision 2026-07-02).
       - dependency-name: "@react-three/fiber"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "@react-three/drei"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "framer-motion"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "framer-motion-3d"
-        update-types: ["version-update:semver-major"]
-      # v7 targets newer eslint/flat config than this repo's eslint 8 setup.
-      - dependency-name: "eslint-plugin-react-hooks"
-        update-types: ["version-update:semver-major"]
-      # three releases breaking changes as 0.x minors, and three-stdlib must
-      # stay exactly on the version drei v9 resolves (2.36.1) — a mismatched
-      # RGBELoader class reference silently double-loads the environment HDR
-      # (see the comment in src/components/Experience.jsx). Ignore ALL updates
-      # for both; they move only with a deliberate stack migration. Known
-      # tradeoff: a bare ignore also suppresses Dependabot SECURITY-update PRs
-      # for these two — vulns still surface as alerts in the Security tab.
       - dependency-name: "three"
       - dependency-name: "three-stdlib"
+      # vite 8 (rolldown) and @vitejs/plugin-react 6 (peer-requires vite ^8)
+      # are an interlocked pair — majors ignored until a deliberate toolchain
+      # migration. vite 7.x security patches still flow.
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitejs/plugin-react"
+        update-types: ["version-update:semver-major"]
+      # The eslint 9 / flat-config migration is one deliberate unit: eslint 9
+      # + eslint-plugin-react-hooks 7 + eslint-plugin-react-refresh 0.5+
+      # (ESM-only, flat-config-only — its 0.x minors are breaking, so minors
+      # are ignored too; 0.4.x patches still flow).
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-plugin-react-hooks"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-plugin-react-refresh"
+        update-types:
+          ["version-update:semver-major", "version-update:semver-minor"]
