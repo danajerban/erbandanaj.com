@@ -1,12 +1,12 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 
-// Adaptive quality, desktop only (this module is a lazy chunk mounted after the
-// first visible frame; mobile never loads it). A frame-rate monitor with
-// explicit thresholds and hysteresis walks a ladder of quality levels:
-//   below STEP_DOWN_FPS for STEP_DOWN_MS  -> one level down
-//   above STEP_UP_FPS   for STEP_UP_MS    -> one level up
-// Every level is reversible; the measurement seam gets a mark per step.
+// Adaptive DPR, desktop only (mounted after the first visible frame; mobile
+// never mounts it). A frame-rate monitor with explicit thresholds and
+// hysteresis walks a ladder of DPR values:
+//   below STEP_DOWN_FPS for STEP_DOWN_MS  -> one step down
+//   above STEP_UP_FPS   for STEP_UP_MS    -> one step up
+// Every step is reversible; the measurement seam gets a mark per step.
 const STEP_DOWN_FPS = 40;
 const STEP_DOWN_MS = 2000;
 const STEP_UP_FPS = 55;
@@ -19,9 +19,9 @@ const DPR_STEP = 0.5;
 const buildLevels = (maxDpr) => {
   const levels = [];
   // MOBILE_PERF: DPR step-down (desktop only this pass; the mobile range 1–1.5
-  // is untouched) — revert by returning [{ dpr: maxDpr }]
-  for (let dpr = maxDpr; dpr > 1; dpr -= DPR_STEP) levels.push({ dpr });
-  levels.push({ dpr: 1 });
+  // is untouched) — revert by returning [maxDpr]
+  for (let dpr = maxDpr; dpr > 1; dpr -= DPR_STEP) levels.push(dpr);
+  levels.push(1);
   return levels;
 };
 
@@ -33,7 +33,7 @@ export default function DesktopQuality({ onDpr }) {
   const sample = useRef({ start: performance.now(), frames: 0, low: 0, high: 0 });
 
   useEffect(() => {
-    onDpr(levels[level].dpr);
+    onDpr(levels[level]);
   }, [levels, level, onDpr]);
   // Restore the canvas's own DPR when this unmounts (viewport crossed to mobile).
   useEffect(() => () => onDpr(null), [onDpr]);

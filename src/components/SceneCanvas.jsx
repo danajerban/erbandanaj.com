@@ -3,6 +3,10 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, lazy, useCallback, useState } from "react";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
+// Desktop only, mounted after the first visible frame: fps monitor + DPR
+// ladder (see DesktopQuality). Static import: it has no heavy dependency of
+// its own, and this module is already a lazy chunk.
+import DesktopQuality from "./DesktopQuality";
 import { OverlayErrorBoundary, SilentErrorBoundary } from "./ErrorBoundary";
 import { Experience } from "./Experience";
 import { SceneReady } from "./SceneReady";
@@ -10,9 +14,6 @@ import { SceneReady } from "./SceneReady";
 // Lazy: the HTML overlay is the only consumer of the motion library on the
 // scene side, so it stays off the path to the first visible frame.
 const Overlay = lazy(() => import("./Overlay"));
-// Lazy, desktop only, mounted after the first visible frame: the adaptive
-// quality monitor (see DesktopQuality).
-const DesktopQuality = lazy(() => import("./DesktopQuality"));
 
 // Loaded via React.lazy from App.jsx — this module is the seam that keeps
 // three.js/r3f/drei/motion out of the entry chunk. Never import it
@@ -55,9 +56,7 @@ function SceneCanvas() {
         </group>
         {revealed && !isMobile && (
           <SilentErrorBoundary>
-            <Suspense fallback={null}>
-              <DesktopQuality onDpr={setQualityDpr} />
-            </Suspense>
+            <DesktopQuality onDpr={setQualityDpr} />
           </SilentErrorBoundary>
         )}
         <Scroll html>

@@ -214,7 +214,7 @@ export const Experience = ({ revealed }) => {
           sprite's direction (behind, right) rims the models; a faint cool
           fill from the camera side lifts the shadowed faces. */}
       {/* MOBILE_PERF: scene lights are desktop only, mobile keeps env-only
-          lighting — revert by removing the ternary */}
+          lighting — revert by removing the !isMobile guard */}
       {!isMobile && (
         <>
           <directionalLight position={[5.25, 3, -13]} color="#ffd2b0" intensity={0.55} />

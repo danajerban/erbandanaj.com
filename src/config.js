@@ -1,5 +1,7 @@
 export const config = {
   sections: ["home", "skills", "projects", "contact"],
+  // Menu link text, keyed by section id.
+  sectionLabels: { home: "Home", skills: "Skills", projects: "Projects", contact: "Contact" },
   home: {
     title: "ErbanDanaj",
   },

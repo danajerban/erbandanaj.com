@@ -13,7 +13,7 @@ import { useEmissiveGlow } from "../lib/useEmissiveGlow";
 export function Star(props) {
   const { nodes, materials } = useGLTF("/models/Star.glb");
   const { prefersReducedMotion } = useMobile();
-  // The star is one of the two elements pushed above the normal brightness range on desktop.
+  // The star is one of the two models brightened with emissive on desktop.
   useEmissiveGlow(materials["Yellow.030"], 1.8);
   const ref = useRef();
   useFrame((_, delta) => {

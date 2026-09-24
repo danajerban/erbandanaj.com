@@ -18,13 +18,20 @@ const groupVariants = {
 };
 const cardVariants = {
   hidden: { opacity: 0, y: ANIMATION_CONSTANTS.CARD_RISE_PX },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: ANIMATION_CONSTANTS.CARD_ENTRANCE_DURATION, ease: "easeOut" },
+  },
 };
 // Reduced motion: fade only. Motion would snap `y` anyway, but cards that have
 // not entered the viewport yet would still sit 12 px down in their hidden state.
 const cardVariantsReduced = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
+  visible: {
+    opacity: 1,
+    transition: { duration: ANIMATION_CONSTANTS.CARD_ENTRANCE_DURATION, ease: "easeOut" },
+  },
 };
 
 export const Interface = ({ revealed }) => {

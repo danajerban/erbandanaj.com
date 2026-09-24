@@ -13,8 +13,7 @@ const handleSectionClick = (event) => {
 
 // Link ids come from config.sections, the same list sectionAtom indexes into,
 // so the active indicator and the anchors cannot drift apart.
-const SECTION_LABELS = { home: "Home", skills: "Skills", projects: "Projects", contact: "Contact" };
-const SECTION_LINKS = config.sections.map((id) => [id, SECTION_LABELS[id]]);
+const SECTION_LINKS = config.sections.map((id) => [id, config.sectionLabels[id]]);
 
 export const Menu = () => {
   const sectionIndex = useAtomValue(sectionAtom);
@@ -36,7 +35,7 @@ export const Menu = () => {
               key={id}
               className={`menu__button${active ? " menu__button--active" : ""}`}
               href={`#${id}`}
-              aria-current={active ? "true" : undefined}
+              aria-current={active ? "location" : undefined}
               onClick={handleSectionClick}
             >
               {label}

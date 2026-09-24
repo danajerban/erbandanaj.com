@@ -9,7 +9,7 @@ import { useEmissiveGlow } from "../lib/useEmissiveGlow";
 
 export function Lamp(props) {
   const { nodes, materials } = useGLTF("/models/Lamp.glb");
-  // The bulb is pushed above the normal brightness range on desktop.
+  // The bulb is brightened with emissive on desktop.
   useEmissiveGlow(materials.L_yellow, 1.8);
   return (
     <group {...props} dispose={null}>
