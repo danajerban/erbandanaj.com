@@ -8,10 +8,13 @@ import { useGLTF } from "../lib/useGLTF";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { useMobile } from "../contexts/MobileContext";
+import { useEmissiveGlow } from "../lib/useEmissiveGlow";
 
 export function Star(props) {
   const { nodes, materials } = useGLTF("/models/Star.glb");
   const { prefersReducedMotion } = useMobile();
+  // The star is one of the two elements pushed above the normal brightness range on desktop.
+  useEmissiveGlow(materials["Yellow.030"], 1.8);
   const ref = useRef();
   useFrame((_, delta) => {
     if (!prefersReducedMotion) {

@@ -23,16 +23,6 @@ export default defineConfig({
         // three), which drags ~330KB gzip back onto the critical path.
         codeSplitting: {
           groups: [
-            // Desktop-only lazy chunk (see DesktopQuality.jsx). Highest priority
-            // so the r3f group never swallows @react-three/postprocessing, and
-            // non-recursive so this group does not pull three/fiber/react (its
-            // dependencies) out of their own groups.
-            {
-              name: 'postprocessing',
-              test: /node_modules\/(postprocessing|@react-three\/postprocessing|n8ao)\//,
-              priority: 5,
-              includeDependenciesRecursively: false,
-            },
             {
               name: 'react',
               test: /node_modules\/(react|react-dom|scheduler)\//,

@@ -22,6 +22,9 @@
     );
   --text-color: #1a202c;
   --text-light-color: #555;
+  /* One glass for every card and the menu pill; the alpha is per breakpoint */
+  --glass-alpha: 0.45;
+  --glass-color: rgba(255, 255, 255, var(--glass-alpha));
 }
 
 @media (max-width: 990px) {
@@ -77,10 +80,13 @@ body {
   box-sizing: border-box;
 }
 
-/* Focus indicators for accessibility */
+/* Focus ring: two layers — white inside (box-shadow), the dark text color
+   outside (outline) — so it reads at 3:1 or better on every background. The
+   blue accent reaches only 2.98:1 on the sky, so it is not used for focus. */
 *:focus-visible {
-  outline: 2px solid var(--primary-color);
+  outline: 2px solid var(--text-color);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 /* Visually hidden but available to screen readers */
@@ -172,13 +178,32 @@ a {
 }
 
 .skill {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--glass-color);
   backdrop-filter: blur(8px);
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
   width: 320px;
   max-width: 100%;
+  /* Hover/press use the individual transform properties: the entrance
+     animation owns the inline `transform`, which a class rule cannot win. */
+  transition:
+    translate 0.2s ease-out,
+    scale 0.15s ease-out,
+    background-color 0.2s ease-out;
+}
+
+@media (hover: hover) {
+  .skill:hover {
+    translate: 0 -2px;
+    background: rgba(255, 255, 255, calc(var(--glass-alpha) + 0.2));
+  }
+}
+
+.skill:active {
+  translate: 0;
+  scale: 0.98;
+  background: rgba(255, 255, 255, calc(var(--glass-alpha) + 0.1));
 }
 
 .skill__label {
@@ -221,12 +246,12 @@ a {
 }
 
 .project {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--glass-color);
   overflow: hidden;
   backdrop-filter: blur(8px);
   border-radius: 8px;
   transition:
-    transform 0.2s ease-in-out,
+    scale 0.2s ease-in-out,
     background-color 0.2s ease-in-out;
 }
 
@@ -235,17 +260,13 @@ a {
 @media (hover: hover) {
   .project:hover {
     background: rgba(255, 255, 255, 0.8);
-    transform: scale(1.05);
+    scale: 1.05;
     cursor: pointer;
   }
 }
 
-.skill:active {
-  transform: scale(0.98);
-}
-
 .project:active {
-  transform: scale(0.98);
+  scale: 0.98;
   background: rgba(255, 255, 255, 0.6);
 }
 
@@ -280,7 +301,7 @@ a {
 .contact {
   margin: 1rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--glass-color);
   backdrop-filter: blur(8px);
   border-radius: 8px;
   min-width: 280px;
@@ -335,12 +356,49 @@ a {
   display: flex;
   gap: 1rem;
   align-items: center;
+  /* The glass pill grows outward: padding and negative margin cancel, so the
+     links never move when it appears. */
+  padding: 0.5rem 0.9rem;
+  margin: -0.5rem -0.9rem;
+  border-radius: 8px;
+  transition: background-color 0.25s ease-out;
+}
+
+.menu__buttons--glass {
+  background: var(--glass-color);
+  backdrop-filter: blur(8px);
 }
 
 .menu__button {
+  position: relative;
   font-weight: bold;
   font-size: 1.1rem;
   color: var(--text-color);
+  transition: color 0.2s ease-out;
+}
+
+/* The blue bar means the same thing on hover and on the active section:
+   "here is where you can go / where you are". */
+.menu__button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.2rem;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--primary-color);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease-out;
+}
+
+.menu__button--active {
+  color: var(--primary-color);
+}
+
+.menu__button--active::after {
+  transform: scaleX(1);
 }
 
 @media (hover: hover) {
@@ -348,11 +406,21 @@ a {
     color: var(--primary-color);
     cursor: pointer;
   }
+
+  .menu__button:hover::after {
+    transform: scaleX(1);
+  }
 }
 
 /* RESPONSIVE */
 
 @media (max-width: 990px) {
+  :root {
+    /* No blur on mobile (MOBILE_PERF below), so the glass is a little denser
+       to keep text readable over dark 3D elements. */
+    --glass-alpha: 0.5;
+  }
+
   .mobile--section--bottom {
     align-items: flex-end;
     padding-bottom: max(6rem, calc(env(safe-area-inset-bottom) + 4.5rem));
@@ -397,9 +465,6 @@ a {
 
   .project {
     min-width: 280px;
-    /* Blur is disabled on mobile (MOBILE_PERF below) — raise alpha so text
-       stays readable over dark 3D elements (was 2.56:1 worst case). */
-    background: rgba(255, 255, 255, 0.45);
   }
 
   .project__details {
@@ -429,10 +494,12 @@ a {
     display: none;
   }
 
-  /* MOBILE_PERF: disable expensive backdrop-filter on mobile — revert by removing this block */
+  /* MOBILE_PERF: disable expensive backdrop-filter on mobile (the menu pill
+     is a tint only) — revert by removing this block */
   .skill,
   .project,
-  .contact {
+  .contact,
+  .menu__buttons--glass {
     backdrop-filter: none;
   }
 }

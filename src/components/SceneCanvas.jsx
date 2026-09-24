@@ -10,15 +10,15 @@ import { SceneReady } from "./SceneReady";
 // Lazy: the HTML overlay is the only consumer of the motion library on the
 // scene side, so it stays off the path to the first visible frame.
 const Overlay = lazy(() => import("./Overlay"));
-// Lazy, desktop only, mounted after the first visible frame: the performance
-// monitor and the postprocessing library (see DesktopQuality).
+// Lazy, desktop only, mounted after the first visible frame: the adaptive
+// quality monitor (see DesktopQuality).
 const DesktopQuality = lazy(() => import("./DesktopQuality"));
 
 // Loaded via React.lazy from App.jsx — this module is the seam that keeps
 // three.js/r3f/drei/motion out of the entry chunk. Never import it
 // statically from an eagerly-loaded module, or the code-split is undone.
 function SceneCanvas() {
-  const { isMobile } = useMobile();
+  const { isMobile, prefersReducedMotion } = useMobile();
   // The loop stays off until the Home gate is loaded and pre-warmed on the
   // GPU (SceneReady), so the first frame rendered is the first one shown.
   const [frameloop, setFrameloop] = useState("never");
@@ -38,10 +38,14 @@ function SceneCanvas() {
       gl={{ alpha: true }}
     >
       <fog attach="fog" args={["#efc5b8", 10, 50]} />
+      {/* Reduced motion: the damped scroll must not glide after input stops.
+          A 0.001 s smoothing time settles within one frame (maath's damp snaps
+          under its epsilon), and the speed cap comes off so a section jump
+          is not stretched over seconds. */}
       <ScrollControls
         pages={config.sections.length}
-        damping={0.1}
-        maxSpeed={0.2}
+        damping={prefersReducedMotion ? 0.001 : 0.1}
+        maxSpeed={prefersReducedMotion ? Infinity : 0.2}
       >
         <group position-y={-1}>
           <Suspense fallback={null}>
@@ -59,7 +63,7 @@ function SceneCanvas() {
         <Scroll html>
           <OverlayErrorBoundary>
             <Suspense fallback={null}>
-              <Overlay />
+              <Overlay revealed={revealed} />
             </Suspense>
           </OverlayErrorBoundary>
         </Scroll>

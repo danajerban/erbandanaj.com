@@ -1,4 +1,3 @@
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 
@@ -16,22 +15,13 @@ const STEP_UP_MS = 3000;
 const WINDOW_MS = 500;
 const DPR_STEP = 0.5;
 
-// Bloom is wired but not yet shown: the effect composer would tone-map the
-// sunset-sun sprite, which is frozen until Phase 3 adds its layer mask and
-// the owner signs off the look. Kept as runtime data so the postprocessing
-// library stays in this chunk and its cost is measured now.
-const BLOOM = { ready: false };
-
-// Ladder from the canvas's current DPR down to 1 (never below), then bloom off
-// (a rung only once bloom is shown — a step that changes nothing is not a step).
+// Ladder from the canvas's current DPR down to 1 (never below).
 const buildLevels = (maxDpr) => {
   const levels = [];
   // MOBILE_PERF: DPR step-down (desktop only this pass; the mobile range 1–1.5
-  // is untouched) — revert by returning [{ dpr: maxDpr, bloom: true }]
-  for (let dpr = maxDpr; dpr > 1; dpr -= DPR_STEP) levels.push({ dpr, bloom: true });
-  levels.push({ dpr: 1, bloom: true });
-  // MOBILE_PERF: bloom off as the last resort — revert by removing this level
-  if (BLOOM.ready) levels.push({ dpr: 1, bloom: false });
+  // is untouched) — revert by returning [{ dpr: maxDpr }]
+  for (let dpr = maxDpr; dpr > 1; dpr -= DPR_STEP) levels.push({ dpr });
+  levels.push({ dpr: 1 });
   return levels;
 };
 
@@ -89,10 +79,5 @@ export default function DesktopQuality({ onDpr }) {
     }
   });
 
-  if (!(levels[level].bloom && BLOOM.ready)) return null;
-  return (
-    <EffectComposer>
-      <Bloom luminanceThreshold={1} mipmapBlur />
-    </EffectComposer>
-  );
+  return null;
 }

@@ -18,9 +18,10 @@ export const ANIMATION_CONSTANTS = {
   // the damped scroll's tiny tail and momentum pauses don't flicker to idle.
   WALK_HOLD_MS: 200,
 
-  // Stagger delays
-  SKILL_STAGGER_DELAY: 0.62,
-  PROJECT_STAGGER_DELAY: 0.5,
+  // Overlay card entrance: each card fades in and rises this many px, the
+  // cards of one section staggered by this many seconds (both breakpoints).
+  CARD_RISE_PX: 12,
+  CARD_STAGGER_DELAY: 0.08,
 };
 
 export const getSectionsDistance = (isMobile) => isMobile ? 7 : 10;

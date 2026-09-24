@@ -1,4 +1,5 @@
 import { ContactShadows, useScroll } from "@react-three/drei";
+import { useSetAtom } from "jotai";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -6,6 +7,7 @@ import { RGBELoader } from "three-stdlib";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
+import { sectionAtom } from "../store";
 import { Avatar } from "./Avatar";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { HomeSection } from "./HomeSection";
@@ -111,6 +113,7 @@ export const Experience = ({ revealed }) => {
   const { isMobile } = useMobile();
   const [section, setSection] = useState(config.sections[0]);
   const sectionRef = useRef(section);
+  const setSectionIndex = useSetAtom(sectionAtom);
   const sceneContainer = useRef();
   const scrollData = useScroll();
   const sectionsDistance = getSectionsDistance(isMobile);
@@ -137,6 +140,7 @@ export const Experience = ({ revealed }) => {
     if (newSection !== sectionRef.current) {
       sectionRef.current = newSection;
       setSection(newSection);
+      setSectionIndex(sectionIndex);
     }
   });
 
@@ -206,16 +210,27 @@ export const Experience = ({ revealed }) => {
     <>
       <EnvironmentMap />
       <SunsetSun isMobile={isMobile} />
+      {/* LIGHTS — on top of the environment map. A warm key from the sunset
+          sprite's direction (behind, right) rims the models; a faint cool
+          fill from the camera side lifts the shadowed faces. */}
+      {/* MOBILE_PERF: scene lights are desktop only, mobile keeps env-only
+          lighting — revert by removing the ternary */}
+      {!isMobile && (
+        <>
+          <directionalLight position={[5.25, 3, -13]} color="#ffd2b0" intensity={0.55} />
+          <directionalLight position={[-4, 5, 8]} color="#e4ecff" intensity={0.22} />
+        </>
+      )}
       <Avatar position-z={isMobile ? -5 : 0} />
 
-      {/* SHADOWS */}
-      {/* MOBILE_PERF: reduce shadow resolution on mobile — revert by removing ternaries */}
+      {/* SHADOWS — softer, higher-resolution contact shadows on desktop */}
+      {/* MOBILE_PERF: reduce shadow resolution and blur on mobile — revert by removing ternaries */}
       <ContactShadows
         opacity={0.42}
         scale={[30, 30]}
         color="#b07a62"
-        resolution={isMobile ? 128 : 256}
-        blur={isMobile ? 1.5 : 2}
+        resolution={isMobile ? 128 : 512}
+        blur={isMobile ? 1.5 : 2.8}
       />
 
       <group ref={sceneContainer}>

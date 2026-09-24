@@ -1,6 +1,6 @@
 import { useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useSetAtom } from "jotai";
 import { useRef, useState } from "react";
 import { config } from "../config";
@@ -8,7 +8,26 @@ import { useMobile } from "../contexts/MobileContext";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { projectAtom } from "../store";
 
-export const Interface = () => {
+// Card entrance: fade in and rise, once per page load (viewport `once`, no
+// storage). The rise is on the cards themselves — never on `.projects`, whose
+// CSS translateX an inline motion transform would override. A section's
+// cards are staggered by the shared constant via the container's variant.
+const groupVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: ANIMATION_CONSTANTS.CARD_STAGGER_DELAY } },
+};
+const cardVariants = {
+  hidden: { opacity: 0, y: ANIMATION_CONSTANTS.CARD_RISE_PX },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+};
+// Reduced motion: fade only. Motion would snap `y` anyway, but cards that have
+// not entered the viewport yet would still sit 12 px down in their hidden state.
+const cardVariantsReduced = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
+};
+
+export const Interface = ({ revealed }) => {
   const scrollData = useScroll();
   const [hasScrolled, setHasScrolled] = useState(false);
   const hasScrolledRef = useRef(false);
@@ -21,6 +40,9 @@ export const Interface = () => {
   });
   const setProject = useSetAtom(projectAtom);
   const { isMobile } = useMobile();
+  const cardEntrance = useReducedMotion() ? cardVariantsReduced : cardVariants;
+  // Mobile: the section is only "in view" once its top 70% has scrolled past.
+  const viewport = { once: true, margin: isMobile ? "-70% 0px 0px 0px" : undefined };
   return (
     <div className="interface">
       <div className="sections">
@@ -61,35 +83,16 @@ export const Interface = () => {
             role="region"
             aria-label="Skills"
             tabIndex={isMobile ? 0 : undefined}
-            whileInView={"visible"}
-            initial={{
-              opacity: 0,
-            }}
-            variants={{
-              visible: {
-                opacity: 1,
-              },
-            }}
-            viewport={{
-              margin: isMobile ? "-70% 0px 0px 0px" : undefined,
-            }}
+            initial="hidden"
+            whileInView="visible"
+            variants={groupVariants}
+            viewport={viewport}
           >
             {config.skills.map((skill, idx) => (
               <motion.div
                 key={skill.name + idx}
                 className="skill"
-                initial={{ opacity: 0 }}
-                variants={{
-                  visible: {
-                    opacity: 1,
-                  },
-                }}
-                transition={{
-                  duration: 1,
-                  delay: isMobile
-                    ? 0
-                    : idx * ANIMATION_CONSTANTS.SKILL_STAGGER_DELAY,
-                }}
+                variants={cardEntrance}
               >
                 <div className="skill__label">
                   <img
@@ -109,18 +112,10 @@ export const Interface = () => {
           <h2 className="sr-only">Projects</h2>
           <motion.div
             className="projects"
-            whileInView={"visible"}
-            initial={{
-              opacity: 0,
-            }}
-            variants={{
-              visible: {
-                opacity: 1,
-              },
-            }}
-            viewport={{
-              margin: isMobile ? "-70% 0px 0px 0px" : undefined,
-            }}
+            initial="hidden"
+            whileInView="visible"
+            variants={groupVariants}
+            viewport={viewport}
           >
             {config.projects.map((project, idx) => (
               <motion.div
@@ -132,18 +127,7 @@ export const Interface = () => {
                 onBlur={() => setProject(config.projects[0])}
                 key={project.name + idx}
                 className="project"
-                initial={{ opacity: 0 }}
-                variants={{
-                  visible: {
-                    opacity: 1,
-                  },
-                }}
-                transition={{
-                  duration: 1,
-                  delay: isMobile
-                    ? 0
-                    : idx * ANIMATION_CONSTANTS.PROJECT_STAGGER_DELAY,
-                }}
+                variants={cardEntrance}
               >
                 <a
                   href={project.link}
@@ -151,12 +135,18 @@ export const Interface = () => {
                   rel="noopener noreferrer"
                   aria-label={`${project.name} - ${project.description}`}
                 >
+                  {/* Lazy until the scene is visible (the screenshots must not
+                      compete with the Home gate on the network), then eager so
+                      they download, decode and rasterise while the visitor is
+                      idle at Home — not mid-scroll, where a lazy image
+                      crossing the load margin cost frames over 50 ms. */}
                   <img
                     className="project__image"
                     src={project.image}
                     alt={project.name}
                     crossOrigin="anonymous"
-                    loading="lazy"
+                    loading={revealed ? "eager" : "lazy"}
+                    decoding="async"
                   />
                   <div className="project__details">
                     <h2 className="project__details__name">{project.name}</h2>
@@ -174,15 +164,10 @@ export const Interface = () => {
           <h2 className="sr-only">Contact</h2>
           <motion.div
             className="contact"
-            whileInView={"visible"}
-            initial={{
-              opacity: 0,
-            }}
-            variants={{
-              visible: {
-                opacity: 1,
-              },
-            }}
+            initial="hidden"
+            whileInView="visible"
+            variants={cardEntrance}
+            viewport={{ once: true }}
           >
             <h1 className="contact__name">{config.contact.name}</h1>
             <p className="contact__address">{config.contact.address}</p>

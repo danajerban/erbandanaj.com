@@ -5,9 +5,12 @@ Lamp by burunduk [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly
 */
 
 import { useGLTF } from "../lib/useGLTF";
+import { useEmissiveGlow } from "../lib/useEmissiveGlow";
 
 export function Lamp(props) {
   const { nodes, materials } = useGLTF("/models/Lamp.glb");
+  // The bulb is pushed above the normal brightness range on desktop.
+  useEmissiveGlow(materials.L_yellow, 1.8);
   return (
     <group {...props} dispose={null}>
       <group position={[0.326, 0.78, -0.505]} rotation={[-1.419, 0.087, 2.088]}>

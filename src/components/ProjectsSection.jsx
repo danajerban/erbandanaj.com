@@ -47,8 +47,15 @@ export const ProjectsSection = ({ active }) => {
               position-y={1.74}
             />
           </Suspense>
+          {/* The desk stays white; on desktop it is smoother and reflects
+              the environment a little more. */}
+          {/* MOBILE_PERF: desk material response is desktop only — revert by removing the ternaries */}
           <RoundedBox scale-x={2} position-y={0.5} position-z={-1}>
-            <meshStandardMaterial color="white" />
+            <meshStandardMaterial
+              color="white"
+              roughness={isMobile ? 1 : 0.6}
+              envMapIntensity={isMobile ? 1 : 1.25}
+            />
           </RoundedBox>
         </group>
       </group>

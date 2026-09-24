@@ -5,15 +5,18 @@ Balloon by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/)
 */
 
 import { useGLTF } from "../lib/useGLTF";
+import { useMobile } from "../contexts/MobileContext";
 
 export function Balloon(props) {
   const { nodes } = useGLTF("/models/Balloon.glb");
+  const { isMobile } = useMobile();
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Balloon007.geometry}>
         {/* Own material (roughness/metalness from the GLB's phong1SG) — each
             balloon gets its own color without copying the shared instance */}
-        <meshStandardMaterial color={props.color} roughness={0.916} metalness={0} />
+        {/* MOBILE_PERF: glossier balloons are desktop only — revert by removing the ternary */}
+        <meshStandardMaterial color={props.color} roughness={isMobile ? 0.916 : 0.4} metalness={0} />
       </mesh>
     </group>
   );

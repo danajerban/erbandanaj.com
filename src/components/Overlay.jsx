@@ -5,10 +5,10 @@ import { Interface } from "./Interface";
 // motion library, so loading it through React.lazy keeps the motion chunk off
 // the path to the first visible frame. It arrives while the 3D assets are
 // still downloading.
-export default function Overlay() {
+export default function Overlay({ revealed }) {
   return (
     <MotionConfig transition={{ duration: 1 }} reducedMotion="user">
-      <Interface />
+      <Interface revealed={revealed} />
     </MotionConfig>
   );
 }

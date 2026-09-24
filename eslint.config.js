@@ -66,6 +66,7 @@ export default [
             "transparent",
             "roughness",
             "metalness",
+            "envMapIntensity",
             "toneMapped",
             "depthWrite",
             "wireframe",
