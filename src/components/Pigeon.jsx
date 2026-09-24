@@ -4,13 +4,14 @@ Command: npx gltfjsx@6.2.3 public/models/Pigeon.gltf -o src/components/Pigeon.js
 Pigeon by Quaternius (https://poly.pizza/m/9NGlBTpDEr)
 */
 
-import { useAnimations, useGLTF } from "@react-three/drei";
+import { useAnimations } from "@react-three/drei";
+import { useGLTF } from "../lib/useGLTF";
 import { useEffect, useRef, useState } from "react";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 
 export function Pigeon(props) {
   const group = useRef();
-  const { nodes, materials, animations } = useGLTF("/models/Pigeon.glb", "/draco/");
+  const { nodes, materials, animations } = useGLTF("/models/Pigeon.glb");
 
   const { actions } = useAnimations(animations, group);
   const [animation, setAnimation] = useState("Flying_Idle");
@@ -78,4 +79,4 @@ export function Pigeon(props) {
   );
 }
 
-useGLTF.preload("/models/Pigeon.glb", "/draco/");
+useGLTF.preload("/models/Pigeon.glb");

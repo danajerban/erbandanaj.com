@@ -4,10 +4,11 @@ Command: npx gltfjsx@6.2.3 public/models/MacBook Pro.glb -o src/components/MacBo
 Laptop / MacBook Pro by Alex Safayan [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/27hcX_w47Jb)
 */
 
-import { useGLTF, useTexture } from "@react-three/drei";
+import { useTexture } from "@react-three/drei";
+import { useGLTF } from "../lib/useGLTF";
 
 export function MacBookPro(props) {
-  const { nodes, materials } = useGLTF("/models/MacBook Pro.glb", "/draco/");
+  const { nodes, materials } = useGLTF("/models/MacBook Pro.glb");
   const screenTexture = useTexture("/textures/screen.webp");
   return (
     <group {...props} dispose={null}>
@@ -50,5 +51,5 @@ export function MacBookPro(props) {
     </group>
   );
 }
-useGLTF.preload("/models/MacBook Pro.glb", "/draco/");
+useGLTF.preload("/models/MacBook Pro.glb");
 useTexture.preload("/textures/screen.webp");

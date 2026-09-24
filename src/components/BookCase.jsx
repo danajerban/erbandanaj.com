@@ -4,10 +4,10 @@ Command: npx gltfjsx@6.2.3 public/models/BookCaseWide.glb -o src/components/Book
 Bookcase Wide by Kay Lousberg (https://market.pmnd.rs/model/bookcase-wide)
 */
 
-import { useGLTF } from "@react-three/drei";
+import { useGLTF } from "../lib/useGLTF";
 
 export function BookCase(props) {
-  const { nodes, materials } = useGLTF("/models/BookCaseWide.glb", "/draco/");
+  const { nodes, materials } = useGLTF("/models/BookCaseWide.glb");
   return (
     <group {...props} dispose={null}>
       <group rotation={[Math.PI / 2, 0, 0]}>
@@ -52,4 +52,4 @@ export function BookCase(props) {
   );
 }
 
-useGLTF.preload("/models/BookCaseWide.glb", "/draco/");
+useGLTF.preload("/models/BookCaseWide.glb");

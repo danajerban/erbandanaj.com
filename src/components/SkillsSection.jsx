@@ -12,6 +12,7 @@ export const SkillsSection = ({ active }) => {
   const sectionsDistance = getSectionsDistance(isMobile);
   return (
     <SectionGroup
+      name="skills"
       active={active}
       position-x={isMobile ? sectionsDistance : 0}
       position-z={isMobile ? -4 : sectionsDistance}

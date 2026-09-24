@@ -158,19 +158,25 @@
       type="font/woff2"
       crossorigin
     />
-    <!-- Preload the heavy 3D assets that gate the scene reveal (the splash hides
-         on the first rendered frame after they all resolve) so they download
-         in parallel with the JS bundle instead of after it. They are otherwise
-         requested by module-level useGLTF.preload() *inside* the bundle, so they
-         can't start until three.js + r3f finish downloading and executing. three
-         fetches via fetch() (cors mode, same-origin creds), so as="fetch"
-         crossorigin matches the real request and avoids a double-download. -->
+    <!-- Preload the assets that gate the scene reveal — the Home section only:
+         the avatar and its two animations, the Home props, the Home title font
+         and the laptop screen (the splash hides on the first frame after they
+         all resolve and pre-warm). They download in parallel with the JS bundle
+         instead of after it: they are otherwise requested by module-level
+         useGLTF.preload() *inside* the bundle, so they can't start until
+         three.js + r3f finish downloading and executing. three fetches via
+         fetch() (cors mode, same-origin creds), so as="fetch" crossorigin
+         matches the real request and avoids a double-download. The other
+         sections load in the background after the first frame — no preloads. -->
     <link rel="preload" href="/models/68275e863c5ab94b9eacc586.glb" as="fetch" crossorigin />
     <link rel="preload" href="/animations/Happy-Idle.glb" as="fetch" crossorigin />
     <link rel="preload" href="/animations/Walking.glb" as="fetch" crossorigin />
-    <link rel="preload" href="/models/Pigeon.glb" as="fetch" crossorigin />
-    <link rel="preload" href="/models/Mailbox%20v2.glb" as="fetch" crossorigin />
-    <link rel="preload" href="/draco/draco_decoder.wasm" as="fetch" crossorigin />
+    <link rel="preload" href="/models/MacBook%20Pro.glb" as="fetch" crossorigin />
+    <link rel="preload" href="/models/Palm%20tree.glb" as="fetch" crossorigin />
+    <link rel="preload" href="/models/Star.glb" as="fetch" crossorigin />
+    <link rel="preload" href="/fonts/Inter_Bold.json" as="fetch" crossorigin />
+    <!-- TextureLoader goes through an <img> with crossOrigin="anonymous" -->
+    <link rel="preload" href="/textures/screen.webp" as="image" crossorigin />
     <!-- Environment HDR: warm the HTTP cache early so the eval-time RGBELoader
          preload (see Experience.jsx) resolves instantly. crossorigin is required
          to match three FileLoader's same-origin cors fetch (no double download). -->

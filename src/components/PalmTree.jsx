@@ -4,10 +4,10 @@ Command: npx gltfjsx@6.2.3 public/models/Palm tree.glb -o src/components/PalmTre
 Palm tree by jeremy [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/bjGeBbKhAVN)
 */
 
-import { useGLTF } from "@react-three/drei";
+import { useGLTF } from "../lib/useGLTF";
 
 export function PalmTree(props) {
-  const { nodes, materials } = useGLTF("/models/Palm tree.glb", "/draco/");
+  const { nodes, materials } = useGLTF("/models/Palm tree.glb");
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -26,4 +26,4 @@ export function PalmTree(props) {
   );
 }
 
-useGLTF.preload("/models/Palm tree.glb", "/draco/");
+useGLTF.preload("/models/Palm tree.glb");

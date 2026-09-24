@@ -4,13 +4,13 @@ Command: npx gltfjsx@6.2.3 public/models/Star.gltf -o src/components/Star.jsx -r
 Star by Kay Lousberg (https://market.pmnd.rs/model/star)
 */
 
-import { useGLTF } from "@react-three/drei";
+import { useGLTF } from "../lib/useGLTF";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { useMobile } from "../contexts/MobileContext";
 
 export function Star(props) {
-  const { nodes, materials } = useGLTF("/models/Star.glb", "/draco/");
+  const { nodes, materials } = useGLTF("/models/Star.glb");
   const { prefersReducedMotion } = useMobile();
   const ref = useRef();
   useFrame((_, delta) => {
@@ -29,4 +29,4 @@ export function Star(props) {
   );
 }
 
-useGLTF.preload("/models/Star.glb", "/draco/");
+useGLTF.preload("/models/Star.glb");

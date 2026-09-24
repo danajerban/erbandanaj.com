@@ -13,6 +13,7 @@ export const ContactSection = ({ active }) => {
   const sectionsDistance = getSectionsDistance(isMobile);
   return (
     <SectionGroup
+      name="contact"
       active={active}
       position-x={isMobile ? 3 * sectionsDistance : 0}
       position-z={isMobile ? -4 : 3 * sectionsDistance}

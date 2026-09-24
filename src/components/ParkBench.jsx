@@ -4,10 +4,10 @@ Command: npx gltfjsx@6.2.3 public/models/Park Bench.glb -o src/components/ParkBe
 Park Bench by J-Toastie [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/kn0sMwbspb)
 */
 
-import { useGLTF } from "@react-three/drei";
+import { useGLTF } from "../lib/useGLTF";
 
 export function ParkBench(props) {
-  const { nodes, materials } = useGLTF("/models/Park Bench.glb", "/draco/");
+  const { nodes, materials } = useGLTF("/models/Park Bench.glb");
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -22,4 +22,4 @@ export function ParkBench(props) {
   );
 }
 
-useGLTF.preload("/models/Park Bench.glb", "/draco/");
+useGLTF.preload("/models/Park Bench.glb");

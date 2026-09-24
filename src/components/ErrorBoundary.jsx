@@ -77,6 +77,25 @@ export class SceneErrorBoundary extends React.Component {
   }
 }
 
+// Renders nothing on error: for the optional lazy parts of the scene (the
+// background sections, the quality monitor), whose chunk failing to load or
+// crashing must not take the working scene down with it.
+export class SilentErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Scene chunk error:", error, errorInfo);
+  }
+
+  render() {
+    return this.state.hasError ? null : this.props.children;
+  }
+}
+
 // Interface renders in a separate React root (drei <Scroll html> uses its own
 // createRoot), so SceneErrorBoundary can't catch overlay errors. This fallback
 // keeps contact info reachable if the overlay crashes while the scene survives.

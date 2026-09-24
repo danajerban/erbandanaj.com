@@ -1,27 +1,59 @@
-import { ContactShadows, Environment, useScroll } from "@react-three/drei";
+import { ContactShadows, useScroll } from "@react-three/drei";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { RGBELoader } from "three-stdlib";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
 import { Avatar } from "./Avatar";
-import { ContactSection } from "./ContactSection";
+import { SilentErrorBoundary } from "./ErrorBoundary";
 import { HomeSection } from "./HomeSection";
-import { ProjectsSection } from "./ProjectsSection";
-import { SkillsSection } from "./SkillsSection";
 
+// Skills, Projects and Contact are lazy chunks: their module-level
+// useGLTF.preload() calls (and so their asset downloads) start only when the
+// chunk is loaded, which Experience does after the first visible frame — or
+// at once for the section the URL hash asks for, which then joins the splash
+// gate. Each mounts inside its own Suspense boundary and pre-warms itself on
+// the GPU while hidden (SectionGroup).
+const BACKGROUND_SECTIONS = [
+  { name: "skills", Section: lazy(() => import("./SkillsSection").then((m) => ({ default: m.SkillsSection }))) },
+  { name: "projects", Section: lazy(() => import("./ProjectsSection").then((m) => ({ default: m.ProjectsSection }))) },
+  { name: "contact", Section: lazy(() => import("./ContactSection").then((m) => ({ default: m.ContactSection }))) },
+];
+
+const HDR_URL = "/hdri/venice_sunset_256.hdr";
 // Start the environment HDR load at module-eval, in the same batch as the
-// models' useGLTF.preload() calls, so <Environment> resolves together with the
-// GLBs and the splash (hidden on the first frame after Suspense resolves — see
-// SceneReady/initialLoader) never reveals an unlit scene. Without this the HDR
-// fetch would start late — causing a lighting pop-in. Uses drei's exact RGBELoader
-// (from "three-stdlib") + the same URL as <Environment> below, so r3f's
-// suspend-react cache dedupes both to a single fetch/decode. Keep "three-stdlib"
-// pinned to the version drei resolves (2.36.1) — a mismatched class reference
-// silently double-loads.
-useLoader.preload(RGBELoader, "/hdri/venice_sunset_256.hdr");
+// models' useGLTF.preload() calls, so <EnvironmentMap> resolves together with
+// the GLBs and the splash (hidden on the first frame after the gate resolves
+// and pre-warms — see SceneReady/initialLoader) never reveals an unlit scene.
+useLoader.preload(RGBELoader, HDR_URL);
+
+// Equirectangular HDR as the scene's environment — the same thing drei's
+// <Environment files> does for an .hdr, without its EXR/gain-map loaders on
+// the scene path. RGBELoader comes from "three-stdlib" at the version drei
+// resolves (2.36.1); r3f's loader cache keys on the class, so keep it pinned.
+const EnvironmentMap = () => {
+  const texture = useLoader(RGBELoader, HDR_URL);
+  const scene = useThree((state) => state.scene);
+  useLayoutEffect(() => {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    texture.colorSpace = THREE.LinearSRGBColorSpace;
+    const previous = scene.environment;
+    scene.environment = texture;
+    return () => {
+      scene.environment = previous;
+    };
+  }, [scene, texture]);
+  return null;
+};
+
+// The section the URL named at load, if it is not Home: it joins the splash
+// gate instead of loading in the background, so the visitor lands on it ready.
+const gateSection = (() => {
+  const hash = window.location.hash.slice(1);
+  return hash !== config.sections[0] && config.sections.includes(hash) ? hash : null;
+})();
 
 const createSunTexture = () => {
   const canvas = document.createElement("canvas");
@@ -75,7 +107,7 @@ const SunsetSun = ({ isMobile }) => {
   );
 };
 
-export const Experience = () => {
+export const Experience = ({ revealed }) => {
   const { isMobile } = useMobile();
   const [section, setSection] = useState(config.sections[0]);
   const sectionRef = useRef(section);
@@ -172,7 +204,7 @@ export const Experience = () => {
 
   return (
     <>
-      <Environment files="/hdri/venice_sunset_256.hdr" />
+      <EnvironmentMap />
       <SunsetSun isMobile={isMobile} />
       <Avatar position-z={isMobile ? -5 : 0} />
 
@@ -188,9 +220,19 @@ export const Experience = () => {
 
       <group ref={sceneContainer}>
         <HomeSection active={section === "home"} />
-        <SkillsSection active={section === "skills"} />
-        <ProjectsSection active={section === "projects"} />
-        <ContactSection active={section === "contact"} />
+        {BACKGROUND_SECTIONS.map(({ name, Section }) => (
+          <SilentErrorBoundary key={name}>
+            {name === gateSection ? (
+              <Section active={section === name} />
+            ) : (
+              revealed && (
+                <Suspense fallback={null}>
+                  <Section active={section === name} />
+                </Suspense>
+              )
+            )}
+          </SilentErrorBoundary>
+        ))}
       </group>
     </>
   );

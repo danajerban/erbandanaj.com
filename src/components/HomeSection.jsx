@@ -11,7 +11,7 @@ import { Star } from "./Star";
 export const HomeSection = ({ active }) => {
   const { isMobile, scaleFactor, prefersReducedMotion } = useMobile();
   return (
-    <SectionGroup active={active}>
+    <SectionGroup name="home" active={active}>
       <Star position-z={isMobile ? -5 : 0} position-y={2.2} scale={0.3} />
       <Float floatIntensity={1.5} speed={prefersReducedMotion ? 0 : (isMobile ? 1 : 2.5)}>
         <MacBookPro

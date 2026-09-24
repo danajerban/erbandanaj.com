@@ -14,6 +14,9 @@ export const ANIMATION_CONSTANTS = {
   // Animation transitions
   ANIMATION_FADE_IN_DURATION: 0.5,
   ANIMATION_FADE_OUT_DURATION: 0.7,
+  // The walk keeps going this long after the scroll offset stops moving, so
+  // the damped scroll's tiny tail and momentum pauses don't flicker to idle.
+  WALK_HOLD_MS: 200,
 
   // Stagger delays
   SKILL_STAGGER_DELAY: 0.62,

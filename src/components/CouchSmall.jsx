@@ -4,10 +4,10 @@ Command: npx gltfjsx@6.2.3 public/models/Couch Small.glb -o src/components/Couch
 Couch Small by Quaternius (https://poly.pizza/m/ZOPP3KzNIk)
 */
 
-import { useGLTF } from "@react-three/drei";
+import { useGLTF } from "../lib/useGLTF";
 
 export function CouchSmall(props) {
-  const { nodes, materials } = useGLTF("/models/Couch Small.glb", "/draco/");
+  const { nodes, materials } = useGLTF("/models/Couch Small.glb");
   return (
     <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]} scale={100}>
@@ -24,4 +24,4 @@ export function CouchSmall(props) {
   );
 }
 
-useGLTF.preload("/models/Couch Small.glb", "/draco/");
+useGLTF.preload("/models/Couch Small.glb");
