@@ -13,24 +13,26 @@ export default defineConfig({
   build: {
     // three.js is a known-large but correctly code-split vendor chunk; raise the
     // warning threshold so the build doesn't flag it on every run.
-    chunkSizeWarningLimit: 700,
-    rollupOptions: {
+    chunkSizeWarningLimit: 750,
+    rolldownOptions: {
       output: {
         // The explicit react chunk is load-bearing for the React.lazy split
         // in App.jsx: react-dom is shared between the entry and the r3f
-        // chunk, and without its own manual chunk Rollup merges it INTO r3f
+        // chunk, and without its own group Rolldown merges it INTO r3f
         // — handing the entry a static import of r3f (and transitively
         // three), which drags ~330KB gzip back onto the critical path.
-        manualChunks(id) {
-          if (
-            id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/scheduler/')
-          )
-            return 'react'
-          if (id.includes('node_modules/three/')) return 'three'
-          if (id.includes('@react-three/')) return 'r3f'
-          if (id.includes('framer-motion')) return 'framer-motion'
+        codeSplitting: {
+          groups: [
+            {
+              name: 'react',
+              test: /node_modules\/(react|react-dom|scheduler)\//,
+              priority: 4,
+            },
+            { name: 'three', test: /node_modules\/three\//, priority: 3 },
+            { name: 'r3f', test: /@react-three\//, priority: 2 },
+            // motion + its framer-motion/motion-dom internals
+            { name: 'motion', test: /node_modules\/(motion|framer-motion|motion-dom|motion-utils)\//, priority: 1 },
+          ],
         },
       },
     },

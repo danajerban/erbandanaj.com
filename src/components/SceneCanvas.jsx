@@ -1,6 +1,6 @@
 import { Scroll, ScrollControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { MotionConfig } from "framer-motion";
+import { MotionConfig } from "motion/react";
 import { Suspense } from "react";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
@@ -10,7 +10,7 @@ import { Interface } from "./Interface";
 import { SceneReady } from "./SceneReady";
 
 // Loaded via React.lazy from App.jsx — this module is the seam that keeps
-// three.js/r3f/drei/framer-motion out of the entry chunk. Never import it
+// three.js/r3f/drei/motion out of the entry chunk. Never import it
 // statically from an eagerly-loaded module, or the code-split is undone.
 function SceneCanvas() {
   const { isMobile } = useMobile();
@@ -28,17 +28,10 @@ function SceneCanvas() {
         maxSpeed={0.2}
       >
         <group position-y={-1}>
-          <MotionConfig
-            transition={{
-              duration: 0.6,
-            }}
-            reducedMotion="user"
-          >
-            <Suspense fallback={null}>
-              <Experience />
-              <SceneReady />
-            </Suspense>
-          </MotionConfig>
+          <Suspense fallback={null}>
+            <Experience />
+            <SceneReady />
+          </Suspense>
         </group>
         <Scroll html>
           <MotionConfig transition={{ duration: 1 }} reducedMotion="user">

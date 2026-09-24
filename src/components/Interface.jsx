@@ -1,6 +1,6 @@
 import { useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useSetAtom } from "jotai";
 import { useRef, useState } from "react";
 import { config } from "../config";

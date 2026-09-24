@@ -17,8 +17,8 @@ glassmorphism UI layered on top of the WebGL canvas.
   Draco-compressed models and WebP textures for fast loads. The only
   third-party request is the Cloudflare Web Analytics beacon.
 
-Built with **React 18** · **Vite** (JSX — no TypeScript) · **Three.js** via
-`@react-three/fiber` + `@react-three/drei` · **Framer Motion** · **Jotai** ·
+Built with **React 19** · **Vite** (JSX — no TypeScript) · **Three.js** via
+`@react-three/fiber` + `@react-three/drei` · **Motion** · **Jotai** ·
 plain CSS, and deployed on **Cloudflare Pages**. Architecture, scripts
 (`pnpm dev` / `build` / `preview` / `lint`), the key-files map, and the
 R3F / CSS / mobile-performance conventions all live in **[CLAUDE.md](CLAUDE.md)**.

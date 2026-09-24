@@ -15,43 +15,46 @@ updates:
           - "minor"
           - "patch"
     ignore:
-      # React majors form one migration chain with the 3D stack (React 19
-      # requires r3f v9 + drei v10) — pinned to 18.x until a deliberate
-      # whole-stack migration (decision 2026-07-02). Minors/patches still flow.
+      # React forms one migration chain with the 3D stack: r3f pins its React
+      # peer range per minor (fiber 9.7 requires react <19.3), so React
+      # majors AND minors move only together with fiber, by hand. Patches
+      # still flow.
       - dependency-name: "react"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "react-dom"
-        update-types: ["version-update:semver-major"]
-      # The 3D runtime is intentionally pinned as a unit: fiber v8 + drei v9 +
-      # framer-motion(-3d) v10 + three 0.153 + three-stdlib 2.36.1. Even MINOR
-      # bumps carry runtime-behavior risk to the hand-tuned scene (drei ships
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # The 3D runtime is intentionally pinned as a unit: fiber v9 + drei v10 +
+      # three 0.186 + three-stdlib 2.36.1 + motion 13. Even MINOR bumps carry
+      # runtime-behavior risk to the hand-tuned scene (drei ships
       # animation/clock behavior changes in minors) and cannot be visually
       # verified by automation — the whole set moves only in a deliberate
-      # migration. three-stdlib must stay exactly on the version drei resolves
-      # or the RGBELoader dedupe silently double-loads the environment HDR
-      # (see src/components/Experience.jsx). Known tradeoff: bare ignores also
-      # suppress Dependabot SECURITY-update PRs for these six — vulns still
-      # surface as alerts in the Security tab (decision 2026-07-02).
+      # migration. three minors are also capped by the postprocessing peer
+      # range (>=0.168 <0.187). three-stdlib must stay exactly on the version
+      # drei resolves or the RGBELoader dedupe silently double-loads the
+      # environment HDR (see src/components/Experience.jsx). Known tradeoff:
+      # bare ignores also suppress Dependabot SECURITY-update PRs for these
+      # five — vulns still surface as alerts in the Security tab.
       - dependency-name: "@react-three/fiber"
       - dependency-name: "@react-three/drei"
-      - dependency-name: "framer-motion"
-      - dependency-name: "framer-motion-3d"
+      - dependency-name: "motion"
       - dependency-name: "three"
       - dependency-name: "three-stdlib"
-      # vite 8 (rolldown) and @vitejs/plugin-react 6 (peer-requires vite ^8)
-      # are an interlocked pair — majors ignored until a deliberate toolchain
-      # migration. vite 7.x security patches still flow.
+      # vite (rolldown) and @vitejs/plugin-react (peer-requires vite ^8) are
+      # an interlocked pair — majors ignored until a deliberate toolchain
+      # migration. vite 8.x security patches still flow.
       - dependency-name: "vite"
         update-types: ["version-update:semver-major"]
       - dependency-name: "@vitejs/plugin-react"
         update-types: ["version-update:semver-major"]
-      # The eslint 9 / flat-config migration is one deliberate unit: eslint 9
-      # + eslint-plugin-react-hooks 7 + eslint-plugin-react-refresh 0.5+
-      # (ESM-only, flat-config-only — its 0.x minors are breaking, so minors
-      # are ignored too; 0.4.x patches still flow). eslint-plugin-react 7.x is
-      # already eslint-9-compatible, but its majors are frozen with the chain
-      # anyway (owner decision 2026-07-02); its minors/patches still flow.
+      # ESLint stays on 9: eslint-plugin-react 7.x does not support ESLint 10,
+      # and @eslint/js must match the eslint major. The hooks/refresh plugins
+      # move with the chain (eslint-plugin-react-refresh is flat-config-only
+      # and its 0.x minors are breaking, so minors are ignored too; 0.5.x
+      # patches still flow). eslint-plugin-react's majors are frozen with the
+      # chain; its minors/patches still flow.
       - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
         update-types: ["version-update:semver-major"]
       - dependency-name: "eslint-plugin-react"
         update-types: ["version-update:semver-major"]

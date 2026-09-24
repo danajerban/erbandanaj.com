@@ -58,7 +58,7 @@ export function Avatar(props) {
   const lastScroll = useRef(0);
   const { isMobile, prefersReducedMotion } = useMobile();
 
-  // Safe: R3F v8 useFrame re-captures the closure on each render
+  // Safe: R3F useFrame re-captures the closure on each render
   useFrame((_, delta) => {
     const scrollDelta = scrollData.offset - lastScroll.current;
     let rotationTarget = 0;
