@@ -7,9 +7,9 @@ import {
   RoundedBox,
   useScroll,
 } from "@react-three/drei";
-import { useFrame, useLoader } from "@react-three/fiber";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { motion } from "framer-motion-3d";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { RGBELoader } from "three-stdlib";
 import { config } from "../config";
@@ -119,8 +119,12 @@ export const Experience = () => {
       sceneContainer.current.position.x = 0;
     }
 
-    const newSection =
-      config.sections[Math.round(scrollData.offset * (scrollData.pages - 1))];
+    // Clamp: offset overshoots [0, 1] on iOS rubber-band scroll
+    const sectionIndex = Math.min(
+      config.sections.length - 1,
+      Math.max(0, Math.round(scrollData.offset * (scrollData.pages - 1))),
+    );
+    const newSection = config.sections[sectionIndex];
 
     // Only update state if section actually changed
     if (newSection !== sectionRef.current) {
@@ -159,19 +163,15 @@ export const Experience = () => {
         window.location.hash.replace("#", ""),
       );
       if (sectionIndex !== -1 && scrollData?.el) {
-        try {
-          const scrollHeight = scrollData.el.scrollHeight;
-          const clientHeight = scrollData.el.clientHeight;
-          const maxScroll = scrollHeight - clientHeight;
+        const scrollHeight = scrollData.el.scrollHeight;
+        const clientHeight = scrollData.el.clientHeight;
+        const maxScroll = scrollHeight - clientHeight;
 
-          if (maxScroll > 0) {
-            scrollData.el.scrollTo(
-              0,
-              (sectionIndex / (config.sections.length - 1)) * maxScroll,
-            );
-          }
-        } catch (error) {
-          console.error("Hash navigation failed:", error);
+        if (maxScroll > 0) {
+          scrollData.el.scrollTo(
+            0,
+            (sectionIndex / (config.sections.length - 1)) * maxScroll,
+          );
         }
       }
     };
@@ -179,6 +179,45 @@ export const Experience = () => {
     handleHashChange();
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, [scrollData?.el]);
+
+  // Scroll resync: when the canvas height changes (rotation), the browser keeps
+  // the old pixel scrollTop or scroll-anchors it, so the overlay and scene land
+  // between sections. Restore the section the visitor had scrolled to. Keyed on
+  // R3F `size`, not window.resize: iOS fires resize when the toolbar collapses,
+  // but #root (lvh) — and so `size` — does not change then.
+  const size = useThree((state) => state.size);
+  const sizeRef = useRef(size);
+  const resyncIndexRef = useRef(0);
+  useEffect(() => {
+    const el = scrollData.el;
+    const onScroll = () => {
+      // Skip scrolls while the container no longer matches the rendered size:
+      // those are the browser's own resize adjustments, not the visitor's.
+      if (el.clientHeight !== Math.round(sizeRef.current.height)) return;
+      const maxScroll = el.scrollHeight - el.clientHeight;
+      if (maxScroll <= 0) return;
+      resyncIndexRef.current = Math.min(
+        config.sections.length - 1,
+        Math.max(0, Math.round((el.scrollTop / maxScroll) * (config.sections.length - 1))),
+      );
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [scrollData.el]);
+  useEffect(() => {
+    const prevHeight = sizeRef.current.height;
+    sizeRef.current = size;
+    if (prevHeight === size.height) return;
+    const el = scrollData.el;
+    const maxScroll = el.scrollHeight - el.clientHeight;
+    if (maxScroll <= 0) return;
+    // drei ignores the first scroll event after a size change, so its target
+    // and damped offset are set directly as well
+    const offset = resyncIndexRef.current / (config.sections.length - 1);
+    el.scrollTo(0, offset * maxScroll);
+    scrollData.scroll.current = offset;
+    scrollData.offset = offset;
+  }, [size, scrollData]);
 
   return (
     <>
@@ -321,11 +360,15 @@ export const Experience = () => {
                 rotation-y={-Math.PI / 2}
                 position-z={-1}
               />
-              <MonitorScreen
-                rotation-x={-0.18}
-                position-z={-0.895}
-                position-y={1.74}
-              />
+              {/* Own boundary: a screenshot texture that hasn't loaded yet
+                  (project switch) must not suspend the whole scene. */}
+              <Suspense fallback={null}>
+                <MonitorScreen
+                  rotation-x={-0.18}
+                  position-z={-0.895}
+                  position-y={1.74}
+                />
+              </Suspense>
               <RoundedBox scale-x={2} position-y={0.5} position-z={-1}>
                 <meshStandardMaterial color="white" />
               </RoundedBox>

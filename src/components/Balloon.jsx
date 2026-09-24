@@ -7,11 +7,13 @@ Balloon by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/)
 import { useGLTF } from "@react-three/drei";
 
 export function Balloon(props) {
-  const { nodes, materials } = useGLTF("/models/Balloon.glb", "/draco/");
+  const { nodes } = useGLTF("/models/Balloon.glb", "/draco/");
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Balloon007.geometry}>
-        <meshStandardMaterial {...materials.phong1SG} color={props.color} />
+        {/* Own material (roughness/metalness from the GLB's phong1SG) — each
+            balloon gets its own color without copying the shared instance */}
+        <meshStandardMaterial color={props.color} roughness={0.916} metalness={0} />
       </mesh>
     </group>
   );

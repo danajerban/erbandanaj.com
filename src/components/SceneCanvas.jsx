@@ -32,6 +32,7 @@ function SceneCanvas() {
             transition={{
               duration: 0.6,
             }}
+            reducedMotion="user"
           >
             <Suspense fallback={null}>
               <Experience />

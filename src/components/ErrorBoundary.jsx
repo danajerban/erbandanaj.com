@@ -31,10 +31,10 @@ export class SceneErrorBoundary extends React.Component {
             backgroundColor: "#faeaea",
           }}
         >
-          <h1 style={{ fontSize: "2rem", marginBottom: "1rem", color: "#1a202c" }}>
+          <h1 style={{ fontSize: "2rem", marginBottom: "1rem", color: "var(--text-color)" }}>
             Oops! Something went wrong
           </h1>
-          <p style={{ fontSize: "1rem", marginBottom: "1.5rem", color: "#555" }}>
+          <p style={{ fontSize: "1rem", marginBottom: "1.5rem", color: "var(--text-light-color)" }}>
             The 3D scene encountered an error. Please try refreshing the page.
           </p>
           <button
@@ -42,7 +42,7 @@ export class SceneErrorBoundary extends React.Component {
             style={{
               padding: "0.75rem 1.5rem",
               fontSize: "1rem",
-              backgroundColor: "#4668ee",
+              backgroundColor: "var(--primary-color)",
               color: "white",
               border: "none",
               borderRadius: "4px",
@@ -95,12 +95,12 @@ export class OverlayErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div style={{ padding: "6rem 2rem", textAlign: "center" }}>
-          <h1 style={{ fontSize: "1.5rem", color: "#1a202c", margin: 0 }}>
+          <h1 style={{ fontSize: "1.5rem", color: "var(--text-color)", margin: 0 }}>
             The interface failed to load
           </h1>
-          <p style={{ fontSize: "1rem", color: "#555" }}>
+          <p style={{ fontSize: "1rem", color: "var(--text-light-color)" }}>
             The 3D scene is still running. Refresh the page, or reach me at{" "}
-            <a href={`mailto:${config.contact.mail}`} style={{ color: "#4668ee" }}>
+            <a href={`mailto:${config.contact.mail}`} style={{ color: "var(--primary-color)" }}>
               {config.contact.mail}
             </a>
             .

@@ -51,6 +51,9 @@ export function Mailbox(props) {
       onPointerEnter={() => { mailboxHoveredRef.current = true; setMailboxHovered(true); }}
       onPointerLeave={() => { mailboxHoveredRef.current = false; setMailboxHovered(false); }}
       onPointerDown={() => { mailboxHoveredRef.current = true; setMailboxHovered(true); }}
+      // Touch fires no pointerleave after a tap — release resets the glow
+      onPointerUp={(e) => { if (e.nativeEvent.pointerType !== "mouse") { mailboxHoveredRef.current = false; setMailboxHovered(false); } }}
+      onPointerCancel={(e) => { if (e.nativeEvent.pointerType !== "mouse") { mailboxHoveredRef.current = false; setMailboxHovered(false); } }}
       onClick={() => { window.location.href = `mailto:${config.contact.mail}`; }}
     >
       <mesh

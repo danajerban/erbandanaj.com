@@ -12,6 +12,10 @@ export const SceneReady = () => {
   useFrame(() => {
     if (!signaled.current) {
       signaled.current = true;
+      // Measurement seam: marked here, not in hideInitialLoader, so the error
+      // boundary and the failsafe never record a scene that did not render.
+      // Per-section GPU pre-warm marks come with the pre-warm (Phase 2).
+      performance.mark("scene-visible");
       hideInitialLoader();
     }
   });

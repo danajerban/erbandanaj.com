@@ -129,6 +129,7 @@ export const Interface = () => {
                   onPointerLeave: () => setProject(config.projects[0]),
                 })}
                 onFocus={() => setProject(project)}
+                onBlur={() => setProject(config.projects[0])}
                 key={project.name + idx}
                 className="project"
                 initial={{ opacity: 0 }}
@@ -194,7 +195,7 @@ export const Interface = () => {
               >
                 <img
                   className="contact__socials__icon"
-                  src="icons/linkedin.png"
+                  src="/icons/linkedin.png"
                   alt="LinkedIn"
                 />
               </a>
@@ -206,14 +207,14 @@ export const Interface = () => {
               >
                 <img
                   className="contact__socials__icon"
-                  src="icons/github.png"
+                  src="/icons/github.png"
                   alt="GitHub"
                 />
               </a>
               <a href={`mailto:${config.contact.mail}`} aria-label="Send email">
                 <img
                   className="contact__socials__icon"
-                  src="icons/gmail.png"
+                  src="/icons/gmail.png"
                   alt="Email"
                 />
               </a>
@@ -224,7 +225,7 @@ export const Interface = () => {
               >
                 <img
                   className="contact__socials__icon"
-                  src="icons/cv.png"
+                  src="/icons/cv.png"
                   alt="Download CV"
                 />
               </a>

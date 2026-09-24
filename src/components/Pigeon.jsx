@@ -37,7 +37,11 @@ export function Pigeon(props) {
       ref={group}
       onPointerEnter={() => setAnimation("Yes")}
       onPointerLeave={() => setAnimation("Flying_Idle")}
-      onClick={() => setAnimation("Yes")}
+      // Touch: no hover, and no pointerleave after a tap — press reacts,
+      // release resets. (A mouse keeps its hover state across the click.)
+      onPointerDown={() => setAnimation("Yes")}
+      onPointerUp={(e) => { if (e.nativeEvent.pointerType !== "mouse") setAnimation("Flying_Idle"); }}
+      onPointerCancel={(e) => { if (e.nativeEvent.pointerType !== "mouse") setAnimation("Flying_Idle"); }}
     >
       <group name="Scene">
         <group name="CharacterArmature">
