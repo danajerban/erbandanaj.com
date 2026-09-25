@@ -118,7 +118,7 @@ const titlePlacement = ({ at, depth, box }, aspect, size) => {
 // as a long dark streak far below it
 const TITLE_LAYER = 6;
 // The title is a two-line lockup: the first name above the surname, which
-// is SURNAME times as big, both left-aligned, LINE_GAP (in first-name
+// is SURNAME times as big, each centred across, LINE_GAP (in first-name
 // sizes) from the first name's baseline down to the surname's capitals
 // (CAP high, in font sizes: Inter Bold). The font has no space glyph, so
 // config.home.title writes the two names together, each capitalized.
@@ -216,12 +216,16 @@ export const HomeSection = ({ active, revealed }) => {
       <group position={title.position} rotation={title.rotation} scale={title.scale}>
         <Float floatIntensity={1} speed={prefersReducedMotion ? 0 : 1}>
           <Center cacheKey={isMobile} onCentered={onTitleCentered}>
-            <SectionTitle {...titleLook} size={titleFont} position-y={(CAP * SURNAME + LINE_GAP) * titleFont}>
-              {FIRST_NAME}
-            </SectionTitle>
-            <SectionTitle {...titleLook} size={titleFont * SURNAME}>
-              {LAST_NAME}
-            </SectionTitle>
+            <Center disableY disableZ cacheKey={isMobile} position-y={(CAP * SURNAME + LINE_GAP) * titleFont}>
+              <SectionTitle {...titleLook} size={titleFont}>
+                {FIRST_NAME}
+              </SectionTitle>
+            </Center>
+            <Center disableY disableZ cacheKey={isMobile}>
+              <SectionTitle {...titleLook} size={titleFont * SURNAME}>
+                {LAST_NAME}
+              </SectionTitle>
+            </Center>
           </Center>
         </Float>
       </group>

@@ -1,27 +1,29 @@
 import { Text3D } from "@react-three/drei";
 import { useMobile } from "../contexts/MobileContext";
 
-// Sand letters: a golden-sand face (the beach's own tone) over deeper tan
-// sides, with a fine grain. Only the caps (face and back) have normals along
-// z — the walls and the bevel stay under 0.3 — so the shader deepens the rest
-// to tan by the object-space normal, in one draw (a material per
-// TextGeometry group would draw every glyph twice). The grain is one random
-// shade per 1/70-unit cell of the object-space position, faded out as a cell
-// shrinks toward a pixel, so a small or distant title stays clean. Passed as
-// constructor parameters (args): one object, so one program for every title,
-// under a stable key.
-const SAND = {
+// Sun letters: a light peach face (a tint of the sunset sun) over the sun's
+// own coral on the sides. Only the caps (face and back) have normals along
+// z — the walls and the bevel stay under 0.3 — so the shader paints the rest
+// coral by the object-space normal, and lets only the caps glow (the glow
+// lifts the face above the pale sky; the walls keep their shading and read
+// as its outline), in one draw (a material per
+// TextGeometry group would draw every glyph twice). Passed as constructor
+// parameters (args): one object, so one program for every title, under a
+// stable key.
+const SUN = {
   onBeforeCompile: (shader) => {
-    shader.vertexShader = `varying vec4 vSand;\n${shader.vertexShader.replace(
+    shader.vertexShader = `varying float vCap;\n${shader.vertexShader.replace(
       "#include <begin_vertex>",
-      "$&\nvSand = vec4(position, abs(normal.z));",
+      "$&\nvCap = abs(normal.z);",
     )}`;
-    shader.fragmentShader = `varying vec4 vSand;\n${shader.fragmentShader.replace(
+    // The sides: the sun's coral #ff7753; the caps' glow: its #ff7a56 at 0.6
+    // (both linear)
+    shader.fragmentShader = `varying float vCap;\n${shader.fragmentShader.replace(
       "#include <color_fragment>",
-      "$&\nvec3 grain = vSand.xyz * 70.;\ndiffuseColor.rgb *= mix(vec3(.55,.45,.33), vec3(1), step(.99,vSand.w)) * (1.-.1*rand(floor(grain.xy+grain.z))*saturate(2.-2.*length(fwidth(grain))));",
-    )}`;
+      "$&\nfloat cap = step(.99,vCap);\ndiffuseColor.rgb = mix(vec3(1.,.184,.087), diffuseColor.rgb, cap);",
+    ).replace("#include <emissivemap_fragment>", "$&\ntotalEmissiveRadiance += cap * vec3(.6,.117,.056);")}`;
   },
-  customProgramCacheKey: () => "section-title-sand",
+  customProgramCacheKey: () => "section-title-sun",
 };
 
 export const SectionTitle = ({ children, ...props }) => {
@@ -30,7 +32,7 @@ export const SectionTitle = ({ children, ...props }) => {
     <Text3D font={"/fonts/Inter_Bold.json"} size={0.3} {...props}>
       {children}
       {/* MOBILE_PERF: the smoother title surface is desktop only — revert by removing the ternary */}
-      <meshStandardMaterial args={[SAND]} color="#efc07a" roughness={isMobile ? 1 : 0.7} />
+      <meshStandardMaterial args={[SUN]} color="#ffdcb4" roughness={isMobile ? 1 : 0.7} />
     </Text3D>
   );
 };
