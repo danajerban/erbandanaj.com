@@ -24,6 +24,9 @@ const BACKGROUND_SECTIONS = [
   { name: "contact", Section: lazy(() => import("./ContactSection").then((m) => ({ default: m.ContactSection }))) },
 ];
 
+// Low clouds by the sun: a lazy chunk mounted after the first visible frame
+const Clouds = lazy(() => import("./Clouds"));
+
 const HDR_URL = "/hdri/venice_sunset_256.hdr";
 // Start the environment HDR load at module-eval, in the same batch as the
 // models' useGLTF.preload() calls, so <EnvironmentMap> resolves together with
@@ -306,6 +309,13 @@ export const Experience = ({ revealed }) => {
           fill from the camera side lifts the shadowed faces; a
           peach-over-terracotta hemisphere sits everything in the sunset. */}
       <SunsetSun isMobile={isMobile} prefersReducedMotion={prefersReducedMotion} />
+      {revealed && (
+        <SilentErrorBoundary>
+          <Suspense fallback={null}>
+            <Clouds sun={SUN_SCREEN[isMobile ? "mobile" : "desktop"]} scale={SUN_SCALE[isMobile ? "mobile" : "desktop"]} />
+          </Suspense>
+        </SilentErrorBoundary>
+      )}
       <hemisphereLight args={["#f6cbb6", "#b8674a", 0.35]} />
       {/* MOBILE_PERF: the fill light is desktop only, mobile keeps env +
           hemisphere lighting — revert by removing the !isMobile guard */}
