@@ -9,8 +9,8 @@ import { createRandom } from "../lib/lowPoly";
 // towel under it, sunglasses and wired earbuds tossed on the towel, an
 // open cooler beside it (the lid hinged at the back, standing up, so the
 // camera looks in at frosted cola bottles in cold ice), and a coral-and-cream
-// beach umbrella beside it, its pole leaning a little toward the camera,
-// its shade cast away from the sun. Low-poly and flat, their light baked into the vertex colors (a
+// beach umbrella beside it, its pole leaning to the right toward the sun,
+// the cooler in its shade, which is cast away from the sun. Low-poly and flat, their light baked into the vertex colors (a
 // key from the sunset behind and to the right, a faint fill from the camera
 // side). Two draw calls: the flat things (towel, baked shadows) that lie on
 // the sand, then the solid props. A lazy chunk mounted after the first
@@ -33,34 +33,36 @@ const CAMERA = new THREE.Vector3(0, 1.5, 5);
 // By layout (lib/coast layoutOf), in laptop units from the laptop's middle:
 // towel [x, z, turn]; sunglasses and earbuds [x, z, turn]; cooler
 // [x, z, size]; the umbrella's pole foot [x, z] and canopy [radius, rise,
-// height of its middle]. The canopy never hides the laptop, the title or
-// the avatar: on wide screens the umbrella stands between the laptop and the
-// cooler on its left, its canopy under the title; on upright ones (the
-// laptop at the left edge) both stand to the laptop's right, short of the
-// shore strip where the crabs walk; an upright screen past the breakpoint
-// (an iPad Pro held upright, `tall`) has the big avatar there, so its cooler
-// stands in front of the laptop instead.
+// height of its middle]. The umbrella keeps its size on screen when the
+// laptop's changes (HomeSection LAPTOP). Everywhere the cooler sits in the
+// umbrella's shade beside the laptop, the pole's foot behind it and to its
+// left, clear of its lid, the canopy leaning over it. The canopy never hides
+// the laptop, the title or the avatar: on wide screens and upright ones past
+// the breakpoint (an iPad Pro held upright, `tall`: the big avatar to the
+// laptop's right) they stand on the laptop's left, the canopy under the
+// title; on phones held upright (the laptop at the left edge) behind its
+// right side, the cooler short of the shore strip where the crab walks.
 const SPOTS = {
   wide: {
     towel: [0, 0.3, 0.1],
     glasses: [1.05, 1.7, 0.35],
     earbuds: [-1.5, 1.3, -0.2],
-    cooler: [-3, -3.2, 0.78],
-    umbrella: { foot: [-2.25, -0.35], canopy: [3, 0.6, 4.2] },
+    cooler: [-2.62, -2.05, 0.72],
+    umbrella: { foot: [-1.98, -4.1], canopy: [3.33, 0.67, 4.67] },
   },
   portrait: {
     towel: [0, 0.3, 0.1],
     glasses: [1.05, 1.7, 0.35],
     earbuds: [-1.5, 1.3, -0.2],
-    cooler: [5.3, -1.7, 0.75],
-    umbrella: { foot: [2.8, -1.6], canopy: [2.6, 0.6, 4.5] },
+    cooler: [3.02, -1.21, 0.665],
+    umbrella: { foot: [3.99, -3.75], canopy: [2.89, 0.67, 5] },
   },
   tall: {
     towel: [0, 0.3, 0.1],
     glasses: [1.05, 1.7, 0.35],
     earbuds: [-1.5, 1.3, -0.2],
-    cooler: [-1.15, 5.6, 0.55],
-    umbrella: { foot: [2.2, -1.6], canopy: [2.6, 0.67, 4.5] },
+    cooler: [-1.41, -2.98, 0.65],
+    umbrella: { foot: [-0.42, -5.03], canopy: [2.89, 0.74, 5] },
   },
 };
 const TOWEL = [3.8, 5];
@@ -75,8 +77,11 @@ const BEVEL = 0.22;
 // to the right (SUN below), but steeper than that key so the shade stays
 // near the umbrella: this elevation
 const SHADE_ELEVATION = THREE.MathUtils.degToRad(75);
-// The umbrella's pole leans this far off upright, toward the camera
-const LEAN = THREE.MathUtils.degToRad(15);
+// The umbrella's pole leans this far off upright, to the right across the
+// view, toward the sun, turned TURN of the way toward the camera so the
+// canopy's top still shows: about 75° to the ground on screen
+const LEAN = THREE.MathUtils.degToRad(20);
+const TURN = THREE.MathUtils.degToRad(40);
 
 const hex = (c) => new THREE.Color(c);
 const TOWEL_STRIPES = ["#f6e6c8", "#ee6f57", "#f4a950", "#ee6f57", "#f6e6c8", "#6e3a5e"].map(hex);
@@ -280,14 +285,15 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
   const unit = laptop.scale;
   const inHome = (x, z) => new THREE.Vector3(x, 0, z).applyMatrix4(home);
 
-  // Umbrella: the pole from its foot, leaning LEAN toward the camera, the
-  // canopy square to it (seen a little from the front); twelve panels,
-  // coral and cream
+  // Umbrella: the pole from its foot, leaning LEAN to the right (a "/" on
+  // screen), the canopy square to it (seen a little from the front); twelve
+  // panels, coral and cream
   const { foot: footAt, canopy } = spots.umbrella;
   const [radius, rise, height] = canopy;
   const foot = inHome(...footAt);
   const toCamera = new THREE.Vector3(CAMERA.x - foot.x, 0, CAMERA.z - foot.z).normalize();
-  const axis = toCamera.multiplyScalar(Math.sin(LEAN)).setY(Math.cos(LEAN));
+  const across = new THREE.Vector3(toCamera.z, 0, -toCamera.x);
+  const axis = across.multiplyScalar(Math.cos(TURN)).addScaledVector(toCamera, Math.sin(TURN)).multiplyScalar(Math.sin(LEAN)).setY(Math.cos(LEAN));
   const pole = height / Math.cos(LEAN);
   const top = foot.clone().addScaledVector(axis, pole * unit);
   const umbrella = new THREE.Matrix4().compose(foot, new THREE.Quaternion().setFromUnitVectors(UP, axis), new THREE.Vector3(unit, unit, unit));
@@ -308,12 +314,12 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
   fan(shade.middle, (t) => cast(rimAt(t)), 0.4, 0.75, TOWEL_Y + 0.001);
   shadow(home, -0.2, 0.2, 1.7, 1.2, 0.4);
 
-  add(solid, cylinder(0.09, 0.1, pole, 6), part(0, pole / 2, 0), umbrella, () => POLE);
+  add(solid, cylinder(0.1, 0.11, pole, 6), part(0, pole / 2, 0), umbrella, () => POLE);
   add(solid, cylinder(0, radius, rise, 12), part(0, pole, 0), umbrella, (_, p) =>
     Math.floor(((Math.atan2(p.z, p.x) + Math.PI) / (Math.PI * 2)) * 12) % 2 ? CORAL : CREAM,
   );
-  add(solid, cylinder(0, 0.1, 0.3, 6), part(0, pole + rise / 2 + 0.1, 0), umbrella, () => CORAL);
-  shadow(umbrella, 0, 0, 0.25, 0.25, 0.3, 0.003);
+  add(solid, cylinder(0, 0.11, 0.33, 6), part(0, pole + rise / 2 + 0.11, 0), umbrella, () => CORAL);
+  shadow(umbrella, 0, 0, 0.28, 0.28, 0.3, 0.003);
 
   // Sunglasses on the towel, folded: two tinted lenses facing up, catching
   // the sunset, in thin rims, the bridge between them, the arms folded

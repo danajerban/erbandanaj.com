@@ -67,10 +67,10 @@ const SIZE = { desktop: 1, landscape: 0.9, portrait: 1 };
 // 1.95 deep at 1). Upright screens lay it in the foreground, below-left of
 // the avatar.
 const LAPTOP = {
-  desktop: { x: -1.45, z: -0.2, yaw: Math.PI / 4, scale: 0.3 },
-  landscape: { x: -1.6, z: -2.5, yaw: Math.PI / 4, scale: 0.3 },
-  portrait: { x: -0.3, z: 0.9, yaw: Math.PI / 4, scale: 0.13 },
-  tall: { x: -0.65, z: 0.9, yaw: Math.PI / 4, scale: 0.15 },
+  desktop: { x: -1.45, z: -0.2, yaw: Math.PI / 4, scale: 0.27 },
+  landscape: { x: -1.6, z: -2.5, yaw: Math.PI / 4, scale: 0.27 },
+  portrait: { x: -0.3, z: 0.9, yaw: Math.PI / 4, scale: 0.117 },
+  tall: { x: -0.45, z: 0.9, yaw: Math.PI / 4, scale: 0.135 },
 };
 // The model's base middle and underside, from its origin
 const LAPTOP_BASE = [-0.023, 0.166, -0.253];
@@ -82,10 +82,10 @@ const LAPTOP_BASE = [-0.023, 0.166, -0.253];
 // is as large as fits `box` (screen width and height fractions), which
 // leaves room for its gentle float.
 const TITLE = {
-  desktop: { at: [0.28, 0.295], depth: 8.5, box: [0.36, 0.16] },
-  landscape: { at: [0.22, 0.26], depth: 8.5, box: [0.3, 0.2] },
-  portrait: { at: [0.5, 0.145], depth: 8, box: [0.84, 0.11] },
-  tall: { at: [0.5, 0.155], depth: 8, box: [0.78, 0.1] },
+  desktop: { at: [0.28, 0.285], depth: 8.5, box: [0.396, 0.176] },
+  landscape: { at: [0.22, 0.245], depth: 8.5, box: [0.33, 0.22] },
+  portrait: { at: [0.5, 0.145], depth: 8, box: [0.924, 0.121] },
+  tall: { at: [0.5, 0.155], depth: 8, box: [0.858, 0.11] },
 };
 // Camera: SceneCanvas (position [0, 0.5, 5], fov 42, looking at the
 // origin), so Home-local at (0, 1.5, 5), pitched down toward (0, 1, 0)
@@ -140,7 +140,7 @@ const palmLayout = (isMobile, aspect) => {
   });
 };
 
-export const HomeSection = ({ active, revealed }) => {
+export const HomeSection = ({ revealed }) => {
   const { isMobile, prefersReducedMotion } = useMobile();
   // Rounded, so the palms rebuild only when the aspect really changes
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
@@ -166,7 +166,7 @@ export const HomeSection = ({ active, revealed }) => {
     return () => camera.layers.disable(TITLE_LAYER);
   }, [camera]);
   return (
-    <SectionGroup name="home" active={active}>
+    <SectionGroup name="home">
       <group position={[laptop.x, 0, laptop.z]} rotation-y={laptop.yaw} scale={laptop.scale}>
         <MacBookPro position={LAPTOP_BASE} />
       </group>
