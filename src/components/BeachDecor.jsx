@@ -2,6 +2,7 @@ import { useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
 import { TriangleSink, createRandom } from "../lib/lowPoly";
@@ -35,11 +36,9 @@ import { TriangleSink, createRandom } from "../lib/lowPoly";
 const SEED = 5;
 const LAYER = 1;
 const FADE_SECONDS = 1.2;
-// Leaving Home the sea dissolves over this span of the scroll toward Skills
-// (in sections; Sea LEAVE_START, LEAVE_END): the sand goes with the water it
-// borders, gone LEAVE_SAND of the way in
-const LEAVE_START = 0.06;
-const LEAVE_END = 0.48;
+// Leaving Home the section dissolves over this span of the scroll toward
+// Skills (in sections; ANIMATION_CONSTANTS DISSOLVE_START, DISSOLVE_END): the
+// sand goes with the water it borders, gone LEAVE_SAND of the way in
 const LEAVE_SAND = 0.35;
 // Camera: SceneCanvas (position [0, 0.5, 5], fov 42), 1.5 above the Home
 // floor
@@ -97,22 +96,23 @@ const AVATAR = { desktop: { z: 0, reach: 0.061 }, mobile: { z: -5, reach: 0.031 
 // screen.
 const LAPTOP_PROPS = {
   wide: {
-    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [-3, -3.2, 1.37], [-2.25, -0.35, 0.3]],
-    umbrella: [-2.25, -0.35, 3, 4.2],
+    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [-2.62, -2.05, 1.25], [-1.98, -4.1, 0.35]],
+    umbrella: [-1.98, -4.1, 3.33, 4.67],
   },
   portrait: {
-    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [5.3, -1.7, 1.31], [2.8, -1.6, 0.3]],
-    umbrella: [2.8, -1.6, 2.6, 4.5],
+    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [3.02, -1.21, 1.15], [3.99, -3.75, 0.35]],
+    umbrella: [3.99, -3.75, 2.89, 5],
   },
   tall: {
-    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [-1.15, 5.6, 0.96], [2.2, -1.6, 0.3]],
-    umbrella: [2.2, -1.6, 2.6, 4.5],
+    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [-1.41, -2.98, 1.12], [-0.42, -5.03, 0.35]],
+    umbrella: [-0.42, -5.03, 2.89, 5],
   },
 };
-// The shade's shift off the foot, per height of canopy: its pole leans 15°
-// toward the camera, and the shade falls from the canopy away from the sun
-// at 75° (BeachProps LEAN, SHADE_ELEVATION)
-const SHADE_SHIFT = Math.tan(THREE.MathUtils.degToRad(15));
+// The shade off the foot, per height of canopy (BeachProps LEAN, TURN,
+// SHADE_ELEVATION): the pole leans 20° off upright, to the right across the
+// view turned 40° toward the camera, and the shade falls from the canopy
+// away from the sun at 75°
+const [LEAN, TURN, SHADE_ELEVATION] = [20, 40, 75].map(THREE.MathUtils.degToRad);
 
 // Fallen coconuts by layout: [palm, dx, dz], a spot from that palm's foot
 // (HomeSection's palms, in order) in prop units, dx + toward the water, dz +
@@ -193,7 +193,12 @@ const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
   const [fx, fz, canopy, tall] = spots.umbrella;
   const [footX, footZ] = home([fx, fz, 0]);
   const toCamera = new THREE.Vector3(-footX, 0, CAMERA_Z - footZ).normalize();
-  const shift = toCamera.sub(new THREE.Vector3(SUN_DIR.x, 0, SUN_DIR.z).normalize()).multiplyScalar(SHADE_SHIFT * tall * laptop.scale);
+  const shift = new THREE.Vector3(toCamera.z, 0, -toCamera.x)
+    .multiplyScalar(Math.cos(TURN))
+    .addScaledVector(toCamera, Math.sin(TURN))
+    .multiplyScalar(Math.tan(LEAN))
+    .addScaledVector(new THREE.Vector3(SUN_DIR.x, 0, SUN_DIR.z).normalize(), -1 / Math.tan(SHADE_ELEVATION))
+    .multiplyScalar(tall * laptop.scale);
   const laptopProps = [...spots.circles.map(home), [footX + shift.x, footZ + shift.z, canopy * laptop.scale]];
 
   // The band's width: one width all along the shore, so its land side has
@@ -585,7 +590,7 @@ export default function BeachDecor({ palms, dry, laptop }) {
       fade.current = prefersReducedMotion ? 1 : Math.min(1, fade.current + delta / FADE_SECONDS);
       materials.propsMaterial.opacity = THREE.MathUtils.smoothstep(fade.current, 0, 1);
     }
-    const leave = THREE.MathUtils.smoothstep(scroll.offset * (scroll.pages - 1), LEAVE_START, LEAVE_END);
+    const leave = THREE.MathUtils.smoothstep(scroll.offset * (scroll.pages - 1), ANIMATION_CONSTANTS.DISSOLVE_START, ANIMATION_CONSTANTS.DISSOLVE_END);
     const sand = materials.propsMaterial.opacity * (1 - THREE.MathUtils.smoothstep(leave, 0, LEAVE_SAND));
     materials.sandMaterial.opacity = sand;
     group.children[0].visible = sand > 0;
