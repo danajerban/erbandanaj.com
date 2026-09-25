@@ -2,15 +2,16 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
-import { coastX, dryX } from "../lib/coast";
+import { coastX, dryX, layoutOf } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
 
-// Two seashells, a crab and a sea turtle on the Home beach, in the foreground
-// along the near shore (lib/coast), in the palms' low-poly, flat-shaded,
-// vertex-colored style. Two draw calls: the shells (one merged geometry,
-// rebuilt from a fixed seed when the layout changes) and the creatures (one
-// instanced mesh whose geometry holds the crab and the turtle: each instance
-// shows one of them and folds the other away; each is moved by a cheap
+// Two seashells, a starfish, two crabs and a sea turtle on the Home beach, in
+// the foreground along the near shore (lib/coast), in the palms' low-poly,
+// flat-shaded, vertex-colored style. Two draw calls: the shells and the
+// starfish (one merged geometry, rebuilt from a fixed seed when the layout
+// changes) and the creatures (one instanced mesh whose geometry holds the
+// crab and the turtle: each instance shows one of them and folds the other
+// away; each is moved by a cheap
 // transform per frame, and its legs, claws, flippers and head move in the
 // vertex shader from per-instance attributes). A lazy chunk mounted after the
 // first visible frame (HomeSection), like BeachDecor: it compiles its shaders
@@ -18,16 +19,16 @@ import { createRandom } from "../lib/lowPoly";
 //
 // Home-local floor coordinates (y = 0 floor, +z toward the camera). A shell
 // lies in the wet band the waves wash over (between coastX and dryX), another
-// on the dry sand near the water; the crab and the turtle rest on the dry
-// sand near the water, and no pose of theirs comes within CLEAR of the dry
-// line. Shadows are baked (a soft dark fan under the dry-sand shell and each
-// creature; the waves never reach there, so the fans never block the swash),
+// and the starfish on the dry sand near the water; the crabs and the turtle
+// rest on the dry sand near the water, and no pose of theirs comes within
+// CLEAR of the dry line. Shadows are baked (a soft dark fan under the
+// dry-sand shell, the starfish and each creature; the waves never reach there, so the fans never block the swash),
 // and everything sits on its own layer, which the contact-shadow pass does
 // not render: at its resolution they would print nothing but cost a draw.
 //
 // Sizes are fractions of the screen's height at their depth, so every prop
-// keeps its size on screen wherever the shore puts it. Mobile shows one shell
-// and the turtle.
+// keeps its size on screen wherever the shore puts it. Mobile shows one shell,
+// the starfish, one crab and the turtle.
 
 const SEED = 7;
 const LAYER = 3;
@@ -49,33 +50,52 @@ const clearAt = (z, aspect) => CLEAR * screenHeightAt(z) * Math.max(aspect, 1);
 // a fraction of it from the dry line (0) to the water line (1); dry: on the
 // dry sand, this much (screen heights) further inland than CLEAR allows
 // (moved down to the wet band if a palm stands there). kind: 0 scallop, 1
-// spiral
+// spiral, 2 starfish (last, so the shells keep their seeded looks), by the
+// turtle
 const SHELLS = {
   desktop: [
     { z: -0.45, wet: 0.35, kind: 0 },
-    { z: 1.65, dry: 0, kind: 1 },
+    { z: 1.95, dry: 0, kind: 1 },
+    { z: 1.25, dry: 0.08, kind: 2 },
   ],
   // MOBILE_PERF: one shell instead of two — revert by removing the ternary in buildShells
-  mobile: [{ z: 1.1, wet: 0.3, kind: 0 }],
+  mobile: [
+    { z: 1.1, wet: 0.3, kind: 0 },
+    { z: 0.95, dry: 0.02, kind: 2 },
+  ],
 };
-// Shell width, in screen heights at its depth
+// Shell width, in screen heights at its depth; the starfish STAR_SIZE times it
 const SHELL_SIZE = { desktop: 0.028, mobile: 0.025 };
-// The creatures: preferred depth, size (screen heights: the crab across its
-// legs, the turtle from nose to hind flippers), the depths it may move to if
-// a palm or the other creature is there, and when its first move comes (s),
-// so the two never move in step
+const STAR_SIZE = 1.2;
+// The creatures: preferred depth, the depths it may move to if a palm or
+// another creature is there, and when its first move comes (s), so they
+// never move in step. By composition: wide screens, upright ones past the
+// breakpoint (tall: the avatar big down to the near sand, so the crabs keep
+// below its feet) and phones either way round
 const CRAB = 0;
 const TURTLE = 1;
+// Each creature's size, in screen heights: the crab across its legs, the
+// turtle from nose to hind flippers, a little bigger than the crabs
+const CREATURE_SIZE = { [CRAB]: 0.075, [TURTLE]: 0.094 };
 const CREATURES = {
   desktop: [
-    { kind: CRAB, z: 0.35, size: 0.05, range: [-1.6, 1.6], first: 3 },
-    { kind: TURTLE, z: 1.4, size: 0.068, range: [0.4, 1.8], first: 5 },
+    { kind: CRAB, z: 0.35, range: [-1.6, 1.6], first: 3 },
+    { kind: CRAB, z: 1.75, range: [1.6, 1.9], first: 6.5 },
+    { kind: TURTLE, z: 1.4, range: [0.4, 1.8], first: 5 },
   ],
-  mobile: [{ kind: TURTLE, z: 0.85, size: 0.068, range: [0.2, 1.6], first: 4 }],
+  tall: [
+    { kind: CRAB, z: 0.45, range: [0.4, 0.7], first: 3 },
+    { kind: CRAB, z: 1.75, range: [1.6, 1.9], first: 6.5 },
+    { kind: TURTLE, z: 1.38, range: [1.3, 1.45], first: 5 },
+  ],
+  // MOBILE_PERF: one crab instead of two — revert by removing the ternary in creatureList
+  mobile: [
+    { kind: CRAB, z: 1.8, range: [1.65, 1.95], first: 3 },
+    { kind: TURTLE, z: 1.3, range: [1.15, 1.45], first: 5 },
+  ],
 };
-// MOBILE_PERF: the turtle alone, no crab — revert by removing the ternary
-const creatureList = (isMobile) => CREATURES[isMobile ? "mobile" : "desktop"];
-const MAX_CREATURES = 2;
+const creatureList = (isMobile, aspect) => CREATURES[isMobile ? "mobile" : layoutOf(isMobile, aspect) === "portrait" ? "tall" : "desktop"];
+const MAX_CREATURES = 3;
 // How far (in its own body widths) a scuttle carries the crab
 const SCUTTLE = 0.8;
 // The turtle's crawl stroke: how far the front flippers reach forward and
@@ -108,6 +128,8 @@ const SHELL_PALETTES = [
   ["#98492f", "#d49468", "#e9bb8c", "#a8452e"], // sand with burnt-coral stripes
 ];
 const SHELL_INSIDE = hex("#f5a391");
+// The starfish: [middle, arms, tips]
+const STAR_PALETTE = ["#c4452c", "#e0653b", "#f39a5e"];
 const SHADOW = hex("#a0624c");
 const EYE = hex("#221517");
 
@@ -261,6 +283,30 @@ const spiral = (random, palette, sides, whorls) => {
   return faces;
 };
 
+// Starfish: five plump arms, each a ridge from the raised middle to a tip
+// that curls a little, its edges low on the sand, the tips paler
+const starfish = (random, palette) => {
+  const [c0, c1, c2] = palette.map(hex);
+  const top = V(0, 0.14, 0);
+  const at = (a, r, y) => V(Math.sin(a) * r, y, Math.cos(a) * r);
+  const faces = [];
+  for (let k = 0; k < 5; k++) {
+    const a = (k / 5) * Math.PI * 2;
+    const curl = (random() - 0.5) * 0.25;
+    const len = 0.46 + random() * 0.06;
+    const left = at(a - Math.PI / 5, 0.16, 0.03);
+    const right = at(a + Math.PI / 5, 0.16, 0.03);
+    const ridge = at(a + curl * 0.3, len * 0.5, 0.09);
+    const sideL = at(a - 0.26 + curl * 0.5, len * 0.55, 0.015);
+    const sideR = at(a + 0.26 + curl * 0.5, len * 0.55, 0.015);
+    const tip = at(a + curl, len, 0.015);
+    faces.push([top, left, ridge, shade(random, c0, 0.05)], [top, ridge, right, shade(random, c0, 0.05)]);
+    faces.push([left, sideL, ridge, shade(random, c1, 0.05)], [ridge, sideR, right, shade(random, c1, 0.05)]);
+    faces.push([sideL, tip, ridge, shade(random, c2, 0.05)], [ridge, tip, sideR, shade(random, c2, 0.05)]);
+  }
+  return faces;
+};
+
 // Turn a shell's faces to lie on the sand, `width` wide, turned by yaw and
 // tipped a little toward the camera (as if settled on a ripple: seen this
 // low, a shell lying flat is a sliver), resting on its lowest point; `reach`:
@@ -303,10 +349,10 @@ const buildShells = (isMobile, aspect, palms) => {
     const water = coastX(z, isMobile, aspect);
     const dryLine = dryX(z, isMobile, aspect);
     // Screen-constant size, a little smaller further out for depth
-    const width = SHELL_SIZE[layout] * screenHeightAt(z) * Math.pow(6 / (CAMERA_Z - z), 0.3) * (0.85 + random() * 0.3);
+    const width = SHELL_SIZE[layout] * screenHeightAt(z) * Math.pow(6 / (CAMERA_Z - z), 0.3) * (0.85 + random() * 0.3) * (kind === 2 ? STAR_SIZE : 1);
     const palette = SHELL_PALETTES[Math.floor(random() * SHELL_PALETTES.length)];
     // MOBILE_PERF: fewer ribs on mobile — revert by removing the ternary
-    const faces = kind === 0 ? scallop(random, palette, isMobile ? 5 : 7) : spiral(random, palette, 6, 5);
+    const faces = kind === 0 ? scallop(random, palette, isMobile ? 5 : 7) : kind === 1 ? spiral(random, palette, 6, 5) : starfish(random, STAR_PALETTE);
     // A scallop reads best with its fan opening toward the viewer
     const yaw = kind === 0 ? (random() - 0.5) * 1.2 : random() * Math.PI * 2;
     const shell = orientShell(random, faces, width, yaw);
@@ -619,24 +665,19 @@ const outlineOf = (sink, from, poses) => {
   });
 };
 
-// The creatures' one geometry (the crab only where the layout has one), and
-// each one's outline for placing it
+// The creatures' one geometry, and each one's outline for placing it
 const buildCreatures = (isMobile) => {
   const sink = new Sink(true);
-  const outlines = {};
-  for (const kind of new Set(creatureList(isMobile).map((c) => c.kind))) {
-    const from = sink.position.length / 3;
-    if (kind === CRAB) {
-      addCrab(sink, isMobile);
-      outlines[CRAB] = outlineOf(sink, from, (x, z) => [
-        [x - SCUTTLE, z],
-        [x + SCUTTLE, z],
-      ]);
-    } else {
-      addTurtle(sink, isMobile);
-      outlines[TURTLE] = outlineOf(sink, from, turtlePoses);
-    }
-  }
+  addCrab(sink, isMobile);
+  const outlines = {
+    [CRAB]: outlineOf(sink, 0, (x, z) => [
+      [x - SCUTTLE, z],
+      [x + SCUTTLE, z],
+    ]),
+  };
+  const from = sink.position.length / 3;
+  addTurtle(sink, isMobile);
+  outlines[TURTLE] = outlineOf(sink, from, turtlePoses);
   const geometry = sink.build();
   geometry.setAttribute("aState", new THREE.InstancedBufferAttribute(new Float32Array(MAX_CREATURES * 4), 4));
   geometry.setAttribute("aBob", new THREE.InstancedBufferAttribute(new Float32Array(MAX_CREATURES), 1));
@@ -737,15 +778,15 @@ const seaward = (z, isMobile, aspect) => Math.atan2(0.1, coastX(z - 0.05, isMobi
 
 // Where each creature rests (Home-local), which way it faces and its scale:
 // at its depth, or the nearest depth in its range clear of the palms and the
-// other creature and right of the avatar. The crab turns toward the viewer,
+// others and right of the avatar. The crab turns toward the viewer,
 // a little off square; the turtle heads for the sea, turned toward the viewer
 const placeCreatures = (isMobile, aspect, palms, outlines) => {
   const taken = palms.map((p) => ({ x: p.x, z: p.z, r: PALM_CLEAR * p.scale }));
-  return creatureList(isMobile).map(({ kind, z: preferred, size, range, first }) => {
+  return creatureList(isMobile, aspect).map(({ kind, z: preferred, range, first }) => {
     const outline = outlines[kind];
     const radius = Math.max(...outline.map(([x, z]) => Math.hypot(x, z)));
     const at = (z) => {
-      const scale = (size * screenHeightAt(z)) / (kind === CRAB ? CRAB_SPAN : TURTLE_SPAN);
+      const scale = (CREATURE_SIZE[kind] * screenHeightAt(z)) / (kind === CRAB ? CRAB_SPAN : TURTLE_SPAN);
       // Its turn depends on where it stands, which depends on its turn: twice
       // is enough to settle
       let x = dryX(z, isMobile, aspect);
