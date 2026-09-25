@@ -22,8 +22,8 @@ const ShoreLife = lazy(() => import("./ShoreLife"));
 const Birds = lazy(() => import("./Birds"));
 // A dolphin in the sea: a lazy chunk mounted after the first visible frame
 const Dolphin = lazy(() => import("./Dolphin"));
-// A cooler with cold drinks by the laptop and a beach umbrella under the
-// title: a lazy chunk mounted after the first visible frame, like BeachDecor
+// A towel, cooler, sunglasses, earbuds and a beach umbrella by the laptop:
+// a lazy chunk mounted after the first visible frame, like BeachDecor
 const BeachProps = lazy(() => import("./BeachProps"));
 
 // The palm group on the island's beach, drawn after the logo: three palms
@@ -60,8 +60,8 @@ const PALMS = {
 const SIZE = { desktop: 1, landscape: 0.9, portrait: 1 };
 
 // The laptop rests on the sand left of the avatar, on a beach towel
-// (BeachDecor) with a cooler beside it (BeachProps): the `laptop` prop tells
-// both where. By composition: x, z, the middle of its base on the floor
+// with a cooler beside it (BeachProps) and sand under them (BeachDecor):
+// the `laptop` prop tells both where. By composition: x, z, the middle of its base on the floor
 // (Home-local); yaw, its turn about that middle (its keyboard faces
 // (sin yaw, cos yaw) in xz); scale, its size (its base is 2.72 wide and
 // 1.95 deep at 1). Upright screens lay it in the foreground, below-left of
@@ -209,7 +209,7 @@ export const HomeSection = ({ active, revealed }) => {
       {revealed && (
         <SilentErrorBoundary>
           <Suspense fallback={null}>
-            <BeachProps palms={palms} dry={dry} laptop={laptop} title={title.position} />
+            <BeachProps laptop={laptop} />
           </Suspense>
         </SilentErrorBoundary>
       )}
