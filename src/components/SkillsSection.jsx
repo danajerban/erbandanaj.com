@@ -7,13 +7,12 @@ import { Lamp } from "./Lamp";
 import { SectionGroup } from "./SectionGroup";
 import { SectionTitle } from "./SectionTitle";
 
-export const SkillsSection = ({ active }) => {
+export const SkillsSection = () => {
   const { isMobile, prefersReducedMotion } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
   return (
     <SectionGroup
       name="skills"
-      active={active}
       position-x={isMobile ? sectionsDistance : 0}
       position-z={isMobile ? -4 : sectionsDistance}
     >

@@ -2,6 +2,7 @@ import { useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
@@ -36,9 +37,9 @@ import { createRandom } from "../lib/lowPoly";
 // the title) passes in front; the farthest dolphin first, so a nearer one is
 // always drawn over it.
 //
-// Home floor coordinates, like the sea: they hold the floor's level while the
-// section group drops away, slide with the world as the visitor leaves and
-// fade out over the same span of the scroll as the sea and the gulls. Their
+// Home floor coordinates, like the sea: they slide with the world as the
+// visitor leaves and fade out over the same span of the scroll as the
+// section, the sea and the gulls. Their
 // size is set on screen, like the gulls': each is LENGTH units long, the
 // nearest placed as far away as its size on screen needs and the others a
 // little farther, so every leap peaks just under the horizon (the camera is
@@ -62,9 +63,8 @@ const LEAP_EVERY = [4, 8];
 // longer for the higher leaps
 const LEAP_SECONDS = [1.2, 1.6];
 // Leaving Home: over this span of the scroll toward Skills (in sections) it
-// fades out, with the sea (Sea's LEAVE_START/LEAVE_END)
-const LEAVE_START = 0.06;
-const LEAVE_END = 0.48;
+// fades out, with the section and the sea
+const { DISSOLVE_START: LEAVE_START, DISSOLVE_END: LEAVE_END } = ANIMATION_CONSTANTS;
 
 // Camera: SceneCanvas (position [0, 0.5, 5]; its group, and so the floor,
 // sits at y = -1)
@@ -690,8 +690,6 @@ function Leaps() {
       uniforms.uFlick.value[i] = flickAngle(own - current.flick);
       uniforms.uSpray.value[i].set(own, own - current.entry);
     });
-    // Hold the floor's level while the section group drops away or rises
-    mesh.position.y = -mesh.parent.position.y;
   });
 
   return <primitive object={mesh} />;

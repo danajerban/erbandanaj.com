@@ -1,9 +1,9 @@
 import { Vector3 } from "three";
 
-// The scene transition of the sections that dissolve instead of dropping
-// (SectionGroup): like the sea leaving Home, a section melts into the horizon
-// haze while the visitor scrolls away from it, nearest parts first, and comes
-// back out of it, far parts first, on the way in.
+// The scene transition between sections (SectionGroup): like the sea leaving
+// Home, a section melts into the horizon haze while the visitor scrolls away
+// from it, nearest parts first, and comes back out of it, far parts first,
+// on the way in.
 //
 // A patch on the shaders of each of its materials, driven by one uniform per
 // section: x its progress (0 whole, 1 gone), y and z the view depth of its
@@ -19,14 +19,27 @@ import { Vector3 } from "three";
 // patch needs only the material: if the discard ever costs phones at rest, a
 // patched copy of each material can be pre-warmed alongside and swapped in
 // for the transition.
+//
+// Parts mounted later (the lazy beach dressing, a screenshot that suspended)
+// are patched before their first compile or draw: every object of a section
+// reports a child added or removed, and the section is patched again before
+// the next compile (the lazy parts compile their own programs as they mount)
+// or frame, whichever comes first. Not on the event itself: R3F adds a new
+// subtree's root before it builds the rest (its materials among them).
 
 const sections = new Map();
+// Sections with a child added or removed since they were last patched
+const dirty = new Set();
 
 // One per section, kept by name, so a remount drives the programs already
-// compiled against it: the shader uniform (value), and the patched meshes
-// with the view depth of their origins
+// compiled against it: the shader uniform (value), the patched meshes with
+// the view depth of their origins, and the section's group
 export const dissolveUniform = (name) => {
-  if (!sections.has(name)) sections.set(name, { value: new Vector3(0, 0, 1), meshes: [] });
+  if (!sections.has(name)) {
+    const uniform = { value: new Vector3(0, 0, 1), meshes: [], group: null };
+    uniform.changed = () => dirty.add(uniform);
+    sections.set(name, uniform);
+  }
   return sections.get(name);
 };
 
@@ -88,22 +101,55 @@ const patch = (material, uniform) => {
 // Experience.jsx (drei's default, 10) — keep them together.
 const SHADOW_FAR = 10;
 
-// Patches a section's meshes on the default layer (the island's own shader
-// parts sit on layers 1–5 and keep their own fades)
-export const applyDissolve = (group, uniform) => {
+const lifts = new WeakMap();
+
+// Patches the section's meshes, but those drawn by a ShaderMaterial: the
+// sea, the gulls and the dolphins keep their own fades, over the same span
+// of the scroll (ANIMATION_CONSTANTS.DISSOLVE_START/END)
+const refresh = (uniform) => {
   uniform.meshes = [];
-  group.traverse((o) => {
-    if (!o.isMesh || !o.layers.isEnabled(0)) return;
-    const mesh = { o, depth: 0 };
-    uniform.meshes.push(mesh);
-    const lift = (sign) => (renderer, scene, camera) => {
-      const { x, y, z } = uniform.value;
-      if (camera.isOrthographicCamera) o.matrixWorld.elements[13] += sign * SHADOW_FAR * Math.min(Math.max(2 * x - (mesh.depth - y) / (z - y), 0), 1);
-    };
-    o.onBeforeRender = lift(1);
-    o.onAfterRender = lift(-1);
-    for (const material of [o.material].flat()) patch(material, uniform);
+  uniform.group.traverse((o) => {
+    o.addEventListener("childadded", uniform.changed);
+    o.addEventListener("childremoved", uniform.changed);
+    if (!o.isMesh) return;
+    const materials = [o.material].flat();
+    if (materials.some((material) => material.isShaderMaterial)) return;
+    if (!lifts.has(o)) {
+      const mesh = { o, depth: 0 };
+      const lift = (sign) => (renderer, scene, camera) => {
+        const { x, y, z } = uniform.value;
+        if (camera.isOrthographicCamera) o.matrixWorld.elements[13] += sign * SHADOW_FAR * Math.min(Math.max(2 * x - (mesh.depth - y) / (z - y), 0), 1);
+      };
+      o.onBeforeRender = lift(1);
+      o.onAfterRender = lift(-1);
+      lifts.set(o, mesh);
+    }
+    uniform.meshes.push(lifts.get(o));
+    for (const material of materials) patch(material, uniform);
   });
+};
+
+// Patches the sections changed since they were last patched
+export const flushDissolve = () => {
+  for (const uniform of dirty) refresh(uniform);
+  dirty.clear();
+};
+
+const hooked = new WeakSet();
+
+// Patches a section's meshes, now and as parts mount. The renderer's
+// compile (compileAsync runs through it) patches what changed first.
+export const applyDissolve = (group, uniform, gl) => {
+  uniform.group = group;
+  dirty.delete(uniform);
+  refresh(uniform);
+  if (hooked.has(gl)) return;
+  hooked.add(gl);
+  const { compile } = gl;
+  gl.compile = (...args) => {
+    flushDissolve();
+    return compile.apply(gl, args);
+  };
 };
 
 const origin = new Vector3();

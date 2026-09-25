@@ -1,7 +1,7 @@
 import { ContactShadows, useScroll } from "@react-three/drei";
 import { useSetAtom } from "jotai";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
-import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { RGBELoader } from "three-stdlib";
 import { config } from "../config";
@@ -206,8 +206,7 @@ const SunsetSun = ({ isMobile, prefersReducedMotion }) => {
 
 export const Experience = ({ revealed }) => {
   const { isMobile, prefersReducedMotion } = useMobile();
-  const [section, setSection] = useState(config.sections[0]);
-  const sectionRef = useRef(section);
+  const sectionRef = useRef(config.sections[0]);
   const setSectionIndex = useSetAtom(sectionAtom);
   const sceneContainer = useRef();
   const scrollData = useScroll();
@@ -234,7 +233,6 @@ export const Experience = ({ revealed }) => {
     // Only update state if section actually changed
     if (newSection !== sectionRef.current) {
       sectionRef.current = newSection;
-      setSection(newSection);
       setSectionIndex(sectionIndex);
     }
   });
@@ -333,15 +331,15 @@ export const Experience = ({ revealed }) => {
       />
 
       <group ref={sceneContainer}>
-        <HomeSection active={section === "home"} revealed={revealed} />
+        <HomeSection revealed={revealed} />
         {BACKGROUND_SECTIONS.map(({ name, Section }) => (
           <SilentErrorBoundary key={name}>
             {name === gateSection ? (
-              <Section active={section === name} />
+              <Section />
             ) : (
               revealed && (
                 <Suspense fallback={null}>
-                  <Section active={section === name} />
+                  <Section />
                 </Suspense>
               )
             )}

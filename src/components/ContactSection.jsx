@@ -8,13 +8,12 @@ import { Pigeon } from "./Pigeon";
 import { SectionGroup } from "./SectionGroup";
 import { SectionTitle } from "./SectionTitle";
 
-export const ContactSection = ({ active }) => {
+export const ContactSection = () => {
   const { isMobile, scaleFactor, prefersReducedMotion } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
   return (
     <SectionGroup
       name="contact"
-      active={active}
       position-x={isMobile ? 3 * sectionsDistance : 0}
       position-z={isMobile ? -4 : 3 * sectionsDistance}
     >

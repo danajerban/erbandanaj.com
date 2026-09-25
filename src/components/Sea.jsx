@@ -2,7 +2,7 @@ import { useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { getSectionsDistance } from "../constants/animation";
+import { ANIMATION_CONSTANTS, getSectionsDistance } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { SWASH, coastX } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
@@ -21,10 +21,10 @@ import { createRandom } from "../lib/lowPoly";
 // per pixel from coastX sampled into a small texture, so the one shape in
 // lib/coast drives both the palms and the water, and nothing wet passes dryX.
 //
-// When the visitor leaves Home the section group drops away; the sea instead
-// holds the floor's level, slides with the world and dissolves into the
-// horizon haze, driven by the scroll offset (so a menu jump plays it too, and
-// reduced motion — no scroll damping — makes it immediate).
+// When the visitor leaves Home the sea slides with the world and dissolves
+// into the horizon haze with the rest of the section (SectionGroup), driven
+// by the scroll offset (so a menu jump plays it too, and reduced motion — no
+// scroll damping — makes it immediate): its own shader, not lib/dissolve's.
 //
 // Drawn after the other transparent objects but the dolphin (renderOrder:
 // the sea 1, the dolphin 2, as it leaps over the water) and blended over
@@ -74,11 +74,6 @@ const WAVE_PERIOD = 7.5;
 const WAVE_RISE = 0.3;
 const BACKWASH = 0.004;
 const BREAK_LINE = 0.035;
-
-// Leaving Home: over this span of the scroll toward Skills (in sections) the
-// sea dissolves into the horizon haze, nearest water first
-const LEAVE_START = 0.06;
-const LEAVE_END = 0.48;
 
 const glsl = (hex) => {
   const n = parseInt(hex.slice(1), 16);
@@ -530,12 +525,16 @@ export default function Sea() {
   useFrame((state, delta) => {
     if (!ready.current) return;
     const { uniforms } = mesh.material;
-    // How far the visitor has scrolled from Home toward Skills
-    const leave = THREE.MathUtils.smoothstep(scroll.offset * (scroll.pages - 1), LEAVE_START, LEAVE_END);
+    // How far the visitor has scrolled from Home toward Skills: the sea
+    // dissolves into the horizon haze over the section's span, nearest water
+    // first
+    const leave = THREE.MathUtils.smoothstep(
+      scroll.offset * (scroll.pages - 1),
+      ANIMATION_CONSTANTS.DISSOLVE_START,
+      ANIMATION_CONSTANTS.DISSOLVE_END,
+    );
     uniforms.uLeave.value = leave;
     mesh.visible = leave < 1;
-    // Hold the floor's level while the section group drops away or rises
-    mesh.position.y = -mesh.parent.position.y;
     if (fade.current < 1) {
       fade.current = prefersReducedMotion ? 1 : Math.min(1, fade.current + delta / FADE_SECONDS);
       uniforms.uOpacity.value = THREE.MathUtils.smoothstep(fade.current, 0, 1);

@@ -7,13 +7,12 @@ import { MonitorScreen } from "./MonitorScreen";
 import { SectionGroup } from "./SectionGroup";
 import { SectionTitle } from "./SectionTitle";
 
-export const ProjectsSection = ({ active }) => {
+export const ProjectsSection = () => {
   const { isMobile } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
   return (
     <SectionGroup
       name="projects"
-      active={active}
       position-x={isMobile ? 2 * sectionsDistance : 0}
       position-z={isMobile ? -3 : 2 * sectionsDistance}
     >

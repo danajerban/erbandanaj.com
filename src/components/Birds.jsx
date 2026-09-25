@@ -2,6 +2,7 @@ import { useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 
 // A few gulls over the sea on Home, drawn like the birds in the owner's logo:
@@ -18,8 +19,8 @@ import { useMobile } from "../contexts/MobileContext";
 // its loop in per-vertex attributes, and the vertex shader places, flaps and
 // banks them from one uTime uniform. They live in view space, like the sun
 // (Experience), placed by screen fractions: sky things far away do not slide
-// or fall with the world, so when the visitor leaves Home (the section group
-// drops away, the world slides) they stay level and fade out with the scroll
+// or fall with the world, so when the visitor leaves Home (the world slides,
+// the section dissolves) they stay level and fade out with the scroll
 // offset, as the sea does. Depth-tested, so anything nearer (the palms, the
 // title) passes in front of them.
 //
@@ -30,9 +31,8 @@ import { useMobile } from "../contexts/MobileContext";
 const LAYER = 5;
 const FADE_SECONDS = 1.2;
 // Leaving Home: over this span of the scroll toward Skills (in sections) the
-// birds fade out, with the sea (Sea's LEAVE_START/LEAVE_END)
-const LEAVE_START = 0.06;
-const LEAVE_END = 0.48;
+// birds fade out, with the section and the sea
+const { DISSOLVE_START: LEAVE_START, DISSOLVE_END: LEAVE_END } = ANIMATION_CONSTANTS;
 
 // Per bird, a loop: x, y, its center (screen fractions from the left and the
 // top; lib/coast keeps the water right of ≈ 0.68 at the horizon on desktop
