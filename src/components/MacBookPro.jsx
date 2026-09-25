@@ -5,11 +5,28 @@ Laptop / MacBook Pro by Alex Safayan [CC-BY] (https://creativecommons.org/licens
 */
 
 import { useTexture } from "@react-three/drei";
+import { useLayoutEffect } from "react";
 import { useGLTF } from "../lib/useGLTF";
 
 export function MacBookPro(props) {
   const { nodes, materials } = useGLTF("/models/MacBook Pro.glb");
   const screenTexture = useTexture("/textures/screen.webp");
+  // A silver MacBook Pro: neutral aluminium (mat16, also on the underside
+  // below) that the sunset light warms by itself, and a glass trackpad
+  // (mat17: smooth, a faint reflection). mat17's base primitive also holds
+  // the front notch and the speaker grilles, whose triangles come last
+  // (indices 300 on): a second group draws them in aluminium. Settings only,
+  // on the cached GLTF (the model has a single instance).
+  useLayoutEffect(() => {
+    const { mat16: aluminium, mat17: glass } = materials;
+    aluminium.color.set("#c9cbce");
+    glass.color.set("#b5b7bb");
+    glass.roughness = 0.2;
+    const { geometry } = nodes.mesh485226736_2;
+    geometry.clearGroups();
+    geometry.addGroup(0, 300, 0);
+    geometry.addGroup(300, Infinity, 1);
+  }, [materials, nodes]);
   return (
     <group {...props} dispose={null}>
       <mesh position={[0.02, 0.85, -0.66]}>
@@ -26,11 +43,11 @@ export function MacBookPro(props) {
       />
       <mesh
         geometry={nodes.mesh485226736_2.geometry}
-        material={materials.mat17}
+        material={[materials.mat17, materials.mat16]}
       />
       <mesh
         geometry={nodes.mesh485226736_3.geometry}
-        material={materials.mat15}
+        material={materials.mat16}
       />
       <mesh
         geometry={nodes.mesh256948792.geometry}
