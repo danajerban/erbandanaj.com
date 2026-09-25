@@ -382,11 +382,14 @@ a {
   font-weight: bold;
   font-size: 1.1rem;
   color: var(--text-color);
-  transition: color 0.2s ease-out;
+  transition:
+    color 0.2s ease-out,
+    text-shadow 0.2s ease-out;
 }
 
-/* The blue bar means the same thing on hover and on the active section:
-   "here is where you can go / where you are". */
+/* Pale sand text over a pale sand bar (the beach's lit sand, a little whiter)
+   means the same thing on hover and on the active section: "here is where you
+   can go / where you are". The shadow keeps both readable on the pale sky. */
 .menu__button::after {
   content: "";
   position: absolute;
@@ -395,14 +398,16 @@ a {
   bottom: -0.2rem;
   height: 2px;
   border-radius: 1px;
-  background: var(--primary-color);
+  background: #fbd7b3;
+  box-shadow: 0 1px 3px rgba(26, 32, 44, 0.55);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.2s ease-out;
 }
 
 .menu__button--active {
-  color: var(--primary-color);
+  color: #fbd7b3;
+  text-shadow: 0 1px 3px rgba(26, 32, 44, 0.55);
 }
 
 .menu__button--active::after {
@@ -411,7 +416,8 @@ a {
 
 @media (hover: hover) {
   .menu__button:hover {
-    color: var(--primary-color);
+    color: #fbd7b3;
+    text-shadow: 0 1px 3px rgba(26, 32, 44, 0.55);
     cursor: pointer;
   }
 
