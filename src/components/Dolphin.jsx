@@ -21,8 +21,8 @@ import { createRandom } from "../lib/lowPoly";
 // (Birds): flat silhouettes in their deep plum, built the same way so they
 // render the same ink, the farther ones hazed a little more, dark shapes
 // against the water and the sun's glitter. On desktop they leap right of the
-// title, in and beside that glitter; on mobile the sun is low over the land,
-// so they leap over the water on the right, below the gulls.
+// title, in and beside that glitter; on phones too the sun is over the sea,
+// so they leap in and beside its glitter on the right, below the gulls.
 //
 // One draw call, and only while they leap: each body is a strip of triangles
 // down its profile plus fins and flukes; all three dolphins, their spray and
@@ -73,19 +73,20 @@ const CAMERA_HEIGHT = 1.5;
 
 // Where they leap, by layout (lib/coast layoutOf): band, the stretch of the
 // screen (fractions from the left) the dolphins keep to, each leap somewhere
-// else along it: over the water (lib/coast keeps it right of ≈ 0.68 at the
-// horizon on desktop, ≈ 0.71 on mobile, a little further left at the
-// dolphins' depths) and clear of the right edge; on desktop right of where
-// the title's end sways to on a wide screen (on a narrower one it passes in
-// front now and then; the sun sits at 0.855), in portrait right of the palm
-// leaning out over the water. Size, the nearest one's body length as a
-// fraction of the screen's shorter side, each leap somewhere between these (a
-// little nearer or farther); arc, the radius of the beak's arc (body lengths,
+// else along it: over open water, a little clear of the shore (lib/coast
+// keeps the water right of ≈ 0.68 at the horizon on desktop, ≈ 0.70 in
+// landscape, ≈ 0.66 in portrait, where the palms stand inland left of the
+// avatar), and clear of the right edge; on desktop right of where the
+// title's end sways to on a wide screen (on a narrower one it passes in
+// front now and then; the sun sits at 0.855; on phones at 0.8), in landscape
+// right of the palms. Size, the nearest one's body length as a fraction of
+// the screen's shorter side, each leap somewhere between these (a little
+// nearer or farther); arc, the radius of the beak's arc (body lengths,
 // below), tighter on the narrow portrait screen.
 const SPOT = {
   desktop: { band: [0.842, 0.98], size: [0.028, 0.038], arc: 1.85 },
   landscape: { band: [0.72, 0.975], size: [0.046, 0.062], arc: 1.85 },
-  portrait: { band: [0.75, 0.97], size: [0.038, 0.046], arc: 1.5 },
+  portrait: { band: [0.685, 0.975], size: [0.038, 0.046], arc: 1.5 },
 };
 // The formations: each dolphin, nearest first, with far, how many times as
 // far away as the nearest it is (so it looks smaller, its water line a little

@@ -10,10 +10,9 @@ import { useMobile } from "../contexts/MobileContext";
 // (the far ones hazed toward the sky). Each circles slowly over the water, in
 // a wide loop in depth: it grows as it comes nearer and shrinks as it heads
 // out toward the horizon, banks into the turn, and turns its silhouette to
-// face the way it flies. On desktop the loops pass in front of the sun's
-// glow; on mobile the sun is low over the land, so they keep to the water on
-// the right, near the horizon. Now and then one gives a few gentle wing
-// beats; the rest of the time they glide, bobbing a little.
+// face the way it flies. The loops pass in front of the sun's glow, low
+// over the sea on the right (on mobile too). Now and then one gives a few
+// gentle wing beats; the rest of the time they glide, bobbing a little.
 //
 // One draw call: every bird is a strip of triangles in one geometry, with
 // its loop in per-vertex attributes, and the vertex shader places, flaps and
@@ -36,8 +35,9 @@ const LEAVE_START = 0.06;
 const LEAVE_END = 0.48;
 
 // Per bird, a loop: x, y, its center (screen fractions from the left and the
-// top; lib/coast keeps the water right of ≈ 0.68 at the horizon on desktop,
-// ≈ 0.71 on mobile, and the desktop sun sits at 0.855, 0.278); rx, its
+// top; lib/coast keeps the water right of ≈ 0.68 at the horizon on desktop
+// and ≈ 0.66 in portrait; the sun (Experience) sits at 0.855, 0.278 on
+// desktop and 0.8, 0.31 on mobile, over the sea); rx, its
 // half-width (screen widths); ry, how much lower it flies on the far side
 // (screen heights); depth, the view-space distance at its center, which
 // swings by ±dz of itself around the loop; period, seconds per turn; dir, the
@@ -47,8 +47,9 @@ const LEAVE_END = 0.48;
 // shorter side; haze, mix toward the sky.
 // Desktop: loops across the sun, the nearest just above its heart on the
 // near side and over it on the far side, clear of the title below and the
-// menu above. Mobile: two small loops over the water, off the right edge and
-// back.
+// menu above. Mobile (one set of fractions for both orientations): the same
+// around the sun, the nearest over its heart, the other in its glow above;
+// narrow enough that in landscape they stay clear of the palms on the left.
 const FLOCK = {
   desktop: [
     { x: 0.87, y: 0.255, rx: 0.08, ry: 0.02, depth: 12, dz: 0.3, period: 48, dir: 1, at: -1.76, size: 0.04, haze: 0.05 },
@@ -56,8 +57,8 @@ const FLOCK = {
     { x: 0.9, y: 0.165, rx: 0.06, ry: 0.01, depth: 26, dz: 0.2, period: 80, dir: 1, at: 2.5, size: 0.019, haze: 0.4 },
   ],
   mobile: [
-    { x: 0.89, y: 0.33, rx: 0.09, ry: 0.012, depth: 12, dz: 0.3, period: 40, dir: 1, at: -2.2, size: 0.055, haze: 0.08 },
-    { x: 0.87, y: 0.285, rx: 0.07, ry: 0.01, depth: 18, dz: 0.25, period: 56, dir: -1, at: 0.9, size: 0.036, haze: 0.3 },
+    { x: 0.81, y: 0.3, rx: 0.09, ry: 0.012, depth: 12, dz: 0.3, period: 40, dir: 1, at: -2.2, size: 0.055, haze: 0.08 },
+    { x: 0.79, y: 0.268, rx: 0.07, ry: 0.01, depth: 18, dz: 0.25, period: 56, dir: -1, at: 0.9, size: 0.036, haze: 0.3 },
   ],
 };
 
