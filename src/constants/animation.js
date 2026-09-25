@@ -24,6 +24,14 @@ export const ANIMATION_CONSTANTS = {
   CARD_RISE_PX: 12,
   CARD_ENTRANCE_DURATION: 0.45,
   CARD_STAGGER_DELAY: 0.08,
+
+  // Scene transitions: as the visitor scrolls away from a section it
+  // dissolves into the horizon haze between these distances (in sections),
+  // gone by the end, and comes back out of it on the way in (SectionGroup,
+  // lib/dissolve). The sea leaves Home over the same span (Sea.jsx
+  // LEAVE_START/LEAVE_END) — keep them together.
+  DISSOLVE_START: 0.06,
+  DISSOLVE_END: 0.48,
 };
 
 export const getSectionsDistance = (isMobile) => isMobile ? 7 : 10;

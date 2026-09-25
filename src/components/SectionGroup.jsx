@@ -1,7 +1,16 @@
+import { useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
+import { MathUtils } from "three";
+import { config } from "../config";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
+import { applyDissolve, dissolveUniform, measureDissolve } from "../lib/dissolve";
 import { prewarmSection } from "../lib/prewarm";
+
+// Sections that dissolve into the haze as the visitor scrolls away from them
+// (lib/dissolve); the others drop out of view.
+const DISSOLVE = new Set(["skills"]);
 
 // Resting height of an inactive section — below the camera's view.
 const DROP_Y = -5;
@@ -43,34 +52,48 @@ const READY = 3;
 // not active), so inactive sections never bleed through the transparent
 // canvas (no occluder floor). Reduced motion snaps instead of tweening.
 //
+// A section in DISSOLVE stays at y=0 instead and follows the scroll, like
+// the sea: it dissolves into the haze between DISSOLVE_START and
+// DISSOLVE_END sections away from it and is hidden once gone. Stopping holds
+// it, scrolling back plays it in reverse, a menu jump (which scrolls) plays
+// it too, and reduced motion (no scroll damping) makes it immediate.
+//
 // The group is pre-warmed on the GPU right after it mounts: shaders, then
 // textures (lib/prewarm), then one hidden draw for the GPU pipeline state and
 // geometry buffers — spanning two frames, because the contact-shadow depth
 // pass runs before this callback and only sees the group on the next frame.
 // A section requested before that completes simply waits, then plays its
-// normal rise-in; nothing blocks the frame.
+// normal rise-in (a dissolving one comes out of the haze over DURATION);
+// nothing blocks the frame.
 export const SectionGroup = ({ name, active, children, ...props }) => {
   const group = useRef();
   const { prefersReducedMotion } = useMobile();
   const get = useThree((state) => state.get);
+  const scroll = useScroll();
   const phase = useRef(0);
   const warmFrames = useRef(0);
   const culled = useRef([]);
   // Current tween; t = 1 means settled at `to`.
   const tween = useRef({ from: DROP_Y, to: DROP_Y, t: 1 });
+  // Dissolving: the section's uniform, and its fade in once pre-warmed (0 → 1)
+  const dissolve = DISSOLVE.has(name) ? dissolveUniform(name) : null;
+  const reveal = useRef(0);
+  const index = config.sections.indexOf(name);
 
   useEffect(() => {
     let live = true;
     const { gl, camera, scene } = get();
+    // Before the pre-warm, so the programs it compiles are the patched ones
+    if (dissolve) applyDissolve(group.current, dissolve);
     prewarmSection(name, gl, group.current, camera, scene).then(() => {
       if (live) phase.current = COMPILED;
     });
     return () => {
       live = false;
     };
-  }, [name, get]);
+  }, [name, get, dissolve]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const { current: g } = group;
 
     if (phase.current === COMPILED) {
@@ -91,10 +114,28 @@ export const SectionGroup = ({ name, active, children, ...props }) => {
       if (++warmFrames.current < 2) return;
       for (const [o, value] of culled.current) o.frustumCulled = value;
       culled.current = [];
-      g.position.y = DROP_Y;
+      g.position.y = dissolve ? 0 : DROP_Y;
       phase.current = READY;
       // Measurement seam: one mark per section, when its pre-warm completes.
       performance.mark(`section-ready:${name}`);
+    }
+
+    if (dissolve) {
+      const { value } = dissolve;
+      if (phase.current === READY) {
+        reveal.current = prefersReducedMotion ? 1 : Math.min(1, reveal.current + delta / DURATION);
+      }
+      // How far the visitor has scrolled from this section, in sections
+      const away = Math.abs(scroll.offset * (scroll.pages - 1) - index);
+      value.x = Math.max(
+        MathUtils.smoothstep(away, ANIMATION_CONSTANTS.DISSOLVE_START, ANIMATION_CONSTANTS.DISSOLVE_END),
+        1 - easeInOut(reveal.current),
+      );
+      // Hidden once gone: by then every pixel is dropped and every shadow
+      // lifted out of range, so nothing pops
+      g.visible = value.x < 1;
+      if (value.x > 0 && g.visible) measureDissolve(dissolve, g, state.camera);
+      return;
     }
 
     const tw = tween.current;
