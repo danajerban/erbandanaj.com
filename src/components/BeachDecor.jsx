@@ -54,14 +54,13 @@ const onScreen = (x1, z1, x2, z2) => {
 };
 
 // The band, in Home units at prop size 1 (smaller on mobile): its least
-// width; how far inland of each palm's foot, and of the laptop's middle (in
-// laptop units: its towel and the cooler beside it), it is still sand; how
-// far past the farthest palm it tapers away; the share of its width over
-// which its land side fades out (those spots stay within its first third,
-// where the sand still shows); a low berm along it
+// width; how far inland of each palm's foot it is still sand; how far past
+// the farthest palm it tapers away; the share of its width over which its
+// land side fades out (the palms' feet stay within its first third, where
+// the sand still shows; the props round the laptop short of it, on solid
+// sand); a low berm along it
 const BAND_WIDTH = 0.65;
 const BAND_BEHIND = 0.45;
-const LAPTOP_REACH = 3;
 const BAND_TAPER = 5;
 const LAND_FADE = 0.45;
 const BERM = 0.02;
@@ -90,9 +89,30 @@ const TRUNK_RADIUS = { desktop: 0.145, mobile: 0.13 };
 // grass and coconuts in front of it stay entirely clear of that on screen,
 // at any aspect; behind it (it hides them) their centers do
 const AVATAR = { desktop: { z: 0, reach: 0.061 }, mobile: { z: -5, reach: 0.031 } };
-// Grass and coconuts keep this far from the laptop's middle (in laptop
-// units), off its towel and the cooler (BeachProps)
-const LAPTOP_CLEAR = 3.2;
+// BeachProps' things round the laptop (its SPOTS, by layout), in laptop
+// units from its middle: circles [x, z, r] over the towel (three along its
+// length), the cooler and the umbrella's pole foot; the umbrella [foot x,
+// z, canopy radius, height], whose shade lies off its foot. They stand on
+// solid sand, and grass and coconuts keep off them and out of their way on
+// screen.
+const LAPTOP_PROPS = {
+  wide: {
+    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [-3, -3.2, 1.37], [-2.25, -0.35, 0.3]],
+    umbrella: [-2.25, -0.35, 3, 4.2],
+  },
+  portrait: {
+    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [5.3, -1.7, 1.31], [2.8, -1.6, 0.3]],
+    umbrella: [2.8, -1.6, 2.6, 4.5],
+  },
+  tall: {
+    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [-1.15, 5.6, 0.96], [2.2, -1.6, 0.3]],
+    umbrella: [2.2, -1.6, 2.6, 4.5],
+  },
+};
+// The shade's shift off the foot, per height of canopy: its pole leans 15°
+// toward the camera, and the shade falls from the canopy away from the sun
+// at 75° (BeachProps LEAN, SHADE_ELEVATION)
+const SHADE_SHIFT = Math.tan(THREE.MathUtils.degToRad(15));
 
 // Fallen coconuts by layout: [palm, dx, dz], a spot from that palm's foot
 // (HomeSection's palms, in order) in prop units, dx + toward the water, dz +
@@ -165,17 +185,32 @@ const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
   // Nearer than NEAR_Z the sea holds its shore line straight: so does the band
   const shore = (z) => dry(Math.min(z, NEAR_Z));
 
+  // The props round the laptop as circles [x, z, r] in Home units, the
+  // umbrella's shade among them
+  const spots = LAPTOP_PROPS[layout !== "portrait" ? "wide" : isMobile ? "portrait" : "tall"];
+  const [cos, sin] = [Math.cos(laptop.yaw), Math.sin(laptop.yaw)];
+  const home = ([u, w, r]) => [laptop.x + (u * cos + w * sin) * laptop.scale, laptop.z + (w * cos - u * sin) * laptop.scale, r * laptop.scale];
+  const [fx, fz, canopy, tall] = spots.umbrella;
+  const [footX, footZ] = home([fx, fz, 0]);
+  const toCamera = new THREE.Vector3(-footX, 0, CAMERA_Z - footZ).normalize();
+  const shift = toCamera.sub(new THREE.Vector3(SUN_DIR.x, 0, SUN_DIR.z).normalize()).multiplyScalar(SHADE_SHIFT * tall * laptop.scale);
+  const laptopProps = [...spots.circles.map(home), [footX + shift.x, footZ + shift.z, canopy * laptop.scale]];
+
   // The band's width: one width all along the shore, so its land side has
   // the shore's curves, wide enough to reach BAND_BEHIND inland of each
-  // palm's foot and LAPTOP_REACH inland of the laptop within the first third
-  // of its fade; tapering away past the farthest palm. Its land side wobbles
+  // palm's foot within the first third of its fade and all round the props
+  // short of it; tapering away past the farthest palm. Its land side wobbles
   // a little further out (evenly down the screen: in 1 / distance).
-  const reach = Math.max(
-    BAND_WIDTH * unit,
-    shore(laptop.z) - laptop.x + LAPTOP_REACH * laptop.scale,
-    ...palms.map((p) => shore(p.z) - p.x + BAND_BEHIND * p.scale),
+  const reach = Math.max(BAND_WIDTH * unit, ...palms.map((p) => shore(p.z) - p.x + BAND_BEHIND * p.scale));
+  const propsReach = Math.max(
+    ...laptopProps.flatMap(([x, z, r]) =>
+      Array.from({ length: 12 }, (_, k) => {
+        const [a, b] = [x + r * Math.cos((k * Math.PI) / 6), z + r * Math.sin((k * Math.PI) / 6)];
+        return shore(b) - a;
+      }),
+    ),
   );
-  const bandWidth = reach / (1 - LAND_FADE / 3);
+  const bandWidth = Math.max(reach / (1 - LAND_FADE / 3), propsReach / (1 - LAND_FADE));
   const zBack = Math.min(...palms.map((p) => p.z));
   const zTip = zBack - BAND_TAPER * unit;
   const phases = [random(), random(), random(), random()].map((p) => p * Math.PI * 2);
@@ -252,10 +287,10 @@ const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
     }
   }
 
-  // Room for a prop of radius r at (x, z): inland of the dry line, within
-  // `band` of the band's width, landward of ShoreLife's strip unless under
-  // the palms, clear of the avatar on screen and of the laptop's spot, its
-  // root outside the trunks
+  // Room for a prop of radius r and height h at (x, z): inland of the dry
+  // line, within `band` of the band's width, landward of ShoreLife's strip
+  // unless under the palms, clear of the avatar on screen and of the props
+  // round the laptop, its root outside the trunks
   const avatar = AVATAR[isMobile ? "mobile" : "desktop"];
   const trunk = TRUNK_RADIUS[isMobile ? "mobile" : "desktop"];
   const crowns = palms.map((p) =>
@@ -265,14 +300,25 @@ const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
   );
   const underPalms = (x, z) =>
     palms.some((p, i) => Math.min(Math.hypot(x - p.x, z - p.z), Math.hypot(x - p.x - crowns[i].x, z - p.z - crowns[i].z)) < UNDER_PALMS * p.scale);
-  const free = (x, z, r, band) => {
+  // Clear of the props round the laptop: neither on one nor in front of one
+  // on screen, all along the floor it hides (from its root back to where the
+  // line of sight over its tip meets the floor, from the camera 1.5 up)
+  const offProps = (x, z, r, h) => {
+    const k = 1.5 / (1.5 - h) - 1;
+    const [dx, dz] = [x * k, -(CAMERA_Z - z) * k];
+    return laptopProps.every(([px, pz, pr]) => {
+      const t = THREE.MathUtils.clamp(((px - x) * dx + (pz - z) * dz) / (dx * dx + dz * dz), 0, 1);
+      return Math.hypot(px - x - t * dx, pz - z - t * dz) > pr + r;
+    });
+  };
+  const free = (x, z, r, h, band) => {
     const v = shore(z) - x;
     return (
       v > r + 0.03 * unit &&
       v < width(z) * band &&
       (v - r > SHORE_STRIP * unit || underPalms(x, z)) &&
       (Math.abs(x) - (z > avatar.z ? r : 0)) / (CAMERA_Z - z) > avatar.reach &&
-      Math.hypot(x - laptop.x, z - laptop.z) > r + LAPTOP_CLEAR * laptop.scale &&
+      offProps(x, z, r, h) &&
       palms.every((p) => Math.hypot(x - p.x, z - p.z) > r + trunk * p.scale)
     );
   };
@@ -322,7 +368,7 @@ const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
       Math.min(p.x + dx * unit, shore(z) - 0.2 * size),
       z,
       0.35 * size,
-      (x, z) => free(x, z, 0.1 * size, 0.85) && clearOfTrunks(x, z, 0.1 * size, true) && apart(x, z, coconuts, 0.19 * size),
+      (x, z) => free(x, z, 0.1 * size, 0.17 * size, 0.85) && clearOfTrunks(x, z, 0.1 * size, true) && apart(x, z, coconuts, 0.19 * size),
     );
     if (spot) coconuts.push([...spot, size]);
   }
@@ -347,7 +393,7 @@ const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
         cx + Math.cos(angle) * 0.17 * d,
         cz + Math.sin(angle) * 0.06 * d * (CAMERA_Z - cz),
         0.3 * unit,
-        (x, z) => free(x, z, 0.12 * size, 1.05) && clearOfTrunks(x, z, 0.12 * size, false) && apart(x, z, coconuts, 0.12 * unit) && apart(x, z, tufts, 0.08 * unit),
+        (x, z) => free(x, z, 0.12 * size, 0.6 * size, 1.05) && clearOfTrunks(x, z, 0.12 * size, false) && apart(x, z, coconuts, 0.12 * unit) && apart(x, z, tufts, 0.08 * unit),
       );
       if (spot) tufts.push([...spot, size]);
     }
