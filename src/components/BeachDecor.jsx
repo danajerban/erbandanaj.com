@@ -7,9 +7,9 @@ import { layoutOf } from "../lib/coast";
 import { TriangleSink, createRandom } from "../lib/lowPoly";
 
 // Beach dressing on Home: a band of golden sand along the shore, from past
-// the bottom right of the screen up the water's edge to the palms' sand point
-// and a little past it, fallen coconuts under the palms and a few clusters of
-// dune grass, in the palms' low-poly, flat-shaded, vertex-colored style. Two
+// the bottom right of the screen up the water's edge to the palms and a
+// little past them, as wide as reaches the laptop, fallen coconuts under the
+// palms and clusters of dune grass, in the palms' low-poly, flat-shaded, vertex-colored style. Two
 // draw calls (sand; coconuts + grass), built from a fixed seed whenever the
 // palm layout changes. A lazy chunk loaded after the first visible frame
 // (HomeSection), so none of it is on the path to the scene appearing: it
@@ -18,8 +18,10 @@ import { TriangleSink, createRandom } from "../lib/lowPoly";
 // Coordinates are Home-local (y = 0 floor, +z toward the camera), taken
 // from the same palm layout PalmTree builds. The band runs inland from the
 // dry line (lib/coast dryX: where the waves stop washing up the beach), so
-// the sea draws the wet sand and the swash beyond it; it widens over the sand
-// point so the palms stand on it, and melts into the floor on its land side.
+// the sea draws the wet sand and the swash beyond it; its land side is the
+// shore line moved inland (so it has the shore's curves), far enough that
+// the palms and the laptop's spot (towel, cooler: BeachProps) lie on it, and
+// melts into the floor.
 // Every fade runs across the shore: seen this low, a fade along it (in depth)
 // is squeezed into a few pixels and reads as a hard edge. Along the dry line
 // runs ShoreLife's strip (shells, crabs): the grass and the coconuts keep
@@ -42,7 +44,6 @@ const LEAVE_SAND = 0.35;
 // Camera: SceneCanvas (position [0, 0.5, 5], fov 42), 1.5 above the Home
 // floor
 const CAMERA_Z = 5;
-const HALF_FOV_TAN = Math.tan(THREE.MathUtils.degToRad(21));
 // How far apart two spots on the floor look on screen, in Home units across
 // at the first one's depth: across, the second one's x shrinks with its
 // distance; in depth, seen this low, a step shows 1.5 / distance as long as
@@ -52,15 +53,16 @@ const onScreen = (x1, z1, x2, z2) => {
   return Math.hypot(x1 - (x2 * d1) / d2, (1.5 * (z1 - z2)) / d2);
 };
 
-// The band, in Home units at prop size 1 (smaller on mobile): its width
-// along the shore, but never more than BAND_SCREEN of the screen's width
-// (portrait is narrow); how far inland of each palm's foot it reaches over
-// the sand point; how far past the farthest palm it tapers away; the share
-// of its width over which its land side fades out; a low berm along it
+// The band, in Home units at prop size 1 (smaller on mobile): its least
+// width; how far inland of each palm's foot, and of the laptop's middle (in
+// laptop units: its towel and the cooler beside it), it is still sand; how
+// far past the farthest palm it tapers away; the share of its width over
+// which its land side fades out (those spots stay within its first third,
+// where the sand still shows); a low berm along it
 const BAND_WIDTH = 0.65;
-const BAND_SCREEN = 0.2;
-const BAND_BEHIND = 0.95;
-const BAND_TAPER = 2;
+const BAND_BEHIND = 0.45;
+const LAPTOP_REACH = 3;
+const BAND_TAPER = 5;
 const LAND_FADE = 0.45;
 const BERM = 0.02;
 // Rows along the shore: from where the sea holds its shore line straight
@@ -74,7 +76,7 @@ const ROW_SCREEN = 0.012;
 const ROW_STEP = 0.4;
 const SLIDE_ROWS = [4.2, 5.6, 7, 8.4];
 // Across the band, as shares of its width from the dry line
-const COLUMNS = [0, 0.24, 0.48, 0.66, 0.83, 1];
+const COLUMNS = [0, 0.12, 0.24, 0.36, 0.48, 0.57, 0.66, 0.74, 0.83, 0.91, 1];
 
 // ShoreLife's strip along the dry line: grass and coconuts keep landward of
 // it, except under the palms, within UNDER_PALMS of a palm's foot or of the
@@ -83,43 +85,54 @@ const SHORE_STRIP = 0.5;
 const UNDER_PALMS = 1.1;
 // A trunk's foot, flare included (PalmTree, at palm scale 1)
 const TRUNK_RADIUS = { desktop: 0.145, mobile: 0.13 };
-// The avatar (Experience: x 0, at depth z) reaches right to x / distance ≈
-// 0.054 on desktop, 0.03 on mobile (`reach` adds a margin): grass and
-// coconuts in front of it stay entirely right of that on screen, at any
-// aspect; behind it (it hides them) their centers do
+// The avatar (Experience: x 0, at depth z) reaches either side to
+// x / distance ≈ 0.054 on desktop, 0.03 on mobile (`reach` adds a margin):
+// grass and coconuts in front of it stay entirely clear of that on screen,
+// at any aspect; behind it (it hides them) their centers do
 const AVATAR = { desktop: { z: 0, reach: 0.061 }, mobile: { z: -5, reach: 0.031 } };
+// Grass and coconuts keep this far from the laptop's middle (in laptop
+// units), off its towel and the cooler (BeachProps)
+const LAPTOP_CLEAR = 3.2;
 
 // Fallen coconuts by layout: [palm, dx, dz], a spot from that palm's foot
 // (HomeSection's palms, in order) in prop units, dx + toward the water, dz +
 // toward the camera. Seen this low the clump's trunks stand shoulder to
 // shoulder on screen, so the spots lie where a coconut shows: a pair and one
 // more on the land side, one in the gap by the water under the back palm's
-// crown, a pair in front rolled toward the water. Portrait has barely any
-// sand free between the avatar, the two trunks and the swash.
+// crown, a pair in front rolled toward the water. Portrait: a pair round
+// each of its two palms, inland.
 const COCONUTS = {
   desktop: [[0, -0.58, -0.84], [0, -0.5, -0.2], [1, -0.08, -0.77], [1, 0.49, -0.14], [2, -0.5, 0.38], [2, -0.36, 0.59]],
   landscape: [[0, -0.83, -1.43], [0, -0.65, -0.7], [1, 0.42, -0.41], [2, -0.52, 0.4], [2, -0.38, 0.74]],
-  portrait: [[0, 0.1, 0.75], [1, 0.22, -0.55], [0, 0.18, -0.3], [1, 0.15, 0.25]],
+  portrait: [[0, -0.35, 0.2], [0, 0.3, 0.4], [1, -0.3, 0.35], [1, 0.35, -0.1]],
 };
-// Grass clusters by layout: depth z, distance v inland of the dry line (in
-// prop units), how many tufts and their size. At the clump's foot, behind
-// it, then along the shore in front of it (on desktop low on the screen, its
-// tips below ShoreLife's crab).
+// Grass clusters by layout, most telling first (mobile keeps fewer): at
+// depth z, distance v inland of the dry line, or dx, dz from a palm's foot
+// (as the coconuts'), in prop units; how many tufts and their size. At the
+// palms' feet, behind them, along the shore in front (on desktop low on the
+// screen, its tips below ShoreLife's crab), then over the wide sand toward
+// the laptop, round it but off its spot.
 const GRASS = {
   desktop: [
     { z: -3.85, v: 0.75, tufts: 3, size: 1 },
-    { z: -5.5, v: 1.05, tufts: 3, size: 0.85 },
+    { z: 1.6, v: 3.3, tufts: 5, size: 0.6 },
     { z: 1.3, v: 0.66, tufts: 3, size: 0.6 },
+    { z: -5.5, v: 1.05, tufts: 3, size: 0.85 },
+    { z: -3, v: 2.6, tufts: 4, size: 0.7 },
   ],
   landscape: [
     { z: -5.4, v: 0.8, tufts: 3, size: 1 },
-    { z: -7.2, v: 0.7, tufts: 2, size: 0.85 },
+    { z: 1.2, v: 5.3, tufts: 5, size: 0.9 },
     { z: 0.6, v: 0.55, tufts: 3, size: 0.8 },
+    { z: -4, v: 4.2, tufts: 4, size: 0.85 },
+    { z: -1, v: 4.7, tufts: 3, size: 0.8 },
+    { z: -7.2, v: 0.7, tufts: 2, size: 0.85 },
   ],
   portrait: [
-    { z: -5.85, v: 0.17, tufts: 3, size: 0.9 },
-    { z: -6.5, v: 0.16, tufts: 2, size: 0.8 },
-    { z: 0.8, v: 0.55, tufts: 3, size: 0.8 },
+    { palm: 0, dx: -0.4, dz: 0.35, tufts: 4, size: 0.9 },
+    { palm: 1, dx: 0.45, dz: -0.3, tufts: 3, size: 0.9 },
+    { z: -1.5, v: 1.63, tufts: 4, size: 0.85 },
+    { z: -3.5, v: 1.5, tufts: 3, size: 0.8 },
   ],
 };
 // Crown center over the foot at scale 1, bend 1 (PalmTree's trunk top,
@@ -131,8 +144,9 @@ const SAND_LIGHT = new THREE.Color("#fac99a");
 const SAND_DARK = new THREE.Color("#dc9a6c");
 const SHADOW = new THREE.Color("#a0624c");
 const COCONUT = new THREE.Color("#5e3b25");
-const GRASS_BASE = new THREE.Color("#5c742c");
-const GRASS_TIP = new THREE.Color("#b9c262");
+// The palm fronds' greens (PalmTree LEAF_BASE, LEAF_TIP)
+const GRASS_BASE = new THREE.Color("#3d7d3c");
+const GRASS_TIP = new THREE.Color("#93c85a");
 // The sand is unlit (a lit surface seen this edge-on turns grey with the
 // sky's reflection), so its light is baked: facets tilted toward the sunset,
 // behind and to the right, are lighter.
@@ -141,8 +155,9 @@ const SUN_DIR = new THREE.Vector3(0.5, 0.6, -0.8).normalize();
 const UP = new THREE.Vector3(0, 1, 0);
 
 // palms: PalmTree's layout; dry(z): the x of the dry line at depth z (the
-// sand ends there, the water side is +x); aspect: the canvas's
-const buildDecor = (palms, dry, isMobile, aspect, materials) => {
+// sand ends there, the water side is +x); laptop: its spot (HomeSection);
+// aspect: the canvas's
+const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
   const random = createRandom(SEED);
   const layout = layoutOf(isMobile, aspect);
   // Mobile: smaller props (coconuts, grass, margins), as the palms are
@@ -150,33 +165,25 @@ const buildDecor = (palms, dry, isMobile, aspect, materials) => {
   // Nearer than NEAR_Z the sea holds its shore line straight: so does the band
   const shore = (z) => dry(Math.min(z, NEAR_Z));
 
-  // The band's width at depth z: BAND_WIDTH along the shore, widening over
-  // the sand point to reach BAND_BEHIND inland of each palm's foot (easing
-  // off in front of the nearest palm), tapering away past the farthest one;
-  // its land side wobbles a little
-  const reach = [...palms].sort((a, b) => b.z - a.z).map((p) => [p.z, shore(p.z) - p.x + BAND_BEHIND * p.scale]);
-  const [zFront, frontReach] = reach[0];
-  const [zBack, backReach] = reach.at(-1);
+  // The band's width: one width all along the shore, so its land side has
+  // the shore's curves, wide enough to reach BAND_BEHIND inland of each
+  // palm's foot and LAPTOP_REACH inland of the laptop within the first third
+  // of its fade; tapering away past the farthest palm. Its land side wobbles
+  // a little further out (evenly down the screen: in 1 / distance).
+  const reach = Math.max(
+    BAND_WIDTH * unit,
+    shore(laptop.z) - laptop.x + LAPTOP_REACH * laptop.scale,
+    ...palms.map((p) => shore(p.z) - p.x + BAND_BEHIND * p.scale),
+  );
+  const bandWidth = reach / (1 - LAND_FADE / 3);
+  const zBack = Math.min(...palms.map((p) => p.z));
   const zTip = zBack - BAND_TAPER * unit;
-  const point = (z) => {
-    if (z >= zFront) return frontReach * Math.exp(-(((z - zFront) / (1.2 * unit)) ** 2));
-    const i = reach.findIndex(([pz]) => pz <= z);
-    if (i < 0) return backReach;
-    const [z0, r0] = reach[i - 1];
-    const [z1, r1] = reach[i];
-    return r1 + ((r0 - r1) * (z - z1)) / (z0 - z1);
-  };
   const phases = [random(), random(), random(), random()].map((p) => p * Math.PI * 2);
   const taper = (z) => THREE.MathUtils.smoothstep(z, zTip, zBack - 0.4 * unit);
   const width = (z) => {
     const d = CAMERA_Z - Math.min(z, NEAR_Z);
-    // The shore's width wobbles (evenly down the screen: in 1 / distance);
-    // a soft max eases it onto the point's, a soft min keeps it under
-    // BAND_SCREEN
-    const wobble = 1 + 0.1 * Math.sin(60 / d + phases[0]) + 0.05 * Math.sin(150 / d + phases[1]);
-    const w = Math.pow((BAND_WIDTH * unit * wobble) ** 4 + point(z) ** 4, 0.25);
-    const cap = BAND_SCREEN * 2 * HALF_FOV_TAN * aspect * d;
-    return Math.pow(w ** -4 + cap ** -4, -0.25) * taper(z);
+    const wobble = 1 + 0.08 * (1 + Math.sin(60 / d + phases[0])) + 0.04 * (1 + Math.sin(150 / d + phases[1]));
+    return bandWidth * wobble * taper(z);
   };
   const berm = (f) => 0.003 + BERM * unit * Math.sin(Math.PI * f) ** 2;
   const sandHeight = (x, z) => {
@@ -247,7 +254,8 @@ const buildDecor = (palms, dry, isMobile, aspect, materials) => {
 
   // Room for a prop of radius r at (x, z): inland of the dry line, within
   // `band` of the band's width, landward of ShoreLife's strip unless under
-  // the palms, right of the avatar on screen, its root outside the trunks
+  // the palms, clear of the avatar on screen and of the laptop's spot, its
+  // root outside the trunks
   const avatar = AVATAR[isMobile ? "mobile" : "desktop"];
   const trunk = TRUNK_RADIUS[isMobile ? "mobile" : "desktop"];
   const crowns = palms.map((p) =>
@@ -263,7 +271,8 @@ const buildDecor = (palms, dry, isMobile, aspect, materials) => {
       v > r + 0.03 * unit &&
       v < width(z) * band &&
       (v - r > SHORE_STRIP * unit || underPalms(x, z)) &&
-      (x - (z > avatar.z ? r : 0)) / (CAMERA_Z - z) > avatar.reach &&
+      (Math.abs(x) - (z > avatar.z ? r : 0)) / (CAMERA_Z - z) > avatar.reach &&
+      Math.hypot(x - laptop.x, z - laptop.z) > r + LAPTOP_CLEAR * laptop.scale &&
       palms.every((p) => Math.hypot(x - p.x, z - p.z) > r + trunk * p.scale)
     );
   };
@@ -319,23 +328,24 @@ const buildDecor = (palms, dry, isMobile, aspect, materials) => {
   }
 
   // Grass tufts in clusters: the first near the cluster's center, the others
-  // a third of a turn apart around it, spread further in depth the further
+  // evenly spread around it, spread further in depth the further
   // out (on screen depth is squeezed), so a cluster keeps its shape and never
   // lines up in a row; each at the nearest spot with room, clear of the
   // coconuts. Dune grass may root out to the band's fading land edge.
   const tufts = [];
-  // MOBILE_PERF: five grass tufts instead of nine (two clusters, not three) — revert by removing the ternary
-  const clusters = isMobile ? GRASS[layout].slice(0, 2) : GRASS[layout];
+  // MOBILE_PERF: the first four grass clusters only — revert by removing the ternary
+  const clusters = isMobile ? GRASS[layout].slice(0, 4) : GRASS[layout];
   for (const cluster of clusters) {
-    const cx = shore(cluster.z) - cluster.v * unit;
+    const p = palms[cluster.palm];
+    const [cx, cz] = p ? [p.x + cluster.dx * unit, p.z + cluster.dz * unit] : [shore(cluster.z) - cluster.v * unit, cluster.z];
     const turn = random() * Math.PI * 2;
     for (let k = 0; k < cluster.tufts; k++) {
-      const angle = turn + (k * Math.PI * 2) / 3 + (random() - 0.5) * 0.8;
+      const angle = turn + (k * Math.PI * 2) / (cluster.tufts - 1) + (random() - 0.5) * 0.8;
       const d = (k === 0 ? random() * 0.3 : 0.7 + random() * 0.5) * unit;
       const size = cluster.size * (k === 0 ? 1 + random() * 0.15 : 0.55 + random() * 0.3) * unit;
       const spot = nearest(
         cx + Math.cos(angle) * 0.17 * d,
-        cluster.z + Math.sin(angle) * 0.06 * d * (CAMERA_Z - cluster.z),
+        cz + Math.sin(angle) * 0.06 * d * (CAMERA_Z - cz),
         0.3 * unit,
         (x, z) => free(x, z, 0.12 * size, 1.05) && clearOfTrunks(x, z, 0.12 * size, false) && apart(x, z, coconuts, 0.12 * unit) && apart(x, z, tufts, 0.08 * unit),
       );
@@ -392,8 +402,8 @@ const buildDecor = (palms, dry, isMobile, aspect, materials) => {
       const angle = random() * Math.PI * 2;
       const out = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
       const side = new THREE.Vector3().crossVectors(out, UP);
-      const lean = 0.3 + random() * 0.5;
-      const height = (0.16 + random() * 0.16) * size;
+      const lean = 0.2 + random() * 0.7;
+      const height = (0.28 + random() * 0.3) * size;
       const width = (0.014 + random() * 0.006) * size;
       const root = foot.clone().addScaledVector(out, random() * 0.035 * size);
       const at = (u) =>
@@ -474,14 +484,15 @@ const buildMaterials = () => {
   return { sandMaterial, propsMaterial, uniforms };
 };
 
-// palms: PalmTree's layout; dry(z): the dry line's x at depth z
-export default function BeachDecor({ palms, dry }) {
+// palms: PalmTree's layout; dry(z): the dry line's x at depth z; laptop:
+// its spot (HomeSection)
+export default function BeachDecor({ palms, dry, laptop }) {
   const { isMobile, prefersReducedMotion } = useMobile();
   const get = useThree((state) => state.get);
   // Rounded like HomeSection's, so it rebuilds with the palms
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
   const materials = useMemo(buildMaterials, []);
-  const group = useMemo(() => buildDecor(palms, dry, isMobile, aspect, materials), [palms, dry, isMobile, aspect, materials]);
+  const group = useMemo(() => buildDecor(palms, dry, laptop, isMobile, aspect, materials), [palms, dry, laptop, isMobile, aspect, materials]);
   const ready = useRef(false);
   const fade = useRef(0);
   const scroll = useScroll();
