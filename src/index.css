@@ -3,21 +3,40 @@
 
 :root {
   --primary-color: #4668ee;
+  /* Sunset over a coral coast: dusty rose overhead settling to the rose-peach
+     base, with the sun's deep red warmth spread along the horizon round the
+     3D sun (--scene-sun-x/-y mirror SUN_SCREEN in Experience.jsx, and
+     --scene-sun-rx/-ry scale with its SUN_SCALE; the mobile block below
+     moves them). The index.html splash repeats the resolved gradient as
+     literals — it paints before this file arrives — so change the two
+     together. */
   --scene-sky-color: #efc5b8;
-  --scene-floor-color: #efc5b8;
+  --scene-sky-top-color: #e4a7a4;
+  --scene-horizon-color: #f0c6b7;
+  --scene-floor-color: #f1cabb;
+  --scene-sun-x: 85.5%;
+  --scene-sun-y: 27.8%;
+  --scene-sun-rx: 61.875rem;
+  --scene-sun-ry: 33.75rem;
+  --scene-sun-core-color: rgba(198, 72, 58, 0.26);
+  --scene-sun-glow-color: rgba(207, 80, 63, 0.2);
+  --scene-sun-halo-color: rgba(222, 106, 79, 0.12);
+  --scene-sun-haze-color: rgba(236, 140, 104, 0.05);
+  --scene-sun-fade-color: rgba(236, 140, 104, 0);
   --scene-background:
     radial-gradient(
-      circle at 82% 28%,
-      rgba(198, 72, 58, 0.24) 0,
-      rgba(207, 80, 63, 0.22) 9rem,
-      rgba(222, 106, 79, 0.15) 16rem,
-      rgba(238, 151, 108, 0.07) 25rem,
-      rgba(238, 151, 108, 0) 34rem
+      ellipse var(--scene-sun-rx) var(--scene-sun-ry) at var(--scene-sun-x) var(--scene-sun-y),
+      var(--scene-sun-core-color) 0%,
+      var(--scene-sun-glow-color) 22%,
+      var(--scene-sun-halo-color) 45%,
+      var(--scene-sun-haze-color) 72%,
+      var(--scene-sun-fade-color) 100%
     ),
     linear-gradient(
       180deg,
-      var(--scene-sky-color) 0%,
-      #efc5b8 48%,
+      var(--scene-sky-top-color) 0%,
+      var(--scene-sky-color) 42%,
+      var(--scene-horizon-color) 72%,
       var(--scene-floor-color) 100%
     );
   --text-color: #1a202c;
@@ -29,21 +48,10 @@
 
 @media (max-width: 990px) {
   :root {
-    --scene-background:
-      radial-gradient(
-        circle at 86% 30%,
-        rgba(198, 72, 58, 0.24) 0,
-        rgba(207, 80, 63, 0.21) 7rem,
-        rgba(222, 106, 79, 0.14) 13rem,
-        rgba(238, 151, 108, 0.07) 20rem,
-        rgba(238, 151, 108, 0) 27rem
-      ),
-      linear-gradient(
-        180deg,
-        var(--scene-sky-color) 0%,
-        #efc5b8 50%,
-        var(--scene-floor-color) 100%
-      );
+    --scene-sun-x: 80%;
+    --scene-sun-y: 31%;
+    --scene-sun-rx: 45rem;
+    --scene-sun-ry: 24rem;
   }
 }
 

@@ -5,9 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/logos/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- Instant loading splash ("Ember"). Inlined so it paints on the first
-         frame, before the JS bundle or the built stylesheet arrives. Colors
-         and the radial gradient duplicate --scene-background in src/index.css
-         so the fade-out reveals the scene with no color jump — keep in sync. -->
+         frame, before the JS bundle or the built stylesheet arrives. The
+         gradients duplicate --scene-background in src/index.css and the 3D
+         sun (both breakpoints) so the fade-out reveals the scene with no
+         color jump — keep in sync. -->
     <style>
       @font-face {
         font-family: "Roboto Slab";
@@ -24,15 +25,73 @@
         place-items: center;
         padding: 2rem;
         font-family: "Roboto Slab", Georgia, serif;
+        /* The scene as its first frame shows it: the 3D sun (SUN_FRAGMENT in
+           Experience.jsx, bar its faint rays — the body, glow and halo, then
+           the haze band on the horizon line, their stops sampled from the
+           shader's falloffs) over the resolved --scene-background from
+           src/index.css. Keep all three in sync. Placed like the canvas,
+           which is 100lvh tall and sizes the sun by its short side (vh is
+           the large viewport in mobile browsers): --sun-reach and
+           --sun-band are SUN_REACH and SUN_BAND times SUN_SCALE, in 100vmin,
+           and 36.97vh is the camera's eye-level horizon. Desktop here; the
+           mobile block below moves and scales the sun. */
+        --sun-x: 85.5%;
+        --sun-y: 27.8vh;
+        --sun-reach: 68.75vmin;
+        --sun-band: 100vmin 6.25vmin;
+        --sun-warmth: 61.875rem 33.75rem;
         background:
           radial-gradient(
-            circle at 82% 28%,
-            rgba(198, 72, 58, 0.24) 0,
-            rgba(207, 80, 63, 0.22) 9rem,
-            rgba(222, 106, 79, 0.15) 16rem,
-            rgba(238, 151, 108, 0.07) 25rem,
-            rgba(238, 151, 108, 0) 34rem
-          )
+            circle var(--sun-reach) at var(--sun-x) var(--sun-y),
+            rgba(255, 140, 96, 1) 0%,
+            rgba(255, 138, 95, 1) 1.18%,
+            rgba(255, 129, 89, 0.998) 3.13%,
+            rgba(255, 125, 87, 0.988) 3.85%,
+            rgba(255, 123, 86, 0.97) 4.31%,
+            rgba(254, 121, 85, 0.942) 4.69%,
+            rgba(254, 119, 84, 0.9) 5.04%,
+            rgba(253, 117, 83, 0.83) 5.48%,
+            rgba(251, 114, 82, 0.752) 5.96%,
+            rgba(251, 113, 82, 0.713) 6.29%,
+            rgba(250, 111, 81, 0.684) 6.67%,
+            rgba(249, 109, 80, 0.613) 8.2%,
+            rgba(247, 105, 78, 0.518) 10.55%,
+            rgba(245, 102, 77, 0.441) 12.8%,
+            rgba(244, 99, 76, 0.376) 15.16%,
+            rgba(243, 97, 75, 0.318) 17.83%,
+            rgba(242, 96, 74, 0.265) 21.09%,
+            rgba(242, 95, 74, 0.215) 25.26%,
+            rgba(242, 95, 74, 0.159) 31.7%,
+            rgba(242, 95, 74, 0.109) 39.37%,
+            rgba(242, 95, 74, 0.0682) 48.14%,
+            rgba(242, 95, 74, 0.0363) 58.79%,
+            rgba(242, 95, 74, 0.0135) 72.37%,
+            rgba(242, 95, 74, 0.0013) 90.56%,
+            rgba(242, 95, 74, 0) 100%
+          ),
+          radial-gradient(
+            ellipse var(--sun-band) at var(--sun-x) 36.97vh,
+            rgba(252, 161, 132, 0.5) 0%,
+            rgba(252, 161, 132, 0.492) 7.26%,
+            rgba(252, 161, 132, 0.468) 14.77%,
+            rgba(252, 161, 132, 0.425) 22.89%,
+            rgba(252, 161, 132, 0.358) 32.48%,
+            rgba(252, 161, 132, 0.142) 58.49%,
+            rgba(252, 161, 132, 0.0785) 67.86%,
+            rgba(252, 161, 132, 0.0372) 76.13%,
+            rgba(252, 161, 132, 0.0122) 84.28%,
+            rgba(252, 161, 132, 0.001) 93.5%,
+            rgba(252, 161, 132, 0) 100%
+          ),
+          radial-gradient(
+            ellipse var(--sun-warmth) at var(--sun-x) var(--sun-y),
+            rgba(198, 72, 58, 0.26) 0%,
+            rgba(207, 80, 63, 0.2) 22%,
+            rgba(222, 106, 79, 0.12) 45%,
+            rgba(236, 140, 104, 0.05) 72%,
+            rgba(236, 140, 104, 0) 100%
+          ),
+          linear-gradient(180deg, #e4a7a4 0%, #efc5b8 42%, #f0c6b7 72%, #f1cabb 100%)
           #efc5b8;
         opacity: 1;
         transition: opacity 0.45s ease-in-out 0.2s;
@@ -129,16 +188,11 @@
       }
       @media (max-width: 990px) {
         #app-loader {
-          background:
-            radial-gradient(
-              circle at 86% 30%,
-              rgba(198, 72, 58, 0.24) 0,
-              rgba(207, 80, 63, 0.21) 7rem,
-              rgba(222, 106, 79, 0.14) 13rem,
-              rgba(238, 151, 108, 0.07) 20rem,
-              rgba(238, 151, 108, 0) 27rem
-            )
-            #efc5b8;
+          --sun-x: 80%;
+          --sun-y: 31vh;
+          --sun-reach: 75.625vmin;
+          --sun-band: 110vmin 6.875vmin;
+          --sun-warmth: 45rem 24rem;
         }
       }
       @media (prefers-reduced-motion: reduce) {
@@ -172,8 +226,6 @@
     <link rel="preload" href="/animations/Happy-Idle.glb" as="fetch" crossorigin />
     <link rel="preload" href="/animations/Walking.glb" as="fetch" crossorigin />
     <link rel="preload" href="/models/MacBook%20Pro.glb" as="fetch" crossorigin />
-    <link rel="preload" href="/models/Palm%20tree.glb" as="fetch" crossorigin />
-    <link rel="preload" href="/models/Star.glb" as="fetch" crossorigin />
     <link rel="preload" href="/fonts/Inter_Bold.json" as="fetch" crossorigin />
     <!-- TextureLoader goes through an <img> with crossOrigin="anonymous" -->
     <link rel="preload" href="/textures/screen.webp" as="image" crossorigin />

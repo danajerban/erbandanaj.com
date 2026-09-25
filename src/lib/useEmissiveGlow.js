@@ -1,8 +1,8 @@
 import { useLayoutEffect } from "react";
 import { useMobile } from "../contexts/MobileContext";
 
-// Brightens a model's material with emissive on desktop (a brighter star and
-// lamp bulb): the emissive term is the material's own base color (base colors
+// Brightens a model's material with emissive on desktop (a brighter lamp
+// bulb): the emissive term is the material's own base color (base colors
 // are frozen), at `intensity`. Emissive is a uniform, not a program parameter,
 // so the pre-warmed shader is unchanged. Restored on unmount.
 // Mutates the shared, cached GLTF material in place (each model is loaded once

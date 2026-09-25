@@ -38,7 +38,7 @@ function SceneCanvas() {
       dpr={!isMobile && qualityDpr != null ? qualityDpr : [1, isMobile ? 1.5 : 2]}
       gl={{ alpha: true }}
     >
-      <fog attach="fog" args={["#efc5b8", 10, 50]} />
+      <fog attach="fog" args={["#f0c6b7", 10, 50]} />
       {/* Reduced motion: the damped scroll must not glide after input stops.
           A 0.001 s smoothing time settles within one frame (maath's damp snaps
           under its epsilon), and the speed cap comes off so a section jump

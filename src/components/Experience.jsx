@@ -57,60 +57,152 @@ const gateSection = (() => {
   return hash !== config.sections[0] && config.sections.includes(hash) ? hash : null;
 })();
 
-const createSunTexture = () => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 512;
+// Sun placement as a screen fraction (x from the left, y from the top), so it
+// holds at every viewport size; the CSS sky's radial warmth
+// (--scene-sun-x/--scene-sun-y in index.css) and the index.html splash's copy
+// of this sun are centered on the same fractions — keep them together when
+// moving either. The camera pitches down at the origin, so its eye-level
+// horizon crosses the screen ≈37 % from the top: the sun sits a little above
+// that line, low over the sea. The quad sits SUN_DEPTH units down the view
+// axis: beyond the ContactShadows box (30×30 around the origin), which
+// renders every mesh inside it into the floor shadow — a quad in there draws
+// a dark strip on the floor.
+// Mobile (both orientations): over the sea on the right, as on desktop.
+const SUN_SCREEN = { desktop: [0.855, 0.278], mobile: [0.8, 0.31] };
+const SUN_DEPTH = 22;
+// The sun is drawn in sun units: the short side of the screen, times this
+const SUN_SCALE = { desktop: 1.25, mobile: 1.375 };
+// Its reach, in sun units: the halo fades out SUN_REACH from the center, the
+// horizon haze SUN_BAND[0] to either side and SUN_BAND[1] above and below
+// the horizon. The quad is just big enough to hold both.
+const SUN_REACH = 0.55;
+const SUN_BAND = [0.8, 0.05];
+const SUN_QUAD = [2 * Math.max(SUN_REACH, SUN_BAND[0]), 2 * SUN_REACH];
 
-  const context = canvas.getContext("2d");
-  const center = canvas.width / 2;
-  const gradient = context.createRadialGradient(
-    center,
-    center,
-    canvas.width * 0.08,
-    center,
-    center,
-    canvas.width * 0.5,
+const SUN_VERTEX = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv * 2.0 - 1.0;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+// A low red sun seen through the evening haze, built like a game-engine sun
+// without the post-processing: premultiplied layers composited "over" each
+// other, every one a smooth, round falloff. From the back: a warm haze band
+// on the horizon line, brightest under the sun; a wide, soft halo in the
+// sky's reds, a long tail like light scattered in the haze; a tight glow
+// that falls off fast (the bloom a camera would add); on top, the sun's body,
+// an orange-red disc with a soft edge, hottest at its middle and redder at
+// its rim. Faint rays shade the halo: angular sine octaves drifting at
+// different speeds on uTime (integer frequencies keep the seam at a = PI
+// continuous), faded out toward the body so they never meet in a spoked
+// hub. The index.html splash repeats all of it, bar the rays, as CSS
+// gradients: change the two together. No tone mapping (values are sRGB), no
+// fog.
+const SUN_FRAGMENT = /* glsl */ `
+  uniform float uTime;
+  // How far the horizon lies below the sun's center, in sun units
+  uniform float uHorizon;
+  varying vec2 vUv;
+  vec4 over(vec4 below, vec3 color, float alpha) {
+    return vec4(color * alpha, alpha) + below * (1.0 - alpha);
+  }
+  void main() {
+    // p: from the sun's center, in sun units
+    vec2 p = vUv * vec2(${(SUN_QUAD[0] / 2).toFixed(3)}, ${(SUN_QUAD[1] / 2).toFixed(3)});
+    float r = length(p);
+    float a = atan(p.y, p.x);
+    float t = uTime * 0.04;
+    float rays = (0.5 * sin(a * 12.0 + t) + 0.3 * sin(a * 19.0 - t * 1.5 + 2.1)
+      + 0.2 * sin(a * 31.0 + t * 2.2 + 4.3))
+      * smoothstep(0.06, 0.16, r) * (1.0 - smoothstep(0.2, ${SUN_REACH.toFixed(3)}, r));
+
+    vec2 b = vec2(p.x / ${SUN_BAND[0].toFixed(3)}, (p.y + uHorizon) / ${SUN_BAND[1].toFixed(3)});
+    float band = 0.5 * pow(max(1.0 - dot(b, b), 0.0), 3.0);
+    float halo = 0.5 / (1.0 + r * r / 0.0144) * (1.0 - smoothstep(0.15, ${SUN_REACH.toFixed(3)}, r))
+      * (1.0 + 0.35 * rays);
+    float glow = 0.85 * exp(-pow(r / 0.045, 1.6));
+    float body = exp(-pow(r / 0.03, 8.0));
+
+    vec4 sun = over(vec4(0.0), vec3(0.988, 0.631, 0.518), band);
+    sun = over(sun, vec3(0.949, 0.373, 0.29), halo);
+    sun = over(sun, vec3(1.0, 0.478, 0.337), glow);
+    sun = over(sun, mix(vec3(1.0, 0.467, 0.325), vec3(1.0, 0.549, 0.376), exp(-r * r / 0.0004)), body);
+    gl_FragColor = sun;
+  }
+`;
+
+const SunsetSun = ({ isMobile, prefersReducedMotion }) => {
+  const camera = useThree((state) => state.camera);
+  const size = useThree((state) => state.size);
+  const viewport = useThree((state) => state.viewport);
+  const mesh = useRef();
+  const light = useRef();
+  const variant = isMobile ? "mobile" : "desktop";
+  const material = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: { uTime: { value: 0 }, uHorizon: { value: 0 } },
+        vertexShader: SUN_VERTEX,
+        fragmentShader: SUN_FRAGMENT,
+        transparent: true,
+        premultipliedAlpha: true,
+        depthWrite: false,
+        fog: false,
+        toneMapped: false,
+      }),
+    [],
   );
-
-  gradient.addColorStop(0, "rgba(198, 72, 58, 0.34)");
-  gradient.addColorStop(0.36, "rgba(216, 92, 72, 0.26)");
-  gradient.addColorStop(0.56, "rgba(231, 120, 88, 0.16)");
-  gradient.addColorStop(0.78, "rgba(236, 148, 108, 0.08)");
-  gradient.addColorStop(1, "rgba(236, 148, 108, 0)");
-
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
-};
-
-const SunsetSun = ({ isMobile }) => {
-  const sunTexture = useMemo(createSunTexture, []);
-  const size = isMobile ? 3.2 : 7;
-  const position = isMobile ? [1.35, 2.62, -8.5] : [5.25, 3.02, -13];
-
   useEffect(() => {
-    return () => sunTexture.dispose();
-  }, [sunTexture]);
+    return () => material.dispose();
+  }, [material]);
+
+  // Place the quad at the screen fraction, SUN_DEPTH down the view axis (the
+  // camera is pitched at the origin, so offsets run along its own right/up),
+  // parallel to the screen, so the sun stays round wherever it sits, sized in
+  // sun units. The key light shines from the sun's direction (a directional
+  // light points from its position to the world origin). The camera never
+  // moves, so this only re-runs on resize.
+  useLayoutEffect(() => {
+    const object = mesh.current;
+    const [fx, fy] = SUN_SCREEN[variant];
+    const forward = camera.getWorldDirection(new THREE.Vector3());
+    const sun = camera.position.clone().addScaledVector(forward, SUN_DEPTH);
+    const { width, height } = viewport.getCurrentViewport(camera, sun, size);
+    const right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
+    const up = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
+    const rise = (1 - fy * 2) * (height / 2);
+    sun.addScaledVector(right, (fx * 2 - 1) * (width / 2)).addScaledVector(up, rise);
+    const unit = ((height * Math.min(size.width, size.height)) / size.height) * SUN_SCALE[variant];
+    object.scale.set(SUN_QUAD[0] * unit, SUN_QUAD[1] * unit, 1);
+    // The eye-level horizon lies SUN_DEPTH * tan(pitch) above the view axis
+    const horizon = (SUN_DEPTH * -forward.y) / Math.hypot(forward.x, forward.z);
+    material.uniforms.uHorizon.value = (rise - horizon) / unit;
+    object.parent.updateWorldMatrix(true, false);
+    object.position.copy(object.parent.worldToLocal(sun.clone()));
+    object.lookAt(sun.clone().sub(forward));
+    light.current?.position.copy(object.parent.worldToLocal(sun.sub(camera.position).setLength(SUN_DEPTH)));
+  }, [camera, variant, size, viewport, material]);
+
+  useFrame((state) => {
+    if (!prefersReducedMotion) material.uniforms.uTime.value = state.clock.elapsedTime;
+  });
 
   return (
-    <sprite position={position} scale={[size, size, 1]}>
-      <spriteMaterial
-        map={sunTexture}
-        transparent
-        opacity={0.9}
-        depthWrite={false}
-        toneMapped={false}
-      />
-    </sprite>
+    <>
+      <mesh ref={mesh} material={material}>
+        <planeGeometry />
+      </mesh>
+      {/* MOBILE_PERF: the key light is desktop only, mobile keeps env +
+          hemisphere lighting — revert by removing the !isMobile guard */}
+      {!isMobile && <directionalLight ref={light} color="#ffc79e" intensity={0.65} />}
+    </>
   );
 };
 
 export const Experience = ({ revealed }) => {
-  const { isMobile } = useMobile();
+  const { isMobile, prefersReducedMotion } = useMobile();
   const [section, setSection] = useState(config.sections[0]);
   const sectionRef = useRef(section);
   const setSectionIndex = useSetAtom(sectionAtom);
@@ -209,18 +301,15 @@ export const Experience = ({ revealed }) => {
   return (
     <>
       <EnvironmentMap />
-      <SunsetSun isMobile={isMobile} />
-      {/* LIGHTS — on top of the environment map. A warm key from the sunset
-          sprite's direction (behind, right) rims the models; a faint cool
-          fill from the camera side lifts the shadowed faces. */}
-      {/* MOBILE_PERF: scene lights are desktop only, mobile keeps env-only
-          lighting — revert by removing the !isMobile guard */}
-      {!isMobile && (
-        <>
-          <directionalLight position={[5.25, 3, -13]} color="#ffd2b0" intensity={0.55} />
-          <directionalLight position={[-4, 5, 8]} color="#e4ecff" intensity={0.22} />
-        </>
-      )}
+      {/* LIGHTS — on top of the environment map. A golden key from the sun's
+          direction (behind, right; SunsetSun) rims the models; a faint cool
+          fill from the camera side lifts the shadowed faces; a
+          peach-over-terracotta hemisphere sits everything in the sunset. */}
+      <SunsetSun isMobile={isMobile} prefersReducedMotion={prefersReducedMotion} />
+      <hemisphereLight args={["#f6cbb6", "#b8674a", 0.35]} />
+      {/* MOBILE_PERF: the fill light is desktop only, mobile keeps env +
+          hemisphere lighting — revert by removing the !isMobile guard */}
+      {!isMobile && <directionalLight position={[-4, 5, 8]} color="#e4ecff" intensity={0.2} />}
       <Avatar position-z={isMobile ? -5 : 0} />
 
       {/* SHADOWS — softer, higher-resolution contact shadows on desktop */}
@@ -234,7 +323,7 @@ export const Experience = ({ revealed }) => {
       />
 
       <group ref={sceneContainer}>
-        <HomeSection active={section === "home"} />
+        <HomeSection active={section === "home"} revealed={revealed} />
         {BACKGROUND_SECTIONS.map(({ name, Section }) => (
           <SilentErrorBoundary key={name}>
             {name === gateSection ? (
