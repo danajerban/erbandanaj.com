@@ -9,7 +9,6 @@ import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
 import { sectionAtom } from "../store";
 import { Avatar } from "./Avatar";
-import { EdgeTint } from "./EdgeTint";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { HomeSection } from "./HomeSection";
 
@@ -303,7 +302,6 @@ export const Experience = ({ revealed }) => {
   return (
     <>
       <EnvironmentMap />
-      <EdgeTint revealed={revealed} />
       {/* LIGHTS — on top of the environment map. A golden key from the sun's
           direction (behind, right; SunsetSun) rims the models; a faint cool
           fill from the camera side lifts the shadowed faces; a

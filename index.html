@@ -203,30 +203,6 @@
           animation: app-loader-pulse 2.4s ease-in-out infinite;
         }
       }
-      /* Safari (iOS 26) paints its top and bottom bars in the color of a fixed
-         element on that edge of the page, else in the page's own color (and
-         whitish over this page's gradients). These two strips give each bar
-         the color the scene shows at its edge: they sit under the scene
-         (before #root, so the transparent canvas and the overlay paint over
-         them), and EdgeTint recolors them as the visitor scrolls. Tested on an
-         iPhone: a 24px strip is used, a 1px one is ignored. The colors here
-         are the splash's edges; the top is also the theme-color below. */
-      .edge-tint {
-        position: fixed;
-        left: 0;
-        right: 0;
-        z-index: 0;
-        height: 24px;
-        pointer-events: none;
-      }
-      .edge-tint--top {
-        top: 0;
-        background-color: #e4a39d;
-      }
-      .edge-tint--bottom {
-        bottom: 0;
-        background-color: #f1cabb;
-      }
     </style>
     <!-- Self-hosted Roboto Slab (see @font-face in the inline <style> above) — no render-blocking third-party request -->
     <link
@@ -330,8 +306,6 @@
         <span class="app-loader__sr">Loading 3D scene&hellip;</span>
       </div>
     </div>
-    <div class="edge-tint edge-tint--top" aria-hidden="true"></div>
-    <div class="edge-tint edge-tint--bottom" aria-hidden="true"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -14,6 +14,10 @@
   --scene-sky-top-color: #e4a7a4;
   --scene-horizon-color: #f0c6b7;
   --scene-floor-color: #f1cabb;
+  /* The page's own color, which Safari (iOS 26) gives its top and bottom
+     bars, live: the sky at the top edge (measured on an iPhone). The
+     theme-color in index.html repeats it. */
+  --scene-bar-color: #e4a39d;
   --scene-sun-x: 85.5%;
   --scene-sun-y: 27.8%;
   --scene-sun-rx: 61.875rem;
@@ -60,8 +64,10 @@ body {
   height: 100dvh;
   color-scheme: light;
   overflow: hidden; /* lock document scroll — only drei's scroll container (the section nav) scrolls */
-  background: var(--scene-background);
-  background-color: var(--scene-sky-color);
+  /* A plain color, no image: with the scene background here Safari's bars
+     turned whitish (tested on an iPhone). #root, which covers the page,
+     carries the scene background. */
+  background-color: var(--scene-bar-color);
 }
 
 #root {
@@ -346,10 +352,13 @@ a {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  padding-top: calc(1rem + env(safe-area-inset-top));
+  padding-top: 0;
   position: fixed;
   z-index: 1;
-  top: 0;
+  /* Kept off the top edge: a fixed box that touches it gives Safari's top bar
+     the color under the glass pill (whitish) instead of the page color
+     (tested in the iOS 26 Simulator). */
+  top: calc(1rem + env(safe-area-inset-top));
   left: 4rem;
   right: 4rem;
 }
