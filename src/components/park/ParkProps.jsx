@@ -209,7 +209,7 @@ export default function ParkProps({ park, aspect, scaleFactor, prefersReducedMot
     const f = flight.current;
     const g = pigeon.current;
     if (prefersReducedMotion) {
-      // At its rest point, flapping in place
+      // Still at its rest point, its wings held (Pigeon still)
       if (f.phase !== "loop" || flagUp.current) {
         f.phase = "loop";
         flagUp.current = false;
@@ -313,7 +313,7 @@ export default function ParkProps({ park, aspect, scaleFactor, prefersReducedMot
         position-z={0.5}
       />
       <group ref={pigeon} position={path.rest}>
-        <Pigeon scale={PIGEON_SCALE} clip={clip} />
+        <Pigeon scale={PIGEON_SCALE} clip={clip} still={prefersReducedMotion} />
       </group>
     </group>
   );

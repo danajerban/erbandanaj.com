@@ -15,14 +15,15 @@ const FAST_FADE = 0.3;
 
 // clip: the clip the flight plays (ParkProps: Flying_Idle, Fast_Flying on the
 // mail run, Yes once while it hovers by the mailbox). Hover or tap answers
-// "Yes" over any of them.
-export function Pigeon({ clip = "Flying_Idle", ...props }) {
+// "Yes" over any of them. still (reduced motion): the clip holds its first
+// pose and a hover changes nothing.
+export function Pigeon({ clip = "Flying_Idle", still = false, ...props }) {
   const group = useRef();
   const { nodes, materials, animations } = useGLTF("/models/Pigeon.glb");
 
   const { actions } = useAnimations(animations, group);
   const [hovered, setHovered] = useState(false);
-  const animation = hovered ? "Yes" : clip;
+  const animation = hovered && !still ? "Yes" : clip;
   // The mail run's "Yes" nods once and holds its last pose; a hover's repeats
   const once = !hovered && clip === "Yes";
   useEffect(() => {
@@ -32,11 +33,12 @@ export function Pigeon({ clip = "Flying_Idle", ...props }) {
       action.setLoop(once ? LoopOnce : LoopRepeat, Infinity);
       action.clampWhenFinished = once;
       action.reset().fadeIn(fade).play();
+      action.paused = still;
       return () => {
         action.fadeOut(animation === "Fast_Flying" ? FAST_FADE : ANIMATION_CONSTANTS.ANIMATION_FADE_OUT_DURATION);
       };
     }
-  }, [animation, once, actions]);
+  }, [animation, once, still, actions]);
 
   return (
     <group
