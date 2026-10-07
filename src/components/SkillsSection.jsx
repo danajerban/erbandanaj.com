@@ -22,7 +22,7 @@ export const SkillsSection = () => {
           layers={OFFICE_LAYER}
           size={TITLE.size}
           height={TITLE.height}
-          position={[TITLE.left.skills, TITLE.baseline, TITLE.z]}
+          position={[TITLE.left.skills.default, TITLE.baseline, TITLE.z]}
         >
           SKILLS
         </SectionTitle>

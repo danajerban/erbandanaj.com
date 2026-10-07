@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { AO, LIGHT, PALETTE } from "./bake";
-import { ARCH, BACK, FLOOR_Y, RUG_Y, SIDE_END, SLAB, SLAB_FRONT, T, TITLE, WALL_H, WINDOW } from "./layout";
+import { ARCH, BACK, FLOOR_Y, RUG_Y, SIDE_END, SLAB, SLAB_FRONT, T, TITLE, WALL_H, WINDOW, titleLeft } from "./layout";
 import { box, cylinderBetween, fan, polygon, tube, v3, wallWithHoles } from "./shapes";
 
 // The empty room of each office corner (room frame): floor slab with oak
@@ -244,10 +244,11 @@ const buildLace = (sink, corner, isMobile) => {
 // the wall top down past the caps; split along x so the lamps' light on it
 // stays smooth
 const BLOCK_STEP = 0.3;
-const buildTitleBlock = (sink, corner) => {
-  const { left, right, block } = TITLE;
-  const xa = left[corner] - block.pad;
-  const xb = left[corner] + right[corner] + block.pad;
+const buildTitleBlock = (sink, corner, layout) => {
+  const { ink, block } = TITLE;
+  const left = titleLeft(corner, layout);
+  const xa = left + ink[corner][0] - block.pad;
+  const xb = left + ink[corner][1] + block.pad;
   const z = BACK + 0.002;
   const count = Math.ceil((xb - xa) / BLOCK_STEP);
   for (let k = 0; k < count; k++) {
@@ -335,7 +336,7 @@ export const buildRoom = (out, corner, ctx) => {
   buildFloor(out.solid, corner, ctx.random);
   buildWalls(out.solid, corner);
   buildWindow(out.solid, corner);
-  buildTitleBlock(out.solid, corner);
+  buildTitleBlock(out.solid, corner, ctx.layout);
   buildRug(out.solid, corner);
   if (corner === "projects") buildSocket(out.furniture);
   else buildAfterglow(out.glow, ctx.isMobile);

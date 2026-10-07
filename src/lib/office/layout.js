@@ -106,18 +106,22 @@ export const SNAKE_PLANT = { x: 2.25, z: -1.5, yaw: 0.4 };
 // Both titles on the back wall: Text3D's origin is the left end of the
 // baseline, its back face 5 mm off the wall. Inter_Bold.json's caps are
 // 1.01 × size tall, so size 0.2 spans y 2.13–2.33 (0.07 under the wall top).
-// `right` is each word's measured right end (boundingBox max x) from `left`;
-// a clay block painted on the wall behind it, from `block.bottom` up to the
-// wall top and `block.pad` past both ends, keeps the light letters readable.
+// `ink` is each word's measured extent (boundingBox min and max x) from its
+// left end; a clay block painted on the wall behind it, from `block.bottom`
+// up to the wall top and `block.pad` past both ends of the ink, keeps the
+// light letters readable. On an upright iPad PROJECTS starts further left
+// (still clear of the arch casing), so its block keeps a margin to the
+// screen's right edge.
 export const TITLE = {
   size: 0.2,
   height: 0.04,
   baseline: 2.13,
   z: BACK + 0.005,
-  left: { skills: -1.86, projects: 0.585 },
-  right: { skills: 0.937, projects: 1.474 },
+  left: { skills: { default: -1.86 }, projects: { default: 0.585, tall: 0.42 } },
+  ink: { skills: [0.011, 0.937], projects: [0.018, 1.474] },
   block: { bottom: 2.095, pad: 0.08 },
 };
+export const titleLeft = (corner, layout) => TITLE.left[corner][layout] ?? TITLE.left[corner].default;
 
 // Each corner's room and its window. Skills: a big open window in the back
 // wall, its lace gathered at the sides and swaying a little. Projects: the

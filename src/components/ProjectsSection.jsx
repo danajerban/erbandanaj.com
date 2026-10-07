@@ -12,6 +12,7 @@ import {
   chairAt,
   monitorScreen,
   officeLayout,
+  titleLeft,
   transformLights,
   vignetteMatrix,
 } from "../lib/office/layout";
@@ -57,7 +58,7 @@ export const ProjectsSection = () => {
           layers={OFFICE_LAYER}
           size={TITLE.size}
           height={TITLE.height}
-          position={[TITLE.left.projects, TITLE.baseline, TITLE.z]}
+          position={[titleLeft("projects", layout), TITLE.baseline, TITLE.z]}
         >
           PROJECTS
         </SectionTitle>
