@@ -42,7 +42,9 @@ const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false
 //   but at most maxX[0] · aspect + maxX[1], so on a screen wider in pixels
 //   or squarer than 1800 × 987 the bird keeps clear of the moon's 2r), its
 //   loop {rx, rz, dx} (centre = rest + (dx, 0, 0), so it circles left of its
-//   rest, away from the moon).
+//   rest, away from the moon); hoverMaxX caps the mail run's hover x the same
+//   way, so on a near-square window (aspect below 1.2) it stops on the
+//   mailbox's left, clear of the moon.
 export const PARK = {
   desktop: {
     row: { x: -3.7, z: -11, scale: 0.9 },
@@ -64,7 +66,7 @@ export const PARK = {
     crownLumps: 3,
     bedFlowersMax: 40,
     balloonString: 1,
-    pigeon: { rest: [2, 1.5, -0.5], scaleX: true, maxX: [1.62, -1.05], rx: 0.8, rz: 0.45, dx: -0.48 },
+    pigeon: { rest: [2, 1.5, -0.5], scaleX: true, maxX: [1.62, -1.05], hoverMaxX: [1.4, -0.7], rx: 0.8, rz: 0.45, dx: -0.48 },
     detail: DETAIL_FULL,
   },
   tall: {
@@ -306,14 +308,15 @@ export const pathCurve = (park) => new CatmullRomCurve3(park.path.map(([x, z]) =
 // and radii of its loop, and the mail run — from the loop's front point
 // (start) along a quadratic Bézier dipping 0.5 below the straight line
 // (control) to its hover beside the mailbox flag (hover), and back.
-export const PIGEON_HOVER = [1.0, 1.25, 0.35];
+export const PIGEON_HOVER = [1.0, 1.15, 0.35];
 export const pigeonPath = (park, scaleFactor, aspect) => {
-  const { rest: r, scaleX, maxX, rx, rz, dx } = park.pigeon;
+  const { rest: r, scaleX, maxX, hoverMaxX, rx, rz, dx } = park.pigeon;
   const x = scaleX ? r[0] * scaleFactor : r[0];
   const rest = [maxX ? Math.min(x, maxX[0] * aspect + maxX[1]) : x, r[1], r[2]];
   const centre = [rest[0] + dx, rest[1], rest[2]];
   const start = [centre[0], centre[1], centre[2] + rz];
-  const hover = PIGEON_HOVER;
+  const [hx, hy, hz] = PIGEON_HOVER;
+  const hover = [hoverMaxX ? Math.min(hx, hoverMaxX[0] * aspect + hoverMaxX[1]) : hx, hy, hz];
   const control = [(start[0] + hover[0]) / 2, (start[1] + hover[1]) / 2 - 0.5, (start[2] + hover[2]) / 2];
   return { rest, centre, rx, rz, start, control, hover };
 };
