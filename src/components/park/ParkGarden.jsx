@@ -3,7 +3,7 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useMobile } from "../../contexts/MobileContext";
 import { createRandom } from "../../lib/lowPoly";
-import { cafeDoor, lanterns } from "../../lib/parkLayout";
+import { lanterns, pathCurve } from "../../lib/parkLayout";
 import { PARK_LAYER, ParkSink, parkSolidMaterial } from "../../lib/parkMaterials";
 
 // The park's garden: round trees framing the edges, flower beds like sweets
@@ -142,13 +142,25 @@ const bed = (sink, park, [x, z, rx, rz], random) => {
   }
 };
 
+// The gravel path's x where it crosses depth z (the curve the ground draws,
+// sampled finely)
+const pathXAt = (park, z) => {
+  const points = pathCurve(park).getSpacedPoints(200);
+  for (let i = 1; i < points.length; i++) {
+    const [a, b] = [points[i - 1], points[i]];
+    if ((a.z - z) * (b.z - z) <= 0) return a.x + ((b.x - a.x) * (z - a.z)) / (b.z - a.z);
+  }
+  return points[points.length - 1].x;
+};
+
 // The railing along the sidewalk, from left to right with the gate gap:
 // iron bars between posts (desktop and tall), or a solid band with a few
 // posts on phones (park.detail.railing), where bars would be under 3 px
 const railing = (sink, park, left, right, random) => {
   const z = park.row.z + RAILING.front;
-  // The path ends at the café door, just behind the railing: the gate
-  const [gate] = cafeDoor(park);
+  // The gate opens where the path crosses the railing, on its way to the
+  // café door just behind
+  const gate = pathXAt(park, z);
   const [g0, g1] = [gate - RAILING.gate / 2, gate + RAILING.gate / 2];
   const bars = park.detail.railing === "bars";
   const step = bars ? 1.2 : 2.4;
