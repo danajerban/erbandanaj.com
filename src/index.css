@@ -540,8 +540,9 @@ html[data-sky] .menu__button::after {
   }
 }
 
-html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
-  box-shadow:
+/* The lanterns' glow, also painted by .paint-warm */
+:root {
+  --lantern-glow:
     0 0 0 1px rgba(255, 214, 160, 0.45),
     0 10px 32px -6px rgba(255, 170, 90, 0.4);
 }
@@ -549,11 +550,15 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
 @media (max-width: 990px) {
   /* A tighter glow: the carousels (overflow-x: auto, 1rem padding) clip
      anything that reaches further than 16px */
-  html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
-    box-shadow:
+  :root {
+    --lantern-glow:
       0 0 0 1px rgba(255, 214, 160, 0.45),
       0 4px 12px -4px rgba(255, 170, 90, 0.4);
   }
+}
+
+html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
+  box-shadow: var(--lantern-glow);
 }
 
 @media (max-width: 990px) and (orientation: landscape) {
@@ -565,9 +570,12 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
 
 /* Chrome compiles a GPU pipeline the first time it paints a kind of draw,
    ~120 ms each on a cold cache, blocking the frame: the sky layers' radial
-   gradients would first paint mid-scroll. index.html paints them inside
-   the splash, at 0.001 opacity (invisible), from 0.3 s (after the first
-   paint) until the splash fades. Keep it in step with the sky layers. */
+   gradients and the lanterns' blurred glow would first paint mid-scroll.
+   index.html paints one of each inside the splash, at 0.001 opacity
+   (invisible), from 0.3 s (after the first paint) until the splash fades.
+   Its cards cover the glow's paths: a tall card blurs analytically, short
+   ones through a mask, on and off the pixel grid and scaled. Keep it in
+   step with the sky layers and the glow. */
 .paint-warm {
   position: absolute;
   top: 0;
@@ -593,9 +601,46 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   }
 }
 
-.paint-warm > i {
+.paint-warm > * {
   position: absolute;
+  left: 24px;
+}
+
+.paint-warm > i {
   inset: 0;
+}
+
+.paint-warm > b {
+  border-radius: 8px;
+  background: rgba(255, 245, 230, 0.9);
+  box-shadow: var(--lantern-glow);
+}
+
+.paint-warm > b:nth-of-type(1) {
+  top: 24px;
+  width: 280px;
+  height: 120px;
+}
+
+.paint-warm > b:nth-of-type(2) {
+  top: 170px;
+  width: 300px;
+  height: 40px;
+}
+
+/* The desktop menu pill's shape, off the pixel grid as it sits there */
+.paint-warm > b:nth-of-type(3) {
+  top: 230.5px;
+  left: 24.16px;
+  width: 346.23px;
+  height: 39px;
+}
+
+.paint-warm > b:nth-of-type(4) {
+  top: 290px;
+  width: 120px;
+  height: 24px;
+  scale: 0.95;
 }
 
 /* RESPONSIVE */
