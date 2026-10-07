@@ -33,6 +33,52 @@ const lerpColor = (out, name, k, f) => out.lerpColors(colors[name][k], colors[na
 // s holds still this far either side of each rest (DISSOLVE_START's span)
 const HOLD = 0.06;
 
+// Safari's bars (iOS 26 paints them in the page's background-color) and
+// Chrome Android's theme-color: the sky's top stop at each rest
+const BAR = ["#e4a39d", "#b48fa6", "#2c3c76", "#0b1231"].map((hex) => parseInt(hex.slice(1), 16));
+// Bar writes per section (<= 96 over a full scroll); each repaints the root once
+const BAR_STEPS = 32;
+// In sRGB per channel, as the CSS sky blends
+const mixHex = (a, b, f) => {
+  let out = 0;
+  for (const shift of [16, 8, 0]) {
+    const x = (a >> shift) & 255;
+    out |= Math.round(x + (((b >> shift) & 255) - x) * f) << shift;
+  }
+  return `#${out.toString(16).padStart(6, "0")}`;
+};
+const skyMode = (s) => (s >= 2.5 ? "night" : s >= 1.5 ? "dusk" : s >= 0.5 ? "afterglow" : "");
+
+// Writes the DOM only where its string changed: at rest, nothing
+const paint = (s, dom) => {
+  const k = Math.min(Math.floor(s), 2);
+  const f = s - k;
+  const o = [0, 1, 2].map((i) => Math.round(MathUtils.clamp(s - i, 0, 1) * 1000) / 1000);
+  const op = o.join();
+  if (op !== dom.op) {
+    dom.op = op;
+    dom.layers.forEach((layer, i) => {
+      layer.style.opacity = o[i];
+      // Hidden while clear or under an opaque layer: no GPU layer to keep
+      layer.style.visibility = o[i] > 0 && !(o[i + 1] >= 1) ? "visible" : "hidden";
+    });
+  }
+  const root = document.documentElement;
+  const bar = s === 0 ? "" : mixHex(BAR[k], BAR[k + 1], Math.round(f * BAR_STEPS) / BAR_STEPS);
+  if (bar !== dom.bar) {
+    dom.bar = bar;
+    if (bar) root.style.setProperty("--scene-bar-color", bar);
+    else root.style.removeProperty("--scene-bar-color");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", bar || "#e4a39d");
+  }
+  const mode = skyMode(s);
+  if (mode !== dom.mode) {
+    dom.mode = mode;
+    if (mode) root.dataset.sky = mode;
+    else delete root.dataset.sky;
+  }
+};
+
 // Writes the shared values and the scene's light for the eased time s
 const apply = (s, scene, o) => {
   const k = Math.min(Math.floor(s), 2);
@@ -76,10 +122,35 @@ export default function TimeOfDay() {
   const layout = !isMobile && shape === "portrait" ? "tall" : shape;
   const objects = useRef({});
   const last = useRef(-1);
+  const dom = useRef({ layers: [], op: "", bar: "", mode: "" });
 
   useLayoutEffect(() => {
     timeOfDay.moonAt = MOON_AT[layout];
   }, [layout]);
+
+  // The sky after the sunset: three cross-faded layers inside #root, under
+  // the canvas (#root is positioned and isolated, see index.css)
+  useLayoutEffect(() => {
+    const sky = document.createElement("div");
+    sky.className = "sky";
+    sky.setAttribute("aria-hidden", "true");
+    for (const name of ["afterglow", "bluehour", "night"]) {
+      const layer = document.createElement("i");
+      layer.className = `sky__${name}`;
+      sky.append(layer);
+    }
+    document.getElementById("root").append(sky);
+    const state = dom.current;
+    state.layers = [...sky.children];
+    return () => {
+      sky.remove();
+      const root = document.documentElement;
+      root.style.removeProperty("--scene-bar-color");
+      delete root.dataset.sky;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#e4a39d");
+      Object.assign(state, { layers: [], op: "", bar: "", mode: "" });
+    };
+  }, []);
 
   // The desktop key and fill lights mount and unmount with isMobile: find
   // everything again, and rewrite every value on the next frame. On unmount
@@ -114,6 +185,7 @@ export default function TimeOfDay() {
     if (s === last.current) return;
     last.current = s;
     apply(s, scene, objects.current);
+    paint(s, dom.current);
   }, -1);
 
   return (

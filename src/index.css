@@ -46,8 +46,9 @@
   --text-color: #1a202c;
   --text-light-color: #555;
   /* One glass for every card and the menu pill; the alpha is per breakpoint */
+  --glass-rgb: 255, 255, 255;
   --glass-alpha: 0.45;
-  --glass-color: rgba(255, 255, 255, var(--glass-alpha));
+  --glass-color: rgba(var(--glass-rgb), var(--glass-alpha));
 }
 
 @media (max-width: 990px) {
@@ -71,6 +72,8 @@ body {
 }
 
 #root {
+  position: relative;
+  isolation: isolate;
   width: 100vw;
   height: 100dvh; /* Dynamic viewport height for mobile */
   background: var(--scene-background);
@@ -210,14 +213,14 @@ a {
 @media (hover: hover) {
   .skill:hover {
     translate: 0 -2px;
-    background: rgba(255, 255, 255, calc(var(--glass-alpha) + 0.2));
+    background: rgba(var(--glass-rgb), calc(var(--glass-alpha) + 0.2));
   }
 }
 
 .skill:active {
   translate: 0;
   scale: 0.98;
-  background: rgba(255, 255, 255, calc(var(--glass-alpha) + 0.1));
+  background: rgba(var(--glass-rgb), calc(var(--glass-alpha) + 0.1));
 }
 
 .skill__label {
@@ -273,7 +276,7 @@ a {
    sticks after a tap and "tricks" the user into thinking a card is active. */
 @media (hover: hover) {
   .project:hover {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(var(--glass-rgb), calc(var(--glass-alpha) + 0.35));
     scale: 1.05;
     cursor: pointer;
   }
@@ -281,7 +284,7 @@ a {
 
 .project:active {
   scale: 0.98;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(var(--glass-rgb), calc(var(--glass-alpha) + 0.1));
 }
 
 .project__image {
@@ -367,6 +370,7 @@ a {
   height: 126px;
   width: 360px;
   object-fit: contain;
+  transition: filter 0.4s ease-out;
 }
 
 .menu__buttons {
@@ -432,6 +436,123 @@ a {
 
   .menu__button:hover::after {
     transform: scaleX(1);
+  }
+}
+
+/* TIME OF DAY — the sky after the sunset. TimeOfDay (a lazy chunk) appends
+   div.sky to #root and cross-fades its layers with the scroll: opacity only,
+   so the CPU repaints nothing while scrolling; a layer is hidden while clear
+   or under an opaque one. #root's own background stays the Home sunset (and
+   the splash's). It also sets html[data-sky] (afterglow, dusk, night). */
+.sky,
+.sky > i {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sky {
+  z-index: -1;
+}
+
+.sky > i {
+  opacity: 0;
+  visibility: hidden;
+  will-change: opacity;
+}
+
+.sky__afterglow {
+  background:
+    radial-gradient(
+      ellipse calc(var(--scene-sun-rx) * 1.15) calc(var(--scene-sun-ry) * 0.6) at var(--scene-sun-x) 37%,
+      rgba(236, 98, 62, 0.42) 0%,
+      rgba(240, 128, 84, 0.24) 35%,
+      rgba(244, 150, 110, 0.08) 70%,
+      rgba(244, 150, 110, 0) 100%
+    ),
+    linear-gradient(180deg, #b48fa6 0%, #d99fa3 40%, #f0b39a 72%, #eab9a9 100%);
+}
+
+.sky__bluehour {
+  background:
+    radial-gradient(
+      ellipse var(--scene-sun-rx) calc(var(--scene-sun-ry) * 0.45) at var(--scene-sun-x) 37%,
+      rgba(242, 150, 132, 0.32) 0%,
+      rgba(214, 140, 150, 0.14) 45%,
+      rgba(214, 140, 150, 0) 100%
+    ),
+    linear-gradient(180deg, #2c3c76 0%, #5466a2 40%, #9890b9 72%, #b7a0b8 100%);
+}
+
+/* The old town's glow behind its roofs (the park's ridges sit at 14–27 %) */
+.sky__night {
+  background:
+    radial-gradient(
+      ellipse 130% 36% at 50% 40%,
+      rgba(255, 176, 110, 0.2) 0%,
+      rgba(255, 176, 110, 0.08) 45%,
+      rgba(255, 176, 110, 0) 100%
+    ),
+    linear-gradient(180deg, #0b1231 0%, #172149 42%, #283260 72%, #343a66 100%);
+}
+
+/* Readable on the darker sky: denser glass from the afterglow on; at dusk
+   and night a cream logo and a deep terracotta active link; at night the
+   cards and the pill turn into warm cream lanterns (dark text stays) */
+html[data-sky="afterglow"] {
+  --glass-alpha: 0.65;
+}
+
+html[data-sky="dusk"] {
+  --glass-alpha: 0.75;
+}
+
+html[data-sky="night"] {
+  --glass-alpha: 0.9;
+  --glass-rgb: 255, 245, 230;
+}
+
+html:is([data-sky="dusk"], [data-sky="night"]) .menu__logo {
+  filter: invert(1) sepia(0.3) brightness(0.97);
+}
+
+html:is([data-sky="dusk"], [data-sky="night"]) .menu__button--active {
+  color: #93351d;
+  text-shadow: none;
+}
+
+html:is([data-sky="dusk"], [data-sky="night"]) .menu__button::after {
+  background: #93351d;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  html:is([data-sky="dusk"], [data-sky="night"]) .menu__button:hover {
+    color: #93351d;
+    text-shadow: none;
+  }
+}
+
+html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
+  box-shadow:
+    0 0 0 1px rgba(255, 214, 160, 0.45),
+    0 10px 32px -6px rgba(255, 170, 90, 0.4);
+}
+
+@media (max-width: 990px) {
+  /* A tighter glow: the carousels (overflow-x: auto, 1rem padding) clip
+     anything that reaches further than 16px */
+  html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
+    box-shadow:
+      0 0 0 1px rgba(255, 214, 160, 0.45),
+      0 4px 12px -4px rgba(255, 170, 90, 0.4);
+  }
+}
+
+@media (max-width: 990px) and (orientation: landscape) {
+  /* The landscape contact card spans the screen: let the park show through */
+  html[data-sky="night"] {
+    --glass-alpha: 0.8;
   }
 }
 
