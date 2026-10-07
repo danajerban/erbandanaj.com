@@ -35,7 +35,7 @@ export const officeLayout = (isMobile, aspect) => {
 // desk glow, the screen, the desk lights) and the snake plant scale about
 // `pivot` so the monitor reads on a phone. Composition data, not a
 // performance gate; allowed 1.0–1.3.
-export const VIGNETTE = { scale: 1.0, pivot: [1.35, 0, BACK] };
+export const VIGNETTE = { scale: 1.2, pivot: [1.35, 0, BACK] };
 const vignetteScale = (layout) => (layout === "portrait" ? VIGNETTE.scale : 1);
 
 export const vignetteMatrix = (layout) => {
