@@ -9,7 +9,8 @@ import { box, cylinderBetween, fan, polygon, tube, v3, wallWithHoles } from "./s
 // lace, rug, skirting, baked AO, the clay block behind the title; at
 // Projects the wall socket and its cable; at Skills the afterglow the
 // window throws on the floor.
-// out = { solid: OfficeSink (shell), glow: GlowSink, lace: LaceSink }.
+// out = { solid: OfficeSink (shell), furniture: OfficeSink, glow: GlowSink,
+// lace: LaceSink }.
 
 const UP = v3(0, 1, 0);
 const PLANK = 0.18;
@@ -300,7 +301,8 @@ const buildRug = (sink, corner) => {
 };
 
 // Projects: the wall socket by the desk and its white cable, down to the
-// floor and along the wall under the desk
+// floor and along the wall under the desk; it goes into the furniture mesh,
+// so it dissolves with the desk it powers
 const buildSocket = (sink) => {
   const { x, y, cableTo } = WINDOW.projects.socket;
   box(sink, [x - 0.06, x + 0.06], [y - 0.04, y + 0.04], [BACK, BACK + 0.01], PALETTE.steel, { omit: "-z" });
@@ -328,14 +330,14 @@ const buildAfterglow = (glow, isMobile) => {
   fan(glow, centre, rim, LIGHT.afterglow.clone().multiplyScalar(0.22), new THREE.Color(0, 0, 0), { channel: 1 });
 };
 
-// out = { solid, glow, lace }; ctx = { isMobile, layout, random }
+// out = { solid, furniture, glow, lace }; ctx = { isMobile, layout, random }
 export const buildRoom = (out, corner, ctx) => {
   buildFloor(out.solid, corner, ctx.random);
   buildWalls(out.solid, corner);
   buildWindow(out.solid, corner);
   buildTitleBlock(out.solid, corner);
   buildRug(out.solid, corner);
-  if (corner === "projects") buildSocket(out.solid);
+  if (corner === "projects") buildSocket(out.furniture);
   else buildAfterglow(out.glow, ctx.isMobile);
   buildLace(out.lace, corner, ctx.isMobile);
 };

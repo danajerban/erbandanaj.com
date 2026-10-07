@@ -36,7 +36,7 @@ const buildCorner = (corner, layout, isMobile, lights, build, materials) => {
   const solid = new OfficeSink(lights, key);
   const glow = new GlowSink();
   const lace = new LaceSink();
-  buildRoom({ solid: shell, glow, lace }, corner, { isMobile, layout, random: createRandom(ROOM_SEED[corner]) });
+  buildRoom({ solid: shell, furniture: solid, glow, lace }, corner, { isMobile, layout, random: createRandom(ROOM_SEED[corner]) });
   build({ solid, glow }, { isMobile, layout, random: createRandom(FURNITURE_SEED[corner]) });
   const meshes = [];
   // An empty sink makes no mesh (no draw)
