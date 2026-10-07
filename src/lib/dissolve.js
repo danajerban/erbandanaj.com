@@ -73,11 +73,11 @@ const inject = (source, chunk, code) => source.replace(`#include <${chunk}>`, `$
 
 const patched = new WeakSet();
 
-// Chains the material's own hook (the palms' sway, the titles' sand, drei's
-// distort material) and extends its program key, read before the hook is
-// replaced (the default key is the hook's source). A hot update of this
-// module wraps a patched material again: the code goes in once, and the
-// outermost wrapper binds its uniform.
+// Chains the material's own hook (the palms' sway, the titles' sand, the
+// office's baked, lace and glow materials) and extends its program key,
+// read before the hook is replaced (the default key is the hook's source).
+// A hot update of this module wraps a patched material again: the code goes
+// in once, and the outermost wrapper binds its uniform.
 const patch = (material, uniform) => {
   if (patched.has(material)) return;
   patched.add(material);

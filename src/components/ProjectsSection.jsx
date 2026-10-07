@@ -1,63 +1,72 @@
-import { RoundedBox } from "@react-three/drei";
-import { Suspense } from "react";
-import { useMobile } from "../contexts/MobileContext";
+import { useThree } from "@react-three/fiber";
+import { Suspense, useMemo } from "react";
 import { getSectionsDistance } from "../constants/animation";
-import { Monitor } from "./Monitor";
+import { useMobile } from "../contexts/MobileContext";
+import { buildOfficeChair } from "../lib/office/chair";
+import { buildBackpack, buildDesk, DESK_LIGHTS } from "../lib/office/desk";
+import {
+  CHAIR,
+  FRONT_Z,
+  OFFICE_LAYER,
+  SNAKE_PLANT,
+  TITLE,
+  monitorScreen,
+  officeLayout,
+  transformLights,
+  vignetteMatrix,
+} from "../lib/office/layout";
+import { buildSnakePlant } from "../lib/office/plants";
 import { MonitorScreen } from "./MonitorScreen";
+import { OfficeCorner } from "./OfficeCorner";
 import { SectionGroup } from "./SectionGroup";
 import { SectionTitle } from "./SectionTitle";
 
+// The screen's mesh sits at the furniture's origin, so it dissolves with it
+const SCREEN_ORIGIN = [0, 0, FRONT_Z];
+
+// The chair and the backpack at true scale; the desk group and the snake
+// plant through the (phone portrait) desk vignette
+const buildDeskCorner = (out, ctx) => {
+  buildOfficeChair(out, ctx, CHAIR);
+  buildBackpack(out, ctx);
+  const vignette = vignetteMatrix(ctx.layout);
+  out.solid.push(vignette);
+  out.glow.push(vignette);
+  buildDesk(out, ctx);
+  buildSnakePlant(out, ctx, SNAKE_PLANT);
+  out.solid.pop();
+  out.glow.pop();
+};
+
+// Projects: the office's desk corner, the owner's real desk (blue hour: the
+// window goes blue, the desk lamp, light bar and screen keep the room warm)
 export const ProjectsSection = () => {
   const { isMobile } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
+  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const layout = officeLayout(isMobile, aspect);
+  const lights = useMemo(() => transformLights(DESK_LIGHTS, vignetteMatrix(layout)), [layout]);
   return (
     <SectionGroup
       name="projects"
       position-x={isMobile ? 2 * sectionsDistance : 0}
-      position-z={isMobile ? -3 : 2 * sectionsDistance}
+      position-z={isMobile ? -5 : 2 * sectionsDistance}
     >
-      <group position-x={isMobile ? -0.25 : 1}>
+      <OfficeCorner corner="projects" lights={lights} build={buildDeskCorner}>
         <SectionTitle
-          position-x={-0.5}
-          position-z={0}
-          rotation-y={-Math.PI / 6}
+          layers={OFFICE_LAYER}
+          size={TITLE.size}
+          height={TITLE.height}
+          position={[TITLE.left.projects, TITLE.baseline, TITLE.z]}
         >
           PROJECTS
         </SectionTitle>
-
-        <group
-          position-x={0.5}
-          position-z={0}
-          rotation-y={-Math.PI / 6}
-          scale={0.8}
-        >
-          <Monitor
-            scale={0.02}
-            position-y={1}
-            rotation-y={-Math.PI / 2}
-            position-z={-1}
-          />
-          {/* Own boundary: a screenshot texture that hasn't loaded yet
-              (project switch) must not suspend the whole scene. */}
-          <Suspense fallback={null}>
-            <MonitorScreen
-              rotation-x={-0.18}
-              position-z={-0.895}
-              position-y={1.74}
-            />
-          </Suspense>
-          {/* The desk stays white; on desktop it is smoother and reflects
-              the environment a little more. */}
-          {/* MOBILE_PERF: desk material response is desktop only — revert by removing the ternaries */}
-          <RoundedBox scale-x={2} position-y={0.5} position-z={-1}>
-            <meshStandardMaterial
-              color="white"
-              roughness={isMobile ? 1 : 0.6}
-              envMapIntensity={isMobile ? 1 : 1.25}
-            />
-          </RoundedBox>
-        </group>
-      </group>
+        {/* Own boundary: a screenshot texture that hasn't loaded yet
+            (project switch) must not suspend the whole scene. */}
+        <Suspense fallback={null}>
+          <MonitorScreen screen={monitorScreen(layout)} origin={SCREEN_ORIGIN} />
+        </Suspense>
+      </OfficeCorner>
     </SectionGroup>
   );
 };
