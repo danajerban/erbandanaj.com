@@ -380,7 +380,7 @@ const buildRow = (park) => {
   const { row, detail } = park;
   // Desktop and tall: the trinkets under 3 CSS px on a phone (door knobs,
   // the café door's handle) are built only here
-  const fine = detail.windowPlants;
+  const fine = detail.knobs;
   const s = row.scale;
   const spans = houseSpans(park);
   const D = HOUSE.depth;
