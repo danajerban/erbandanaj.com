@@ -113,7 +113,7 @@ export const PARK = {
     crownLumps: 2,
     bedFlowersMax: 22,
     balloonString: 0.9,
-    pigeon: { rest: [0, 2.2, -0.5], scaleX: false, rx: 0.45, rz: 0.25, dx: -0.45 },
+    pigeon: { rest: [0, 2.5, -0.5], scaleX: false, rx: 0.4, rz: 0.25, dx: -0.7 },
     detail: DETAIL_PHONE,
   },
   landscape: {
