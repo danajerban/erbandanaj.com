@@ -7,7 +7,9 @@ Balloon by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/)
 import { useGLTF } from "../lib/useGLTF";
 import { useMobile } from "../contexts/MobileContext";
 
-export function Balloon(props) {
+// materialRef: the balloon's material (ParkProps lets it glow a little at
+// night)
+export function Balloon({ color, materialRef, ...props }) {
   const { nodes } = useGLTF("/models/Balloon.glb");
   const { isMobile } = useMobile();
   return (
@@ -16,7 +18,12 @@ export function Balloon(props) {
         {/* Own material (roughness/metalness from the GLB's phong1SG) — each
             balloon gets its own color without copying the shared instance */}
         {/* MOBILE_PERF: glossier balloons are desktop only — revert by removing the ternary */}
-        <meshStandardMaterial color={props.color} roughness={isMobile ? 0.916 : 0.4} metalness={0} />
+        <meshStandardMaterial
+          ref={materialRef}
+          color={color}
+          roughness={isMobile ? 0.916 : 0.4}
+          metalness={0}
+        />
       </mesh>
     </group>
   );

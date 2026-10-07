@@ -7,42 +7,49 @@ Pigeon by Quaternius (https://poly.pizza/m/9NGlBTpDEr)
 import { useAnimations } from "@react-three/drei";
 import { useGLTF } from "../lib/useGLTF";
 import { useEffect, useRef, useState } from "react";
+import { LoopOnce, LoopRepeat } from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 
-export function Pigeon(props) {
+// The mail run's dash fades in and out quicker than the idle flap
+const FAST_FADE = 0.3;
+
+// clip: the clip the flight plays (ParkProps: Flying_Idle, Fast_Flying on the
+// mail run, Yes once while it hovers by the mailbox). Hover or tap answers
+// "Yes" over any of them.
+export function Pigeon({ clip = "Flying_Idle", ...props }) {
   const group = useRef();
   const { nodes, materials, animations } = useGLTF("/models/Pigeon.glb");
 
   const { actions } = useAnimations(animations, group);
-  const [animation, setAnimation] = useState("Flying_Idle");
+  const [hovered, setHovered] = useState(false);
+  const animation = hovered ? "Yes" : clip;
+  // The mail run's "Yes" nods once and holds its last pose; a hover's repeats
+  const once = !hovered && clip === "Yes";
   useEffect(() => {
-    if (actions[animation]) {
-      actions[animation]
-        .reset()
-        .fadeIn(ANIMATION_CONSTANTS.ANIMATION_FADE_IN_DURATION)
-        .play();
+    const action = actions[animation];
+    if (action) {
+      const fade = animation === "Fast_Flying" ? FAST_FADE : ANIMATION_CONSTANTS.ANIMATION_FADE_IN_DURATION;
+      action.setLoop(once ? LoopOnce : LoopRepeat, Infinity);
+      action.clampWhenFinished = once;
+      action.reset().fadeIn(fade).play();
       return () => {
-        if (actions[animation]) {
-          actions[animation].fadeOut(
-            ANIMATION_CONSTANTS.ANIMATION_FADE_OUT_DURATION,
-          );
-        }
+        action.fadeOut(animation === "Fast_Flying" ? FAST_FADE : ANIMATION_CONSTANTS.ANIMATION_FADE_OUT_DURATION);
       };
     }
-  }, [animation, actions]);
+  }, [animation, once, actions]);
 
   return (
     <group
       {...props}
       dispose={null}
       ref={group}
-      onPointerEnter={() => setAnimation("Yes")}
-      onPointerLeave={() => setAnimation("Flying_Idle")}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
       // Touch: no hover, and no pointerleave after a tap — press reacts,
       // release resets. (A mouse keeps its hover state across the click.)
-      onPointerDown={() => setAnimation("Yes")}
-      onPointerUp={(e) => { if (e.nativeEvent.pointerType !== "mouse") setAnimation("Flying_Idle"); }}
-      onPointerCancel={(e) => { if (e.nativeEvent.pointerType !== "mouse") setAnimation("Flying_Idle"); }}
+      onPointerDown={() => setHovered(true)}
+      onPointerUp={(e) => { if (e.nativeEvent.pointerType !== "mouse") setHovered(false); }}
+      onPointerCancel={(e) => { if (e.nativeEvent.pointerType !== "mouse") setHovered(false); }}
     >
       <group name="Scene">
         <group name="CharacterArmature">

@@ -11,16 +11,87 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { config } from "../config";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
+import { useMobile } from "../contexts/MobileContext";
 
-export function Mailbox(props) {
+// The GLB's 38 meshes, merged by material into four draws (plus the flag):
+// the nodes carry no transforms, so their geometries concatenate exactly.
+// Node names in the GLB's order (gltfjsx).
+const MERGED = {
+  mat17: ["group2028911354", "group513383197", "group1044609393"],
+  mat20: ["group1018199070", "group804677075"],
+  mat16: ["group1855928084", "group2114715230", "group961800690"],
+  mat10: [
+    "group2098010904", "group1048902298", "group698486446", "group513376890",
+    "group2003878409", "group1278976230", "group823787471", "group1640785644",
+    "group774986514", "group163990428", "group502275761", "group1083102086",
+    "group1169220911", "group819034674", "group2122795285", "group1086767079",
+    "group1548836198", "group1787203505", "group781068275", "group1179346883",
+    "group731433140", "group1547746947", "group1121282222", "group480589545",
+    "group796041224", "group1339086745", "group195866", "group1743123278",
+    "group1580040935",
+  ],
+};
+// The flag (mat8) keeps its own mesh: it turns about its hub, the round boss
+// at the foot of its stem (raw, measured from the GLB: the hub's bounds
+// x 0.57..0.82, y 4.08..4.33 on the side face at z −0.45), around raw z
+const FLAG = "group62313567";
+const FLAG_PIVOT = [0.695, 4.205, -0.45];
+const FLAG_PIVOT_NEGATED = FLAG_PIVOT.map((v) => -v);
+// Down along the box at rest, up (the GLB's pose) when the visitor points at
+// the mailbox or the pigeon brings mail
+const FLAG_DOWN = THREE.MathUtils.degToRad(-80);
+const FLAG_UP = 0;
+
+// Indexed geometries with the same attributes, as one (attributes read
+// denormalized into floats: the GLB quantizes its normals)
+const mergeGeometries = (geometries) => {
+  const names = Object.keys(geometries[0].attributes);
+  const vertexCount = geometries.reduce((n, g) => n + g.attributes.position.count, 0);
+  const indexCount = geometries.reduce((n, g) => n + g.index.count, 0);
+  const merged = new THREE.BufferGeometry();
+  for (const name of names) {
+    const { itemSize } = geometries[0].attributes[name];
+    const array = new Float32Array(vertexCount * itemSize);
+    let offset = 0;
+    for (const g of geometries) {
+      const attribute = g.attributes[name];
+      for (let i = 0; i < attribute.count; i++) {
+        for (let k = 0; k < itemSize; k++) array[(offset + i) * itemSize + k] = attribute.getComponent(i, k);
+      }
+      offset += attribute.count;
+    }
+    merged.setAttribute(name, new THREE.BufferAttribute(array, itemSize));
+  }
+  const index = new (vertexCount > 65535 ? Uint32Array : Uint16Array)(indexCount);
+  let at = 0;
+  let base = 0;
+  for (const g of geometries) {
+    for (let i = 0; i < g.index.count; i++) index[at++] = g.index.getX(i) + base;
+    base += g.attributes.position.count;
+  }
+  merged.setIndex(new THREE.BufferAttribute(index, 1));
+  merged.computeBoundingSphere();
+  return merged;
+};
+
+// flagUp: a ref the pigeon's mail run raises (ParkProps)
+export function Mailbox({ flagUp, ...props }) {
   const { nodes, materials } = useGLTF("/models/Mailbox v2.glb");
+  const { prefersReducedMotion } = useMobile();
   const [mailboxHovered, setMailboxHovered] = useState(false);
   const mailboxHoveredRef = useRef(false);
+  const flag = useRef();
   useCursor(mailboxHovered);
 
   // Materials are static after load — resolve the unique list once instead of
   // allocating a fresh array via Object.values() on every frame.
   const materialList = useMemo(() => Object.values(materials), [materials]);
+
+  const merged = useMemo(
+    () => Object.entries(MERGED).map(([material, names]) => [material, mergeGeometries(names.map((name) => nodes[name].geometry))]),
+    [nodes],
+  );
+  useEffect(() => () => merged.forEach(([, geometry]) => geometry.dispose()), [merged]);
 
   useEffect(() => {
     const emissiveColor = new THREE.Color("#359F5C");
@@ -30,6 +101,16 @@ export function Mailbox(props) {
   }, [materialList]);
 
   useFrame((_, delta) => {
+    const { rotation } = flag.current;
+    const flagTarget = mailboxHoveredRef.current || flagUp?.current ? FLAG_UP : FLAG_DOWN;
+    if (rotation.z !== flagTarget) {
+      // Reduced motion: it snaps (a response to the visitor, so it stays)
+      rotation.z =
+        prefersReducedMotion || Math.abs(rotation.z - flagTarget) < 0.001
+          ? flagTarget
+          : THREE.MathUtils.damp(rotation.z, flagTarget, ANIMATION_CONSTANTS.EMISSIVE_DAMP_LAMBDA, delta);
+    }
+
     const target = mailboxHoveredRef.current ? 0.9 : 0;
     // Skip per-frame work once the glow has settled at rest (the common case).
     if (!mailboxHoveredRef.current && materialList[0]?.emissiveIntensity < 0.001) {
@@ -57,152 +138,14 @@ export function Mailbox(props) {
       onPointerCancel={(e) => { if (e.nativeEvent.pointerType !== "mouse") { mailboxHoveredRef.current = false; setMailboxHovered(false); } }}
       onClick={() => { window.location.href = `mailto:${config.contact.mail}`; }}
     >
-      <mesh
-        geometry={nodes.group2028911354.geometry}
-        material={materials.mat17}
-      />
-      <mesh
-        geometry={nodes.group513383197.geometry}
-        material={materials.mat17}
-      />
-      <mesh
-        geometry={nodes.group1044609393.geometry}
-        material={materials.mat17}
-      />
-      <mesh geometry={nodes.group62313567.geometry} material={materials.mat8} />
-      <mesh
-        geometry={nodes.group1018199070.geometry}
-        material={materials.mat20}
-      />
-      <mesh
-        geometry={nodes.group1855928084.geometry}
-        material={materials.mat16}
-      />
-      <mesh
-        geometry={nodes.group2114715230.geometry}
-        material={materials.mat16}
-      />
-      <mesh
-        geometry={nodes.group961800690.geometry}
-        material={materials.mat16}
-      />
-      <mesh
-        geometry={nodes.group2098010904.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1048902298.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group698486446.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group513376890.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group2003878409.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1278976230.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group823787471.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1640785644.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group774986514.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group163990428.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group502275761.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1083102086.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1169220911.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group819034674.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group2122795285.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1086767079.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1548836198.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1787203505.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group781068275.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1179346883.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group731433140.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1547746947.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1121282222.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group480589545.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group796041224.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1339086745.geometry}
-        material={materials.mat10}
-      />
-      <mesh geometry={nodes.group195866.geometry} material={materials.mat10} />
-      <mesh
-        geometry={nodes.group1743123278.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group1580040935.geometry}
-        material={materials.mat10}
-      />
-      <mesh
-        geometry={nodes.group804677075.geometry}
-        material={materials.mat20}
-      />
+      {merged.map(([material, geometry]) => (
+        <mesh key={material} geometry={geometry} material={materials[material]} />
+      ))}
+      <group position={FLAG_PIVOT}>
+        <group ref={flag} rotation-z={FLAG_DOWN}>
+          <mesh geometry={nodes[FLAG].geometry} material={materials.mat8} position={FLAG_PIVOT_NEGATED} />
+        </group>
+      </group>
     </group>
   );
 }
