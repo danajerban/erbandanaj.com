@@ -520,7 +520,7 @@ html[data-sky="night"] {
 }
 
 html:is([data-sky="dusk"], [data-sky="night"]) .menu__logo {
-  filter: invert(1) sepia(0.3) brightness(0.97);
+  filter: var(--cream-logo);
 }
 
 html[data-sky] .menu__button--active {
@@ -540,8 +540,9 @@ html[data-sky] .menu__button::after {
   }
 }
 
-/* The lanterns' glow, also painted by .paint-warm */
+/* The cream logo and the lanterns' glow, also painted by .paint-warm */
 :root {
+  --cream-logo: invert(1) sepia(0.3) brightness(0.97);
   --lantern-glow:
     0 0 0 1px rgba(255, 214, 160, 0.45),
     0 10px 32px -6px rgba(255, 170, 90, 0.4);
@@ -570,12 +571,12 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
 
 /* Chrome compiles a GPU pipeline the first time it paints a kind of draw,
    ~120 ms each on a cold cache, blocking the frame: the sky layers' radial
-   gradients and the lanterns' blurred glow would first paint mid-scroll.
-   index.html paints one of each inside the splash, at 0.001 opacity
-   (invisible), from 0.3 s (after the first paint) until the splash fades.
-   Its cards cover the glow's paths: a tall card blurs analytically, short
-   ones through a mask, on and off the pixel grid and scaled. Keep it in
-   step with the sky layers and the glow. */
+   gradients, the cream logo and the lanterns' blurred glow would first
+   paint mid-scroll. index.html paints one of each inside the splash, at
+   0.001 opacity (invisible), from 0.3 s (after the first paint) until the
+   splash fades. Its cards cover the glow's paths: a tall card blurs
+   analytically, short ones through a mask, on and off the pixel grid and
+   scaled. Keep it in step with the sky layers, the logo and the glow. */
 .paint-warm {
   position: absolute;
   top: 0;
@@ -608,6 +609,13 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
 
 .paint-warm > i {
   inset: 0;
+}
+
+.paint-warm > img {
+  top: 350px;
+  width: 64px;
+  height: 22px;
+  filter: var(--cream-logo);
 }
 
 .paint-warm > b {
@@ -714,7 +722,8 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     right: max(1rem, env(safe-area-inset-right));
   }
 
-  .menu__logo {
+  .menu__logo,
+  .paint-warm > img {
     display: none;
   }
 
