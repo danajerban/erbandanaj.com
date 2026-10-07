@@ -5,11 +5,11 @@ import { useMobile } from "../contexts/MobileContext";
 import { buildOfficeChair } from "../lib/office/chair";
 import { buildBackpack, buildDesk, DESK_LIGHTS } from "../lib/office/desk";
 import {
-  CHAIR,
   FRONT_Z,
   OFFICE_LAYER,
   SNAKE_PLANT,
   TITLE,
+  chairAt,
   monitorScreen,
   officeLayout,
   transformLights,
@@ -27,7 +27,7 @@ const SCREEN_ORIGIN = [0, 0, FRONT_Z];
 // The chair and the backpack at true scale; the desk group and the snake
 // plant through the (phone portrait) desk vignette
 const buildDeskCorner = (out, ctx) => {
-  buildOfficeChair(out, ctx, CHAIR);
+  buildOfficeChair(out, ctx, chairAt(ctx.layout));
   buildBackpack(out, ctx);
   const vignette = vignetteMatrix(ctx.layout);
   out.solid.push(vignette);

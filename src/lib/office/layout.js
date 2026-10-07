@@ -92,8 +92,15 @@ export const monitorScreen = (layout) => {
   return screens.get(layout);
 };
 
-// Yaw follows HomeSection: an object faces (sin yaw, cos yaw)
-export const CHAIR = { x: -0.95, z: -0.75, yaw: Math.PI + 0.6 };
+// Yaw follows HomeSection: an object faces (sin yaw, cos yaw). The office
+// chair stands turned toward the side window; on a phone held upright it
+// stands pulled out just left of the avatar, turned to the desk, so it reads
+// with the desk (composition data).
+const CHAIR = {
+  default: { x: -0.95, z: -0.75, yaw: Math.PI + 0.6 },
+  portrait: { x: -0.12, z: -0.75, yaw: Math.PI - 1.0 },
+};
+export const chairAt = (layout) => CHAIR[layout] ?? CHAIR.default;
 export const SNAKE_PLANT = { x: 2.25, z: -1.5, yaw: 0.4 };
 
 // Both titles on the back wall: Text3D's origin is the left end of the

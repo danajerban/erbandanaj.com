@@ -4,7 +4,7 @@ import { RUG_Y } from "./layout";
 import { box, contactShadow, cylinder, cylinderBetween, polygon, prism, v3 } from "./shapes";
 
 // Projects: the black mesh office chair (desk corner step), at { x, z, yaw }
-// (layout.js CHAIR); out = { solid, glow }, ctx = { isMobile, layout, random }.
+// (layout.js chairAt); out = { solid, glow }, ctx = { isMobile, layout, random }.
 // Built in its own frame (front +z, the backrest at −z); every part lies
 // within 0.355 of its centre on the floor plan.
 
