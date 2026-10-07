@@ -24,6 +24,7 @@ export const PALETTE = {
   sandMotif: hex("#dcc6a3"),
   sandLine: hex("#f6ecdc"),
   coral: hex("#e07a5f"),
+  clay: hex("#ab6450"), // the painted block behind each title
   seaTeal: hex("#3f8f94"),
   seaTealShade: hex("#2f6f74"),
   lace: hex("#fffaf3"),
