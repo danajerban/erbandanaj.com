@@ -23,6 +23,10 @@ const scaleHex = (hex, k) => {
   return c.setRGB(rgb.r * k, rgb.g * k, rgb.b * k, SRGB).getHex();
 };
 
+// The facades at night: their day colours a step darker before the shading,
+// so the pastel row sits behind the balloons and lets the lit windows glow
+const FACADE_NIGHT = 0.8;
+
 // Glass and night colours, shown as given (no shading)
 const LIT = HOUSE.lit.map((hex) => new THREE.Color(hex));
 const UNLIT = new THREE.Color(HOUSE.unlit);
@@ -220,7 +224,7 @@ const door = (sink, cx, color, plinthHex, fine) => {
 };
 
 // The dormer on the sage house's front slope: cheeks, a gable cap, its window
-const dormer = (sink, house, glass) => {
+const dormer = (sink, house, day, glass) => {
   const { W, eave, ridge, dormer: d } = house;
   const slope = (ridge.y - eave) / -ridge.z;
   const cx = d.at * W;
@@ -231,9 +235,9 @@ const dormer = (sink, house, glass) => {
   const zTop = -(y1 - eave) / slope; // where the cheek top meets the roof
   const apex = y1 + d.cap;
   const zApex = -(apex - eave) / slope;
-  poly(sink, [v(x0, y0, z), v(x1, y0, z), v(x1, y1, z), v(cx, apex, z), v(x0, y1, z)], FRONT, house.day);
-  poly(sink, [v(x1, y0, z), v(x1, y1, zTop), v(x1, y1, z)], v(1, 0, 0), house.day);
-  poly(sink, [v(x0, y0, z), v(x0, y1, z), v(x0, y1, zTop)], v(-1, 0, 0), house.day);
+  poly(sink, [v(x0, y0, z), v(x1, y0, z), v(x1, y1, z), v(cx, apex, z), v(x0, y1, z)], FRONT, day);
+  poly(sink, [v(x1, y0, z), v(x1, y1, zTop), v(x1, y1, z)], v(1, 0, 0), day);
+  poly(sink, [v(x0, y0, z), v(x0, y1, z), v(x0, y1, zTop)], v(-1, 0, 0), day);
   for (const [xe, side] of [[x0 - 0.04, -1], [x1 + 0.04, 1]]) {
     poly(sink, [v(xe, y1 - 0.02, z + 0.05), v(cx, apex + 0.04, z + 0.05), v(cx, apex + 0.04, zApex), v(xe, y1 - 0.02, zTop)], v(side, 1, 0), house.roofColor);
   }
@@ -387,7 +391,8 @@ const buildRow = (park) => {
   let eyes;
   let story;
   HOUSES.forEach((house, h) => {
-    const { W, eave, top, roof, day, roofColor } = house;
+    const { W, eave, top, roof, roofColor } = house;
+    const day = scaleHex(house.day, FACADE_NIGHT);
     const span = spans[h];
     sink.push(place(span.x0, 0, row.z, s));
     const plinthHex = scaleHex(day, 0.7);
@@ -415,7 +420,7 @@ const buildRow = (park) => {
       const { ridge } = house;
       slopedRoof(sink, [-0.04, W + 0.04], [-0.04, W + 0.04], eave, ridge.y, ridge.z, house.overhang, roofColor);
       gableSides(ridge.y, ridge.z);
-      dormer(sink, house, glassAt(house.dormer.at, 3, 0));
+      dormer(sink, house, day, glassAt(house.dormer.at, 3, 0));
       sink.push(place(house.cat.at * W, ridge.y - 0.02, ridge.z));
       eyes = cat(sink, detail.catEyeScale);
       sink.pop();
