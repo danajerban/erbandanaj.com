@@ -563,6 +563,41 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   }
 }
 
+/* Chrome compiles a GPU pipeline the first time it paints a kind of draw,
+   ~120 ms each on a cold cache, blocking the frame: the sky layers' radial
+   gradients would first paint mid-scroll. index.html paints them inside
+   the splash, at 0.001 opacity (invisible), from 0.3 s (after the first
+   paint) until the splash fades. Keep it in step with the sky layers. */
+.paint-warm {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 400px;
+  opacity: 0.001;
+  will-change: opacity;
+  visibility: hidden;
+  pointer-events: none;
+  animation: paint-warm 1ms 0.3s forwards;
+}
+
+/* Gone before the splash fades: one layer less to fade */
+.app-loader--hidden .paint-warm {
+  display: none;
+}
+
+@keyframes paint-warm {
+  from,
+  to {
+    visibility: visible;
+  }
+}
+
+.paint-warm > i {
+  position: absolute;
+  inset: 0;
+}
+
 /* RESPONSIVE */
 
 @media (max-width: 990px) {
