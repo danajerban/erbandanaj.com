@@ -20,6 +20,9 @@ const KEYS = {
   fillColor: ["#e4ecff", "#ece6ff", "#ffd2a1", "#ffc27a"],
   fill: [0.2, 0.2, 0.35, 0.4],
   shadowTint: ["#ffffff", "#f3dcd8", "#b3b5dc", "#98a2cf"],
+  // The contact shadows' opacity: the dark night lawn needs more (past 1 it
+  // scales the blurred shadow's own alpha, a uniform, no new program)
+  shadow: [0.42, 0.42, 0.42, 1.8],
   sunSet: [0, 1, 1, 1],
   sunFade: [1, 1, 0.45, 0],
   lamps: [0, 0.5, 1, 1],
@@ -103,7 +106,10 @@ const apply = (s, scene, o) => {
     lerpColor(o.fill.color, "fillColor", k, f);
     o.fill.intensity = at("fill", k, f);
   }
-  if (o.shadow) lerpColor(o.shadow.color, "shadowTint", k, f);
+  if (o.shadow) {
+    lerpColor(o.shadow.color, "shadowTint", k, f);
+    o.shadow.opacity = at("shadow", k, f);
+  }
   if (o.sun) {
     const u = o.sun.material.uniforms;
     u.uSet.value = at("sunSet", k, f);
