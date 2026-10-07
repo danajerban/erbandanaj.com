@@ -26,6 +26,9 @@ const BACKGROUND_SECTIONS = [
 
 // Low clouds by the sun: a lazy chunk mounted after the first visible frame
 const Clouds = lazy(() => import("./Clouds"));
+// The time of day (sky, light, stars): after the first visible frame, or
+// inside the splash gate when the URL lands on a section
+const TimeOfDay = lazy(() => import("./TimeOfDay"));
 
 const HDR_URL = "/hdri/venice_sunset_256.hdr";
 // Start the environment HDR load at module-eval, in the same batch as the
@@ -103,10 +106,18 @@ const SUN_VERTEX = /* glsl */ `
 // hub. The index.html splash repeats all of it, bar the rays, as CSS
 // gradients: change the two together. No tone mapping (values are sRGB), no
 // fog.
+// The sun sets along the scroll (TimeOfDay, lazy, drives both uniforms): uSet
+// (0 up, 1 set) sinks the centre c to 0.06 sun units under the horizon and
+// clips the halo, glow and body at the horizon line ("above"), leaving a dome
+// of afterglow over the band; uFade dims all of it (0 hides the mesh). At
+// uSet 0, uFade 1 every term is exact (p + 0, mix(1, x, 0) = 1, × 1), so
+// Home draws the same pixels as before.
 const SUN_FRAGMENT = /* glsl */ `
   uniform float uTime;
   // How far the horizon lies below the sun's center, in sun units
   uniform float uHorizon;
+  uniform float uSet;
+  uniform float uFade;
   varying vec2 vUv;
   vec4 over(vec4 below, vec3 color, float alpha) {
     return vec4(color * alpha, alpha) + below * (1.0 - alpha);
@@ -114,8 +125,10 @@ const SUN_FRAGMENT = /* glsl */ `
   void main() {
     // p: from the sun's center, in sun units
     vec2 p = vUv * vec2(${(SUN_QUAD[0] / 2).toFixed(3)}, ${(SUN_QUAD[1] / 2).toFixed(3)});
-    float r = length(p);
-    float a = atan(p.y, p.x);
+    vec2 c = p + vec2(0.0, uSet * (uHorizon + 0.06));
+    float r = length(c);
+    float a = atan(c.y, c.x);
+    float above = mix(1.0, smoothstep(-0.01, 0.01, p.y + uHorizon), uSet);
     float t = uTime * 0.04;
     float rays = (0.5 * sin(a * 12.0 + t) + 0.3 * sin(a * 19.0 - t * 1.5 + 2.1)
       + 0.2 * sin(a * 31.0 + t * 2.2 + 4.3))
@@ -124,15 +137,15 @@ const SUN_FRAGMENT = /* glsl */ `
     vec2 b = vec2(p.x / ${SUN_BAND[0].toFixed(3)}, (p.y + uHorizon) / ${SUN_BAND[1].toFixed(3)});
     float band = 0.5 * pow(max(1.0 - dot(b, b), 0.0), 3.0);
     float halo = 0.5 / (1.0 + r * r / 0.0144) * (1.0 - smoothstep(0.15, ${SUN_REACH.toFixed(3)}, r))
-      * (1.0 + 0.35 * rays);
-    float glow = 0.85 * exp(-pow(r / 0.045, 1.6));
-    float body = exp(-pow(r / 0.03, 8.0));
+      * (1.0 + 0.35 * rays) * above;
+    float glow = 0.85 * exp(-pow(r / 0.045, 1.6)) * above;
+    float body = exp(-pow(r / 0.03, 8.0)) * above;
 
     vec4 sun = over(vec4(0.0), vec3(0.988, 0.631, 0.518), band);
     sun = over(sun, vec3(0.949, 0.373, 0.29), halo);
     sun = over(sun, vec3(1.0, 0.478, 0.337), glow);
     sun = over(sun, mix(vec3(1.0, 0.467, 0.325), vec3(1.0, 0.549, 0.376), exp(-r * r / 0.0004)), body);
-    gl_FragColor = sun;
+    gl_FragColor = sun * uFade;
   }
 `;
 
@@ -146,7 +159,7 @@ const SunsetSun = ({ isMobile, prefersReducedMotion }) => {
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 }, uHorizon: { value: 0 } },
+        uniforms: { uTime: { value: 0 }, uHorizon: { value: 0 }, uSet: { value: 0 }, uFade: { value: 1 } },
         vertexShader: SUN_VERTEX,
         fragmentShader: SUN_FRAGMENT,
         transparent: true,
@@ -194,12 +207,12 @@ const SunsetSun = ({ isMobile, prefersReducedMotion }) => {
 
   return (
     <>
-      <mesh ref={mesh} material={material}>
+      <mesh ref={mesh} material={material} name="sun">
         <planeGeometry />
       </mesh>
       {/* MOBILE_PERF: the key light is desktop only, mobile keeps env +
           hemisphere lighting — revert by removing the !isMobile guard */}
-      {!isMobile && <directionalLight ref={light} color="#ffc79e" intensity={0.65} />}
+      {!isMobile && <directionalLight ref={light} name="key" color="#ffc79e" intensity={0.65} />}
     </>
   );
 };
@@ -305,7 +318,8 @@ export const Experience = ({ revealed }) => {
       {/* LIGHTS — on top of the environment map. A golden key from the sun's
           direction (behind, right; SunsetSun) rims the models; a faint cool
           fill from the camera side lifts the shadowed faces; a
-          peach-over-terracotta hemisphere sits everything in the sunset. */}
+          peach-over-terracotta hemisphere sits everything in the sunset.
+          TimeOfDay (lazy) re-tints these along the scroll. */}
       <SunsetSun isMobile={isMobile} prefersReducedMotion={prefersReducedMotion} />
       {revealed && (
         <SilentErrorBoundary>
@@ -314,10 +328,21 @@ export const Experience = ({ revealed }) => {
           </Suspense>
         </SilentErrorBoundary>
       )}
+      {(revealed || gateSection) && (
+        <SilentErrorBoundary>
+          {gateSection ? (
+            <TimeOfDay />
+          ) : (
+            <Suspense fallback={null}>
+              <TimeOfDay />
+            </Suspense>
+          )}
+        </SilentErrorBoundary>
+      )}
       <hemisphereLight args={["#f6cbb6", "#b8674a", 0.35]} />
       {/* MOBILE_PERF: the fill light is desktop only, mobile keeps env +
           hemisphere lighting — revert by removing the !isMobile guard */}
-      {!isMobile && <directionalLight position={[-4, 5, 8]} color="#e4ecff" intensity={0.2} />}
+      {!isMobile && <directionalLight name="fill" position={[-4, 5, 8]} color="#e4ecff" intensity={0.2} />}
       <Avatar position-z={isMobile ? -5 : 0} />
 
       {/* SHADOWS — softer, higher-resolution contact shadows on desktop */}
@@ -325,6 +350,7 @@ export const Experience = ({ revealed }) => {
       <ContactShadows
         opacity={0.42}
         scale={[30, 30]}
+        name="shadows"
         color="#b07a62"
         resolution={isMobile ? 128 : 512}
         blur={isMobile ? 1.5 : 2.8}
