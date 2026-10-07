@@ -16,7 +16,8 @@
   --scene-floor-color: #f1cabb;
   /* The page's own color, which Safari (iOS 26) gives its top and bottom
      bars, live: the sky at the top edge (measured on an iPhone). The
-     theme-color in index.html repeats it. */
+     theme-color in index.html repeats it. Along the scroll TimeOfDay writes
+     the evening's colour straight into html's and body's background-color. */
   --scene-bar-color: #e4a39d;
   --scene-sun-x: 85.5%;
   --scene-sun-y: 27.8%;

@@ -39,7 +39,9 @@ const HOLD = 0.06;
 // Safari's bars (iOS 26 paints them in the page's background-color) and
 // Chrome Android's theme-color: the sky's top stop at each rest
 const BAR = ["#e4a39d", "#b48fa6", "#2c3c76", "#0b1231"].map((hex) => parseInt(hex.slice(1), 16));
-// Bar writes per section (<= 96 over a full scroll); each repaints the root once
+// Bar writes per section (<= 96 over a full scroll); each repaints the root once.
+// Written as background-color on html and body (not inherited, so only those
+// two restyle); a custom property on html would restyle the whole document
 const BAR_STEPS = 32;
 // In sRGB per channel, as the CSS sky blends
 const mixHex = (a, b, f) => {
@@ -70,8 +72,8 @@ const paint = (s, dom) => {
   const bar = s === 0 ? "" : mixHex(BAR[k], BAR[k + 1], Math.round(f * BAR_STEPS) / BAR_STEPS);
   if (bar !== dom.bar) {
     dom.bar = bar;
-    if (bar) root.style.setProperty("--scene-bar-color", bar);
-    else root.style.removeProperty("--scene-bar-color");
+    root.style.backgroundColor = bar;
+    document.body.style.backgroundColor = bar;
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", bar || "#e4a39d");
   }
   const mode = skyMode(s);
@@ -151,7 +153,8 @@ export default function TimeOfDay() {
     return () => {
       sky.remove();
       const root = document.documentElement;
-      root.style.removeProperty("--scene-bar-color");
+      root.style.backgroundColor = "";
+      document.body.style.backgroundColor = "";
       delete root.dataset.sky;
       document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#e4a39d");
       Object.assign(state, { layers: [], op: "", bar: "", mode: "" });
