@@ -328,7 +328,7 @@ const buildAfterglow = (glow, isMobile) => {
     for (let k = 0; k < perEdge; k++) rim.push(corners[e].clone().lerp(corners[(e + 1) % 4], k / perEdge));
   }
   const centre = corners.reduce((sum, p) => sum.add(p), v3(0, 0, 0)).divideScalar(4);
-  fan(glow, centre, rim, LIGHT.afterglow.clone().multiplyScalar(0.22), new THREE.Color(0, 0, 0), { channel: 1 });
+  fan(glow, centre, rim, LIGHT.afterglow.clone().multiplyScalar(0.08), new THREE.Color(0, 0, 0), { channel: 1 });
 };
 
 // out = { solid, furniture, glow, lace }; ctx = { isMobile, layout, random }

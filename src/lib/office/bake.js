@@ -55,7 +55,7 @@ export const LIGHT = {
   lightBar: hex("#fff0d8"),
   screen: hex("#cfdcff"),
   bias: hex("#9fb6ff"),
-  afterglow: hex("#ffb59a"),
+  afterglow: hex("#ff9c94"),
 };
 
 // Fill from the camera side; each corner's key from its window
