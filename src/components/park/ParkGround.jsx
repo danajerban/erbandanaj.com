@@ -76,12 +76,14 @@ const noise = (x, z) => {
   return a + (b - a) * sz;
 };
 
-// The lamps' pools: (1 − d/R)² summed over the posts, at most 1
+// The lamps' pools: a smooth falloff from each post to its reach R (bright
+// over the inner half, so a pool reads on the night lawn), summed over the
+// posts, at most 1
 const poolAt = (park, x, z) => {
   let w = 0;
   for (const [lx, lz] of park.lamps) {
     const d = Math.hypot(x - lx, z - lz);
-    if (d < park.lampR) w += (1 - d / park.lampR) ** 2;
+    if (d < park.lampR) w += 1 - smoothstep(0, park.lampR, d);
   }
   return Math.min(w, 1);
 };
