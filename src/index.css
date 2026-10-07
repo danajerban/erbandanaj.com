@@ -484,11 +484,12 @@ a {
     linear-gradient(180deg, #2c3c76 0%, #5466a2 40%, #9890b9 72%, #b7a0b8 100%);
 }
 
-/* The old town's glow behind its roofs (the park's ridges sit at 14–27 %) */
+/* The old town's glow behind its roofs: centred on the park's ridge band
+   (14–30 % from the top on every layout), so it rises above the roofline */
 .sky__night {
   background:
     radial-gradient(
-      ellipse 130% 36% at 50% 40%,
+      ellipse 110% 26% at 50% 24%,
       rgba(255, 176, 110, 0.2) 0%,
       rgba(255, 176, 110, 0.08) 45%,
       rgba(255, 176, 110, 0) 100%
