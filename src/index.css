@@ -190,16 +190,20 @@ a {
 
 /* SKILLS SECTION */
 
+/* Desktop: the column centres in the space under the menu pill (it ends
+   101px from the top), and on windows shorter than 900px the cards tighten
+   so all six still fit (1280×800: 127–760px) */
 .skills {
   padding: 1rem;
+  margin-top: 6rem;
 }
 
 .skill {
   background: var(--glass-color);
   backdrop-filter: blur(8px);
   border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: clamp(0.5rem, 5vh - 29px, 1rem) 1rem;
+  margin-bottom: clamp(0.25rem, 8vh - 56px, 1rem);
   width: 320px;
   max-width: 100%;
   /* Hover/press use the individual transform properties: the entrance
@@ -577,6 +581,7 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   }
 
   .skills {
+    margin-top: 0;
     display: flex;
     gap: 1rem;
     overflow-x: auto;
