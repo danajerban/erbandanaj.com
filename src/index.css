@@ -496,9 +496,10 @@ a {
     linear-gradient(180deg, #0b1231 0%, #172149 42%, #283260 72%, #343a66 100%);
 }
 
-/* Readable on the darker sky: denser glass from the afterglow on; at dusk
-   and night a cream logo and a deep terracotta active link; at night the
-   cards and the pill turn into warm cream lanterns (dark text stays) */
+/* Readable on the darker sky: denser glass and a deep terracotta active
+   link from the afterglow on (pale sand on the denser pill is 1.0:1, the
+   terracotta 5.5:1); at dusk and night a cream logo; at night the cards and
+   the pill turn into warm cream lanterns (dark text stays) */
 html[data-sky="afterglow"] {
   --glass-alpha: 0.65;
 }
@@ -516,18 +517,18 @@ html:is([data-sky="dusk"], [data-sky="night"]) .menu__logo {
   filter: invert(1) sepia(0.3) brightness(0.97);
 }
 
-html:is([data-sky="dusk"], [data-sky="night"]) .menu__button--active {
+html[data-sky] .menu__button--active {
   color: #93351d;
   text-shadow: none;
 }
 
-html:is([data-sky="dusk"], [data-sky="night"]) .menu__button::after {
+html[data-sky] .menu__button::after {
   background: #93351d;
   box-shadow: none;
 }
 
 @media (hover: hover) {
-  html:is([data-sky="dusk"], [data-sky="night"]) .menu__button:hover {
+  html[data-sky] .menu__button:hover {
     color: #93351d;
     text-shadow: none;
   }
