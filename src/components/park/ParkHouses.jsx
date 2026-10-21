@@ -383,8 +383,8 @@ const buildRow = (park) => {
   const sink = new ParkSink(park);
   const { row, detail } = park;
   // Desktop and tall: the trinkets under 3 CSS px on a phone (door knobs,
-  // the café door's handle) are built only here
-  const fine = detail.knobs;
+  // the café door's handle) are built only here, and the blooms stay small
+  const { fine } = detail;
   const s = row.scale;
   const spans = houseSpans(park);
   const D = HOUSE.depth;

@@ -19,10 +19,11 @@ export const parkLayoutOf = (isMobile, aspect) => {
 };
 
 // Details whose smallest side drops under 3 CSS px on a phone are left out
-// or thickened there: composition, not MOBILE_PERF. knobs: the door knobs
-// and the café door's handle (without them the flower-box blooms grow).
-const DETAIL_FULL = { railing: "bars", chalkStrokes: true, windowPlants: true, knobs: true, catEyeScale: 1 };
-const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false, knobs: false, catEyeScale: 2 };
+// or thickened there: composition, not MOBILE_PERF. fine: the door knobs
+// and the café door's handle are built, and the flower-box blooms stay small
+// (false: no knobs or handle, bigger blooms).
+const DETAIL_FULL = { railing: "bars", chalkStrokes: true, windowPlants: true, fine: true, catEyeScale: 1 };
+const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false, fine: false, catEyeScale: 2 };
 
 // Per layout:
 // - row: the house row's left end x, its facade plane z and its scale; the
