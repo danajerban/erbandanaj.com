@@ -568,8 +568,9 @@ a {
 
 .menu__buttons {
   --pill-x: 0.9rem;
+  --menu-gap: 1rem;
   display: flex;
-  gap: 1rem;
+  gap: var(--menu-gap);
   align-items: center;
   /* The glass pill grows outward: padding and negative margin cancel, so the
      links never move when it appears. */
@@ -592,6 +593,20 @@ a {
   transition:
     color 0.2s ease-out,
     text-shadow 0.2s ease-out;
+}
+
+/* Touch: each link's tap area is 44px tall and reaches the middle of the
+   gaps beside it, an invisible box, so the glyphs, the pill and the
+   underline stay put and no two areas overlap (CV too: 38px wide) */
+@media (max-width: 990px), (pointer: coarse) {
+  .menu__button::before {
+    content: "";
+    position: absolute;
+    top: calc(50% - 1.375rem);
+    bottom: calc(50% - 1.375rem);
+    left: calc(var(--menu-gap) / -2);
+    right: calc(var(--menu-gap) / -2);
+  }
 }
 
 /* Pale sand text over a pale sand bar (the beach's lit sand, a little whiter)
@@ -983,7 +998,7 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
      the side gutters; from 360px on, 1rem type and 1rem gaps */
   .menu__buttons {
     --pill-x: clamp(0.75rem, 6vw - 7.2px, 0.9rem);
-    gap: clamp(0.625rem, 15vw - 38px, 1rem);
+    --menu-gap: clamp(0.625rem, 15vw - 38px, 1rem);
   }
 
   .menu__button {
