@@ -89,6 +89,16 @@ body {
   }
 }
 
+/* Big desktop screens (2400px wide and more): the type and with it the
+   menu, the logo and the cards (all sized in rem) grow gently with the
+   width, 1.05x at 2560px, 1.45x at 3840px, so they keep up with the scene;
+   up to 2400px the root stays 16px */
+@media (min-width: 2400px) {
+  html {
+    font-size: min(0.5vw + 4px, 24px);
+  }
+}
+
 body {
   margin: 0;
   font-family: "Roboto Slab", serif;
@@ -133,7 +143,7 @@ a {
 }
 
 .sections {
-  max-width: 1200px;
+  max-width: 75rem;
   width: 100%;
 }
 
@@ -220,7 +230,7 @@ a {
   border-radius: 8px;
   padding: clamp(0.5rem, 5vh - 29px, 1rem) 1rem;
   margin-bottom: clamp(0.25rem, 8vh - 56px, 1rem);
-  width: 320px;
+  width: 20rem;
   max-width: 100%;
   /* Hover/press use the individual transform properties: the entrance
      animation owns the inline `transform`, which a class rule cannot win. */
@@ -251,8 +261,8 @@ a {
 }
 
 .skill__label__image {
-  height: 32px;
-  width: 32px;
+  height: 2rem;
+  width: 2rem;
 }
 
 .skill__label__name {
@@ -272,17 +282,17 @@ a {
 /* PROJECTS — desktops: a single column of compact cards down the left side
    wall, in line with the logo, so the wardrobe, the print, the arch, the
    avatar and the desk all show; no screenshot (the desk monitor shows it).
-   The column is pulled out of the centred 1200px .sections box to sit a
+   The column is pulled out of the centred 75rem .sections box to sit a
    steady distance from the screen's left edge. */
 
 .projects {
   --projects-left: clamp(1.5rem, 8vw - 4rem, 5rem);
   display: grid;
   gap: 0.625rem;
-  width: calc(clamp(280px, 12vw + 120px, 360px) + 2rem);
+  width: calc(clamp(17.5rem, 12vw + 7.5rem, 22.5rem) + 2rem);
   padding: 1rem;
   transform: translateX(
-    calc(var(--projects-left) - 1rem - max(0px, (100vw - 1200px) / 2))
+    calc(var(--projects-left) - 1rem - max(0px, (100vw - 75rem) / 2))
   );
 }
 
@@ -481,9 +491,9 @@ a {
 /* A small cream tile, so the thin line logos read on the glass */
 .project__label__icon {
   flex: none;
-  width: 34px;
-  height: 34px;
-  padding: 4px;
+  width: 2.125rem;
+  height: 2.125rem;
+  padding: 0.25rem;
   border-radius: 7px;
   background: #fff8ec;
   box-shadow: 0 0 0 1px rgba(26, 32, 44, 0.08);
@@ -558,7 +568,7 @@ a {
   grid-template-columns: 1fr auto;
   align-items: center;
   column-gap: 1.75rem;
-  width: clamp(600px, 36vw, 760px);
+  width: clamp(37.5rem, 36vw, 47.5rem);
   padding: 1.25rem 1.75rem;
   background: var(--glass-color);
   backdrop-filter: blur(8px);
@@ -619,8 +629,8 @@ a {
 }
 
 .contact__socials__icon {
-  height: clamp(32px, 1.2rem + 0.9vw, 42px);
-  width: clamp(32px, 1.2rem + 0.9vw, 42px);
+  height: clamp(2rem, 1.2rem + 0.9vw, 2.625rem);
+  width: clamp(2rem, 1.2rem + 0.9vw, 2.625rem);
   transition: translate 0.2s ease-out;
 }
 
@@ -699,8 +709,8 @@ a {
 }
 
 .menu__logo {
-  height: 126px;
-  width: 360px;
+  height: 7.875rem;
+  width: 22.5rem;
   object-fit: contain;
   transition: filter 0.4s ease-out;
 }
