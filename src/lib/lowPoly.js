@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
-// Shared by the procedural low-poly props (PalmTree, BeachDecor).
+// Shared by the procedural low-poly meshes and their shaders, across every
+// section: a change here reaches all of them.
 
 // mulberry32 — deterministic, tiny
 export const createRandom = (seed) => () => {

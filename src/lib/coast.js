@@ -1,8 +1,8 @@
-// Home island shoreline, shared by the sea (Sea) and the palm group on the
-// beach (HomeSection, PalmTree, BeachDecor). Home-local floor coordinates:
-// y = 0 is the floor, +z toward the camera; water lies where x > coastX(z),
-// and nothing wet (waves washing up the sand, foam, wet-sand sheen) ever
-// reaches left of dryX(z).
+// Home island shoreline, shared by the sea and everything on the beach, and
+// the screen-shape rule (layoutOf) the scene lays out by. Home-local floor
+// coordinates: y = 0 is the floor, +z toward the camera; water lies where
+// x > coastX(z), and nothing wet (waves washing up the sand, foam, wet-sand
+// sheen) ever reaches left of dryX(z).
 //
 // The shore is a ⊂-shaped arc, sea on its right only: it comes in through the
 // right screen edge at the bottom, bends left to its deepest point at
