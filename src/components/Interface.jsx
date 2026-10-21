@@ -277,7 +277,7 @@ export const Interface = ({ revealed }) => {
           </div>
         </section>
         {/* CONTACT */}
-        <section className="section section--left mobile--section--bottom">
+        <section className="section section--left section--contact mobile--section--bottom">
           <h2 className="sr-only">Contact</h2>
           <motion.div
             className="contact"

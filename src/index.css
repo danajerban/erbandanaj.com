@@ -371,6 +371,23 @@ a {
   min-width: 280px;
 }
 
+/* Landscape desktops: the card sits on the open lawn at the lower right,
+   clear of the bench and the balloon strings, its right edge under the menu
+   pill's (the pill ends 4.1rem from the window's right; the sections column
+   is at most 1200px wide and centred). Portrait (iPad) keeps it on the left;
+   phones (the RESPONSIVE block) at the bottom. */
+@media (orientation: landscape) {
+  .section--contact {
+    justify-content: flex-end;
+    align-items: flex-end;
+    padding-bottom: 13vh;
+  }
+
+  .section--contact .contact {
+    margin: 0 calc(4.1rem - max(0px, 50vw - 600px)) 0 0;
+  }
+}
+
 .contact__name {
   color: var(--text-color);
   font-weight: bold;
@@ -782,8 +799,9 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     border-radius: 6px;
   }
 
-  .contact {
+  .section--contact .contact {
     width: 100%;
+    margin: 1rem;
   }
 
   .menu {
