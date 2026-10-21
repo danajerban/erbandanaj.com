@@ -26,6 +26,8 @@ const BACKGROUND_SECTIONS = [
 
 // Low clouds by the sun: a lazy chunk mounted after the first visible frame
 const Clouds = lazy(() => import("./Clouds"));
+// A sailboat far out on the sea: a lazy chunk mounted after the first visible frame
+const Sailboat = lazy(() => import("./Sailboat"));
 // The time of day (sky, light, stars): after the first visible frame, or
 // inside the splash gate when the URL lands on a section
 const TimeOfDay = lazy(() => import("./TimeOfDay"));
@@ -325,6 +327,7 @@ export const Experience = ({ revealed }) => {
         <SilentErrorBoundary>
           <Suspense fallback={null}>
             <Clouds sun={SUN_SCREEN[isMobile ? "mobile" : "desktop"]} scale={SUN_SCALE[isMobile ? "mobile" : "desktop"]} />
+            <Sailboat sun={SUN_SCREEN[isMobile ? "mobile" : "desktop"]} />
           </Suspense>
         </SilentErrorBoundary>
       )}
