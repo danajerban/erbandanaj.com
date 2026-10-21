@@ -10,7 +10,7 @@ import { moonAt, timeOfDay } from "../lib/timeOfDay";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { NightSky } from "./NightSky";
 
-// One value per section rest: Home (today's values), Skills, Projects, Contact
+// One value per section rest: Home, Skills, Projects, Contact
 const KEYS = {
   fog: [HOME_FOG, "#f0b39a", "#9890b9", "#283260"],
   hemiSky: ["#f6cbb6", "#eab3ae", "#c8c0dc", "#8d9dd0"],

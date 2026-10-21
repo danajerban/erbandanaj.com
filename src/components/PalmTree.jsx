@@ -31,7 +31,7 @@ const UP = new THREE.Vector3(0, 1, 0);
 // Tapered, gently S-curved trunk from stacked rings with alternating bark
 // bands; the sun-facing side (`lit`, tree-local) of each band is warmed
 // toward orange. The top leans toward local -x; `bend` scales the lean and
-// the S-curve (1 = the original single palm). Past 1 the foot's counter-
+// the S-curve (1 is the reference lean). Past 1 the foot's counter-
 // curve fades out, so a strongly leaning trunk sweeps out in one curve and
 // palms leaning apart from one clump fan out without crossing. Returns the
 // crown center (trunk top).

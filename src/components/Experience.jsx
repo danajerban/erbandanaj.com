@@ -105,8 +105,8 @@ const SUN_VERTEX = /* glsl */ `
 // (0 up, 1 set) sinks the centre c to 0.06 sun units under the horizon and
 // clips the halo, glow and body at the horizon line ("above"), leaving a dome
 // of afterglow over the band; uFade dims all of it (0 hides the mesh). At
-// uSet 0, uFade 1 every term is exact (p + 0, mix(1, x, 0) = 1, × 1), so
-// Home draws the same pixels as before.
+// uSet 0, uFade 1 every term drops out exactly (p + 0, mix(1, x, 0) = 1,
+// × 1), so the shader reduces to the unset sun.
 const SUN_FRAGMENT = /* glsl */ `
   uniform float uTime;
   // How far the horizon lies below the sun's center, in sun units
