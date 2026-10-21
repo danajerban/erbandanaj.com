@@ -13,8 +13,8 @@ import { createRandom } from "../lib/lowPoly";
 // the cooler in its shade, which is cast away from the sun. Low-poly and flat, their light baked into the vertex colors (a
 // key from the sunset behind and to the right, a faint fill from the camera
 // side). Two draw calls: the flat things (towel, baked shadows) that lie on
-// the sand, then the solid props. On phones also a sandcastle and a
-// surfboard (TOYS), in the same two draw calls. A lazy chunk mounted
+// the sand, then the solid props. On phones also a sandcastle, a surfboard
+// and footprints (TOYS), in the same two draw calls. A lazy chunk mounted
 // after the first visible frame, compiled while hidden, then faded in, like
 // BeachDecor.
 //
@@ -85,22 +85,33 @@ const SHADE_ELEVATION = THREE.MathUtils.degToRad(75);
 const LEAN = THREE.MathUtils.degToRad(20);
 const TURN = THREE.MathUtils.degToRad(40);
 // Phones only, where the beach is emptier round the avatar: a little
-// sandcastle with a terracotta flag beside him and a surfboard standing in
-// the sand. By layout (portrait or landscape), each where it touches the
-// sand as a screen fraction [x from the left, y from the top], with its size
-// (Home units: the castle's keep, the board's length) and the board's turn
-// from facing the camera. All clear of the avatar, the title, the palms, the
-// props round the laptop, the grass and ShoreLife's shells, crabs and turtle.
+// sandcastle with a terracotta flag beside him, a surfboard standing in the
+// sand and a trail of footprints from the water up to his feet. By layout
+// (portrait or landscape), each where it touches the sand as a screen
+// fraction [x from the left, y from the top]; the castle and the board with
+// their size (Home units: the castle's keep, the board's length) and the
+// board's turn from facing the camera; the trail through three spots, from
+// the dry line (lib/coast dryX) to just in front of the avatar's feet,
+// passing under the umbrella's canopy on phones held upright. All clear of
+// the avatar, the title, the palms, the props round the laptop, the grass
+// and ShoreLife's shells, crabs and turtle.
 const TOYS = {
   portrait: {
     castle: [[0.375, 0.583], 0.12],
     board: [[0.36, 0.535], 0.55, -0.5],
+    trail: [[0.6, 0.79], [0.585, 0.665], [0.525, 0.574]],
   },
   landscape: {
     castle: [[0.57, 0.625], 0.2],
     board: [[0.24, 0.585], 0.75, 0.5],
+    trail: [[0.705, 0.73], [0.55, 0.7], [0.512, 0.574]],
   },
 };
+// A footprint, length and width (Home units); a step's length along the
+// trail and how far each foot falls off its middle
+const FOOTPRINT = [0.15, 0.065];
+const STRIDE = 0.3;
+const GAIT = 0.055;
 // The camera's tilt down toward (0, 1, 0) and half its vertical field
 // (SceneCanvas: fov 42)
 const PITCH = Math.atan(0.1);
@@ -131,12 +142,13 @@ const CORAL = hex("#ef6a55");
 const CREAM = hex("#f7e8cc");
 const POLE = hex("#efe4d4");
 // Damp packed sand for the castle, a terracotta flag on a driftwood stick;
-// the board cream with coral and teal stripes
+// the board cream with coral and teal stripes; the prints a darker sand
 const CASTLE = hex("#e6aa72");
 const CASTLE_TOP = hex("#f2c08c");
 const FLAG = hex("#c4573a");
 const STICK = hex("#8a6448");
 const TEAL = hex("#3b8e96");
+const PRINT = hex("#b77a52");
 
 // Baked light: the sunset key behind and to the right (BeachDecor's
 // SUN_DIR), a faint fill from the camera side, the sky from above
@@ -290,15 +302,15 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
   };
   // A soft baked shadow on the ground, `y` up: a fan, `alpha` dark in its
   // middle and out to `core` of its rim, fading out at the rim. rim(t): the
-  // rim point at angle t, in Home space
-  const fan = (middle, rim, alpha, core, y) => {
+  // rim point at angle t, in Home space; `tone` its color, in `segments`
+  const fan = (middle, rim, alpha, core, y, tone = SHADOW, segments = 16) => {
     const ring = (t, k) => rim(t).lerp(middle, 1 - k).setY(y);
     const m = middle.clone().setY(y);
-    for (let s = 0; s < 16; s++) {
-      const [t0, t1] = [s, s + 1].map((i) => (i / 16) * Math.PI * 2);
+    for (let s = 0; s < segments; s++) {
+      const [t0, t1] = [s, s + 1].map((i) => (i / segments) * Math.PI * 2);
       const [i0, i1, o0, o1] = [ring(t0, core), ring(t1, core), ring(t0, 1), ring(t1, 1)];
       for (const [p, alpha0] of [[m, alpha], [i1, alpha], [i0, alpha], [i0, alpha], [i1, alpha], [o1, 0], [i0, alpha], [o1, 0], [o0, 0]]) {
-        flat.vertex(p, SHADOW, alpha0);
+        flat.vertex(p, tone, alpha0);
       }
     }
   };
@@ -476,7 +488,7 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
   }
   shadow(cooler, 0, 0, W * 0.72, D * 0.7, 0.45, 0.003);
 
-  // Phones: the sandcastle and the surfboard (TOYS). Last,
+  // Phones: the footprints, the sandcastle and the surfboard (TOYS). Last,
   // so everything above keeps its seeded looks.
   const toys = isMobile && TOYS[layout];
   if (toys) {
@@ -487,6 +499,40 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
       return CAMERA.clone().addScaledVector(ray, -CAMERA.y / ray.y).setY(0);
     };
     const facing = (p) => Math.atan2(CAMERA.x - p.x, CAMERA.z - p.z);
+
+    // Footprints: a walk along a smooth curve through the trail's spots,
+    // from the dry line to the avatar's feet, left and right in turn, the
+    // toes toward him; the older ones nearer the water fainter
+    const [from, via, to] = toys.trail.map(onSand);
+    from.setX(Math.min(from.x, dryX(from.z, isMobile, aspect) - FOOTPRINT[0] / 2));
+    const along = (t) =>
+      from
+        .clone()
+        .multiplyScalar((1 - t) ** 2)
+        .addScaledVector(via, 2 * t * (1 - t))
+        .addScaledVector(to, t * t);
+    const path = Array.from({ length: 65 }, (_, k) => along(k / 64));
+    const lengths = path.map((p, k) => (k ? p.distanceTo(path[k - 1]) : 0));
+    for (let k = 1; k < lengths.length; k++) lengths[k] += lengths[k - 1];
+    const total = lengths.at(-1);
+    for (let step = 0; step * STRIDE < total - FOOTPRINT[0]; step++) {
+      const d = total - FOOTPRINT[0] / 2 - step * STRIDE;
+      const k = Math.max(1, lengths.findIndex((l) => l >= d));
+      const middle = path[k - 1].clone().lerp(path[k], (d - lengths[k - 1]) / (lengths[k] - lengths[k - 1]));
+      const ahead = path[k].clone().sub(path[k - 1]).normalize();
+      const side = new THREE.Vector3(-ahead.z, 0, ahead.x);
+      middle.addScaledVector(side, step % 2 ? GAIT : -GAIT);
+      // A sole, wider at the toes, turned out a little
+      ahead.applyAxisAngle(UP, (step % 2 ? -1 : 1) * 0.12);
+      side.set(-ahead.z, 0, ahead.x);
+      const [length, width] = FOOTPRINT;
+      const rim = (t) =>
+        middle
+          .clone()
+          .addScaledVector(ahead, (Math.cos(t) * length) / 2)
+          .addScaledVector(side, (Math.sin(t) * width * (1 + 0.3 * Math.cos(t))) / 2);
+      fan(middle, rim, 0.5 - 0.15 * (step * STRIDE) / total, 0.55, 0.004, PRINT, 10);
+    }
 
     // Sandcastle: a keep on a mound, a tower each side joined by a front
     // wall with a gate, battlements round the keep's top and a terracotta
