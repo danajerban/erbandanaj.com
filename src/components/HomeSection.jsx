@@ -239,48 +239,21 @@ export const HomeSection = ({ revealed }) => {
         <MacBookPro position={LAPTOP_BASE} />
       </group>
       <PalmTree palms={palms} />
-      {revealed && (
-        <SilentErrorBoundary>
-          <Suspense fallback={null}>
-            <BeachDecor palms={palms} dry={dry} laptop={laptop} />
-          </Suspense>
-        </SilentErrorBoundary>
-      )}
-      {revealed && (
-        <SilentErrorBoundary>
-          <Suspense fallback={null}>
-            <Sea />
-          </Suspense>
-        </SilentErrorBoundary>
-      )}
-      {revealed && (
-        <SilentErrorBoundary>
-          <Suspense fallback={null}>
-            <ShoreLife palms={palms} />
-          </Suspense>
-        </SilentErrorBoundary>
-      )}
-      {revealed && (
-        <SilentErrorBoundary>
-          <Suspense fallback={null}>
-            <Birds />
-          </Suspense>
-        </SilentErrorBoundary>
-      )}
-      {revealed && (
-        <SilentErrorBoundary>
-          <Suspense fallback={null}>
-            <Dolphin />
-          </Suspense>
-        </SilentErrorBoundary>
-      )}
-      {revealed && (
-        <SilentErrorBoundary>
-          <Suspense fallback={null}>
-            <BeachProps laptop={laptop} />
-          </Suspense>
-        </SilentErrorBoundary>
-      )}
+      {revealed &&
+        [
+          [BeachDecor, { palms, dry, laptop }],
+          [Sea, {}],
+          [ShoreLife, { palms }],
+          [Birds, {}],
+          [Dolphin, {}],
+          [BeachProps, { laptop }],
+        ].map(([Part, props], i) => (
+          <SilentErrorBoundary key={i}>
+            <Suspense fallback={null}>
+              <Part {...props} />
+            </Suspense>
+          </SilentErrorBoundary>
+        ))}
       <group position={title.position} rotation={title.rotation} scale={title.scale}>
         <Float floatIntensity={1} speed={prefersReducedMotion ? 0 : 1}>
           <Center cacheKey={isMobile} onCentered={onTitleCentered}>
