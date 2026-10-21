@@ -13,9 +13,9 @@ glassmorphism UI layered on top of the WebGL canvas.
 - **Animated Ready Player Me avatar** with idle and walking states.
 - **Mobile-tuned performance** — reduced `dpr`, geometry, and shadow resolution,
   plus full `prefers-reduced-motion` support.
-- **Self-hosted assets** — fonts, HDRI lighting, and Draco decoder;
-  Draco-compressed models and WebP textures for fast loads. The only
-  third-party request is the Cloudflare Web Analytics beacon.
+- **Self-hosted assets** — fonts and HDRI lighting; meshopt-compressed
+  models and WebP textures for fast loads. The only third-party request is
+  the Cloudflare Web Analytics beacon.
 
 Built with **React 19** · **Vite** (JSX — no TypeScript) · **Three.js** via
 `@react-three/fiber` + `@react-three/drei` · **Motion** · **Jotai** ·
