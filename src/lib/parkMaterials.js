@@ -22,8 +22,8 @@ export const parkUniforms = { uTime: { value: 0 }, uLamps: { value: 0 } };
 
 // Debug counters the parts bump in DEV (ContactSection exposes them as
 // window.__park.stats): the cat's blinks and the story window's switches
-// (ParkHouses), the pigeon's mail runs and the flag lifts it makes (ParkProps)
-export const parkStats = { blinks: 0, storyToggles: 0, mailRuns: 0, flagUps: 0 };
+// (ParkHouses)
+export const parkStats = { blinks: 0, storyToggles: 0 };
 
 // Houses, café, cat, lamps, trees, beds, railing, pond solids, ducks and the
 // balloon strings: one program. Vertex colours (linear, through THREE.Color)

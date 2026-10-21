@@ -56,7 +56,6 @@ export const ContactSection = () => {
       <ParkGarden {...parts} />
       <ParkProps
         {...parts}
-        aspect={aspect}
         scaleFactor={scaleFactor}
         isMobile={isMobile}
         prefersReducedMotion={prefersReducedMotion}

@@ -38,13 +38,6 @@ const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false
 // - groundGrid [cols, rows], fireflies, crownLumps, bedFlowersMax: the
 //   phone values are MOBILE_PERF degradations (tagged where they are read).
 // - balloonString: the balloon strings' length scale.
-// - pigeon: rest point (x × scaleFactor when scaleX: today's desktop rule,
-//   but at most maxX[0] · aspect + maxX[1], so on a screen wider in pixels
-//   or squarer than 1800 × 987 the bird keeps clear of the moon's 2r), its
-//   loop {rx, rz, dx} (centre = rest + (dx, 0, 0), so it circles left of its
-//   rest, away from the moon); hoverMaxX caps the mail run's hover x the same
-//   way, so on a near-square window (aspect below 1.2) it stops on the
-//   mailbox's left, clear of the moon.
 export const PARK = {
   desktop: {
     row: { x: -3.7, z: -11, scale: 0.9 },
@@ -66,7 +59,6 @@ export const PARK = {
     crownLumps: 3,
     bedFlowersMax: 40,
     balloonString: 1,
-    pigeon: { rest: [2, 1.5, -0.5], scaleX: true, maxX: [1.62, -1.05], hoverMaxX: [1.4, -0.7], rx: 0.8, rz: 0.45, dx: -0.48 },
     detail: DETAIL_FULL,
   },
   tall: {
@@ -89,8 +81,6 @@ export const PARK = {
     crownLumps: 3,
     bedFlowersMax: 40,
     balloonString: 1,
-    // Moved back from today's desktop rule: there it sat on the moon
-    pigeon: { rest: [1.3, 1.5, -2.5], scaleX: false, rx: 0.5, rz: 0.3, dx: -0.3 },
     detail: DETAIL_FULL,
   },
   portrait: {
@@ -113,7 +103,6 @@ export const PARK = {
     crownLumps: 2,
     bedFlowersMax: 22,
     balloonString: 0.9,
-    pigeon: { rest: [0, 2.5, -0.5], scaleX: false, rx: 0.4, rz: 0.25, dx: -0.7 },
     detail: DETAIL_PHONE,
   },
   landscape: {
@@ -136,7 +125,6 @@ export const PARK = {
     crownLumps: 2,
     bedFlowersMax: 22,
     balloonString: 0.9,
-    pigeon: { rest: [0, 2.2, -0.5], scaleX: false, rx: 0.6, rz: 0.3, dx: -0.3 },
     detail: DETAIL_PHONE,
   },
 };
@@ -303,20 +291,3 @@ export const cafeLights = (park) => {
 // The gravel path through its points at y 0 (centripetal Catmull-Rom); the
 // ground and the overlap check sample the same curve
 export const pathCurve = (park) => new CatmullRomCurve3(park.path.map(([x, z]) => new Vector3(x, 0, z)));
-
-// The pigeon's flight (ParkProps), all [x, y, z]: its rest point, the centre
-// and radii of its loop, and the mail run — from the loop's front point
-// (start) along a quadratic Bézier dipping 0.5 below the straight line
-// (control) to its hover beside the mailbox flag (hover), and back.
-export const PIGEON_HOVER = [1.0, 1.15, 0.35];
-export const pigeonPath = (park, scaleFactor, aspect) => {
-  const { rest: r, scaleX, maxX, hoverMaxX, rx, rz, dx } = park.pigeon;
-  const x = scaleX ? r[0] * scaleFactor : r[0];
-  const rest = [maxX ? Math.min(x, maxX[0] * aspect + maxX[1]) : x, r[1], r[2]];
-  const centre = [rest[0] + dx, rest[1], rest[2]];
-  const start = [centre[0], centre[1], centre[2] + rz];
-  const [hx, hy, hz] = PIGEON_HOVER;
-  const hover = [hoverMaxX ? Math.min(hx, hoverMaxX[0] * aspect + hoverMaxX[1]) : hx, hy, hz];
-  const control = [(start[0] + hover[0]) / 2, (start[1] + hover[1]) / 2 - 0.5, (start[2] + hover[2]) / 2];
-  return { rest, centre, rx, rz, start, control, hover };
-};

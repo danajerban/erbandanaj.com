@@ -38,7 +38,7 @@ const FLAG = "group62313567";
 const FLAG_PIVOT = [0.695, 4.205, -0.45];
 const FLAG_PIVOT_NEGATED = FLAG_PIVOT.map((v) => -v);
 // Down along the box at rest, up (the GLB's pose) when the visitor points at
-// the mailbox or the pigeon brings mail
+// the mailbox
 const FLAG_DOWN = THREE.MathUtils.degToRad(-80);
 const FLAG_UP = 0;
 
@@ -74,8 +74,7 @@ const mergeGeometries = (geometries) => {
   return merged;
 };
 
-// flagUp: a ref the pigeon's mail run raises (ParkProps)
-export function Mailbox({ flagUp, ...props }) {
+export function Mailbox(props) {
   const { nodes, materials } = useGLTF("/models/Mailbox v2.glb");
   const { prefersReducedMotion } = useMobile();
   const [mailboxHovered, setMailboxHovered] = useState(false);
@@ -102,7 +101,7 @@ export function Mailbox({ flagUp, ...props }) {
 
   useFrame((_, delta) => {
     const { rotation } = flag.current;
-    const flagTarget = mailboxHoveredRef.current || flagUp?.current ? FLAG_UP : FLAG_DOWN;
+    const flagTarget = mailboxHoveredRef.current ? FLAG_UP : FLAG_DOWN;
     if (rotation.z !== flagTarget) {
       // Reduced motion: it snaps (a response to the visitor, so it stays)
       rotation.z =

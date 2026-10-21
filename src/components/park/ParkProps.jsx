@@ -1,18 +1,16 @@
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { pigeonPath } from "../../lib/parkLayout";
-import { PARK_LAYER, parkSolidMaterial, parkStats } from "../../lib/parkMaterials";
+import { PARK_LAYER, parkSolidMaterial } from "../../lib/parkMaterials";
 import { timeOfDay } from "../../lib/timeOfDay";
 import { Balloon } from "../Balloon";
 import { Mailbox } from "../Mailbox";
 import { ParkBench } from "../ParkBench";
-import { Pigeon } from "../Pigeon";
 
 // The park's existing props, livelier: the bench with the balloons tied to
-// it, the mailbox whose flag the pigeon raises, and the pigeon circling the
-// park, bringing mail every third loop. Contact-local, like the other park
-// parts. The GLB props stay on layer 0 (contact shadows, pointer events).
+// it, and the mailbox whose flag lifts when the visitor points at it.
+// Contact-local, like the other park parts. The GLB props stay on layer 0
+// (contact shadows, pointer events).
 
 // The bench (ParkBench, unchanged) inside its group at x −2·scaleFactor
 const BENCH = { x: -0.5, z: -2.5, yaw: -Math.PI / 4, scale: 0.5 };
@@ -43,21 +41,6 @@ const SPRING_DAMPING = 2.2;
 // At night a balloon glows a little in its own colour
 const BALLOON_GLOW = 0.22;
 
-// The pigeon (Pigeon.glb at this scale, its body 0.56 above its pivot)
-const PIGEON_SCALE = 0.25;
-const LOOP_PERIOD = 12;
-const RUN_EVERY = 3; // loops
-const DASH = 2.2; // s, to the mailbox and back
-const HOVER = 1.6; // s
-const FLAG_HOLD = 4; // s
-const BOB = 0.1;
-// Roll into the turn at the loop's tightest point (the model faces +z, so a
-// positive roll dips its right wing, toward the loop's inside)
-const BANK = 0.25;
-const TURN_LAMBDA = 6;
-const FRONT = Math.PI / 2; // the loop's front point: the mail run leaves and rejoins there
-const TAU = 2 * Math.PI;
-
 const UP = new THREE.Vector3(0, 1, 0);
 const scratch = new THREE.Vector3();
 const camera = new THREE.Vector3();
@@ -71,24 +54,6 @@ const bow = new THREE.Vector3();
 // and a quad's two triangles over them
 const edges = new Float32Array(12);
 const QUAD = [0, 1, 3, 0, 3, 2];
-
-const smooth = (x) => THREE.MathUtils.smoothstep(x, 0, 1);
-// Quadratic Bézier (and its derivative) through a, b, c at u, into out
-const bezier = (out, a, b, c, u) => out.set(
-  (1 - u) ** 2 * a[0] + 2 * u * (1 - u) * b[0] + u * u * c[0],
-  (1 - u) ** 2 * a[1] + 2 * u * (1 - u) * b[1] + u * u * c[1],
-  (1 - u) ** 2 * a[2] + 2 * u * (1 - u) * b[2] + u * u * c[2],
-);
-const bezierTangent = (out, a, b, c, u) => out.set(
-  2 * (1 - u) * (b[0] - a[0]) + 2 * u * (c[0] - b[0]),
-  2 * (1 - u) * (b[1] - a[1]) + 2 * u * (c[1] - b[1]),
-  2 * (1 - u) * (b[2] - a[2]) + 2 * u * (c[2] - b[2]),
-);
-// Damps an angle the short way round
-const dampAngle = (from, to, lambda, delta) => {
-  const diff = Math.atan2(Math.sin(to - from), Math.cos(to - from));
-  return from + diff * (1 - Math.exp(-lambda * delta));
-};
 
 // One ribbon mesh for the three strings: STRING_SEGMENTS quads each, rewritten
 // every frame (no reallocation); colour fixed, no sway, no glow
@@ -111,26 +76,13 @@ const createStrings = () => {
   return mesh;
 };
 
-export default function ParkProps({ park, aspect, scaleFactor, prefersReducedMotion }) {
+export default function ParkProps({ park, scaleFactor, prefersReducedMotion }) {
   const root = useRef();
   const balloons = useRef([]);
   const balloonMaterials = useRef([]);
-  const pigeon = useRef();
-  const flagUp = useRef(false);
   const clock = useRef(0);
   // Each balloon's spring: its angle and angular velocity
   const springs = useRef(BALLOONS.map(() => ({ angle: 0, velocity: 0 })));
-  // The pigeon's flight: phase (loop, out, hover, back), time in it, the
-  // loop's angle, front points passed, when the flag drops, its heading/roll
-  const flight = useRef({ phase: "loop", time: 0, theta: 0, passes: 0, flagUntil: 0, yaw: 0, roll: 0 });
-  const [clip, setClip] = useState("Flying_Idle");
-  const clipRef = useRef("Flying_Idle");
-  const playClip = (name) => {
-    if (clipRef.current === name) return;
-    clipRef.current = name;
-    setClip(name);
-  };
-
   // The tie point, Contact-local: through the bench's transform
   const tie = useMemo(() => {
     const matrix = new THREE.Matrix4().compose(
@@ -140,7 +92,6 @@ export default function ParkProps({ park, aspect, scaleFactor, prefersReducedMot
     );
     return BENCH_TIE_RAW.clone().applyMatrix4(matrix);
   }, [scaleFactor]);
-  const path = useMemo(() => pigeonPath(park, scaleFactor, aspect), [park, scaleFactor, aspect]);
   const strings = useMemo(createStrings, []);
   useEffect(() => () => strings.geometry.dispose(), [strings]);
 
@@ -204,80 +155,6 @@ export default function ParkProps({ park, aspect, scaleFactor, prefersReducedMot
       }
     });
     positions.needsUpdate = true;
-
-    // The pigeon
-    const f = flight.current;
-    const g = pigeon.current;
-    if (prefersReducedMotion) {
-      // Still at its rest point, its wings held (Pigeon still)
-      if (f.phase !== "loop" || flagUp.current) {
-        f.phase = "loop";
-        flagUp.current = false;
-      }
-      playClip("Flying_Idle");
-      g.position.set(...path.rest);
-      g.rotation.set(0, 0, 0);
-      return;
-    }
-    const { centre, rx, rz, start, control, hover } = path;
-    f.time += dt;
-    let roll = 0;
-    let yaw = f.yaw;
-    if (f.phase === "loop") {
-      const before = Math.floor((f.theta - FRONT) / TAU);
-      f.theta += (dt * TAU) / LOOP_PERIOD;
-      if (Math.floor((f.theta - FRONT) / TAU) > before && ++f.passes % RUN_EVERY === 0) {
-        f.phase = "out";
-        f.time = 0;
-        if (import.meta.env.DEV) parkStats.mailRuns++;
-        playClip("Fast_Flying");
-      }
-      const s = Math.sin(f.theta);
-      const c = Math.cos(f.theta);
-      g.position.set(centre[0] + rx * c, centre[1], centre[2] + rz * s);
-      tangent.set(-rx * s, 0, rz * c);
-      yaw = Math.atan2(tangent.x, tangent.z);
-      // Curvature, relative to the loop's tightest point
-      const curvature = (rx * rz) / (rx * rx * s * s + rz * rz * c * c) ** 1.5;
-      roll = (BANK * curvature) / Math.max(rx / (rz * rz), rz / (rx * rx));
-    } else if (f.phase === "hover") {
-      g.position.set(...hover);
-      yaw = 0; // faces the visitor
-      if (f.time >= HOVER) {
-        f.phase = "back";
-        f.time = 0;
-        playClip("Fast_Flying");
-      }
-    } else {
-      const out = f.phase === "out";
-      const u = smooth(Math.min(f.time / DASH, 1));
-      const along = out ? u : 1 - u;
-      bezier(g.position, start, control, hover, along);
-      bezierTangent(tangent, start, control, hover, along);
-      if (!out) tangent.negate();
-      yaw = Math.atan2(tangent.x, tangent.z);
-      if (f.time >= DASH) {
-        f.time = 0;
-        if (out) {
-          f.phase = "hover";
-          g.position.set(...hover);
-          flagUp.current = true;
-          f.flagUntil = t + FLAG_HOLD;
-          if (import.meta.env.DEV) parkStats.flagUps++;
-          playClip("Yes");
-        } else {
-          // Rejoins the loop at its front point
-          f.phase = "loop";
-          f.theta = FRONT + TAU * Math.floor((f.theta - FRONT) / TAU + 0.5);
-          playClip("Flying_Idle");
-        }
-      }
-    }
-    if (flagUp.current && t >= f.flagUntil) flagUp.current = false;
-    f.yaw = dampAngle(f.yaw, yaw, TURN_LAMBDA, dt);
-    f.roll = THREE.MathUtils.damp(f.roll, roll, TURN_LAMBDA, dt);
-    g.position.y += BOB * Math.sin(TAU * t);
-    g.rotation.set(0, f.yaw, f.roll, "YXZ");
   });
 
   return (
@@ -305,16 +182,12 @@ export default function ParkProps({ park, aspect, scaleFactor, prefersReducedMot
       ))}
       <primitive object={strings} position={tie} />
       <Mailbox
-        flagUp={flagUp}
         scale={0.25}
         rotation-y={1.25 * Math.PI}
         position-x={1}
         position-y={0.25}
         position-z={0.5}
       />
-      <group ref={pigeon} position={path.rest}>
-        <Pigeon scale={PIGEON_SCALE} clip={clip} still={prefersReducedMotion} />
-      </group>
     </group>
   );
 }
