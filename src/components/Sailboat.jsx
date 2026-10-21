@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
-import { TriangleSink } from "../lib/lowPoly";
+import { TriangleSink, glslSrgb } from "../lib/lowPoly";
 
 // A small low-poly sloop far out on the sunset sea on Home: a terracotta
 // hull with a teak deck and a cream cabin, a mainsail and a jib, a coral
@@ -100,11 +100,7 @@ const REFLECT_ALPHA = 0.75;
 const REFLECT_FADE = 0.35;
 const REFLECT_RIPPLE = 70;
 
-// sRGB hex as a GLSL vec3, and as a THREE.Color holding the same values
-const glsl = (hex) => {
-  const n = parseInt(hex.slice(1), 16);
-  return `vec3(${[16, 8, 0].map((s) => (((n >> s) & 255) / 255).toFixed(3)).join(", ")})`;
-};
+// sRGB hex as a THREE.Color holding the same values as glslSrgb writes
 const srgb = (hex) => new THREE.Color().setHex(parseInt(hex.slice(1), 16), THREE.LinearSRGBColorSpace);
 
 const VERTEX = /* glsl */ `
@@ -140,7 +136,7 @@ const FRAGMENT = /* glsl */ `
       float d = side / uScale;
       alpha *= ${REFLECT_ALPHA.toFixed(2)} * exp(-d / ${REFLECT_FADE.toFixed(2)}) * (0.6 + 0.4 * sin(d * ${REFLECT_RIPPLE.toFixed(1)}));
     }
-    gl_FragColor = vec4(mix(vColor, ${glsl(HAZE)}, uLeave * 0.8), alpha);
+    gl_FragColor = vec4(mix(vColor, ${glslSrgb(HAZE)}, uLeave * 0.8), alpha);
   }
 `;
 

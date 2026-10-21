@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
-import { createRandom } from "../lib/lowPoly";
+import { createRandom, glslLinear, glslSrgb } from "../lib/lowPoly";
 
 // A few dolphins far out at sea on Home, the island's one rare, cinematic
 // moment: now and then two or three leap near the horizon, each time in a new
@@ -231,16 +231,6 @@ const RING_WIDTH = 0.016;
 // hide it
 const RING_PULL = 0.8;
 
-const glsl = (hex) => {
-  const n = parseInt(hex.slice(1), 16);
-  return `vec3(${[16, 8, 0].map((s) => (((n >> s) & 255) / 255).toFixed(3)).join(", ")})`;
-};
-// As Birds builds its colours: THREE.Color reads the hex as sRGB and holds it
-// linear, which written straight to the canvas renders darker than the hex
-const linear = (hex) => {
-  const c = new THREE.Color(hex);
-  return `vec3(${[c.r, c.g, c.b].map((v) => v.toFixed(3)).join(", ")})`;
-};
 const f = (x) => x.toFixed(4);
 const lerp = ([a, b], t) => a + (b - a) * t;
 
@@ -293,7 +283,7 @@ const VERTEX = /* glsl */ `
     // In the leap's plane, body lengths: x along the leap, y up from the water
     vec2 p;
     float height = 1.0;
-    vec3 color = ${glsl(SPRAY_COLOR)};
+    vec3 color = ${glslSrgb(SPRAY_COLOR)};
     float alpha = 1.0;
     float splash = aSpray.y;
     vec2 from = vec2((splash * 2.0 - 1.0) * uArc * sin(uExit), 0.0);
@@ -310,7 +300,7 @@ const VERTEX = /* glsl */ `
       dir = vec2(dir.x * cos(bend) + dir.y * sin(bend), dir.y * cos(bend) - dir.x * sin(bend));
       p += vec2(-dir.y, dir.x) * position.y;
       height = p.y;
-      color = mix(${linear(INK)}, ${linear(HAZE)}, uHaze[who]);
+      color = mix(${glslLinear(INK)}, ${glslLinear(HAZE)}, uHaze[who]);
     } else if (aSpray.x < 1.5) {
       // Droplet: thrown up after its delay, falling back into the water;
       // collapsed to a point before and after its life

@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
+import { glslLinear } from "../lib/lowPoly";
 
 // A few gulls over the sea on Home, drawn like the birds in the owner's logo:
 // flat brushstroke silhouettes, a deep V at the body between an arched wing
@@ -85,17 +86,12 @@ const halfWidth = (t) => 0.028 * Math.pow(1 - t * t, 0.8) + 0.002;
 // How far the joint's miter may reach: the V comes to a point below the body
 const MAX_MITER = 2.5;
 
-// Picked as sRGB, but THREE.Color (glsl) turns them linear and the shader
+// Picked as sRGB, but THREE.Color (glslLinear) turns them linear and the shader
 // writes that straight to the canvas, so the gulls render much darker than
 // written, the approved look: the near desktop gull ≈ #18070b (the sun and
 // the sea write their sRGB as is)
 const INK = "#4a2433";
 const HAZE = "#c7868a";
-
-const glsl = (hex) => {
-  const c = new THREE.Color(hex);
-  return `vec3(${[c.r, c.g, c.b].map((v) => v.toFixed(3)).join(", ")})`;
-};
 
 const VERTEX = /* glsl */ `
   uniform float uTime;
@@ -165,7 +161,7 @@ const FRAGMENT = /* glsl */ `
   uniform float uOpacity;
   varying float vHaze;
   void main() {
-    gl_FragColor = vec4(mix(${glsl(INK)}, ${glsl(HAZE)}, vHaze), uOpacity);
+    gl_FragColor = vec4(mix(${glslLinear(INK)}, ${glslLinear(HAZE)}, vHaze), uOpacity);
   }
 `;
 

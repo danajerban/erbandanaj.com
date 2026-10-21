@@ -10,6 +10,19 @@ export const createRandom = (seed) => () => {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 };
 
+// A hex colour as a GLSL vec3 literal for a shader that writes straight to the
+// canvas. glslSrgb keeps the hex's sRGB values, so it renders as written;
+// glslLinear goes through THREE.Color, which reads the hex as sRGB and holds
+// it linear, so it renders darker than the hex.
+export const glslSrgb = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return `vec3(${[16, 8, 0].map((s) => (((n >> s) & 255) / 255).toFixed(3)).join(", ")})`;
+};
+export const glslLinear = (hex) => {
+  const c = new THREE.Color(hex);
+  return `vec3(${[c.r, c.g, c.b].map((v) => v.toFixed(3)).join(", ")})`;
+};
+
 // Non-indexed triangle sink: flat shading takes its normals from screen-space
 // derivatives, so no shared normals are needed, and unshared vertices keep
 // every bark band and leaflet color crisp. `sway` adds a vec2 (weight, phase)

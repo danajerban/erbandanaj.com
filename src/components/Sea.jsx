@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { ANIMATION_CONSTANTS, getSectionsDistance } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { SWASH, coastX } from "../lib/coast";
-import { createRandom } from "../lib/lowPoly";
+import { createRandom, glslSrgb } from "../lib/lowPoly";
 import { SUN_SCREEN } from "../lib/sky";
 
 // The sea on Home: from the island's shore (lib/coast) to the right edge of
@@ -73,10 +73,6 @@ const WAVE_RISE = 0.3;
 const BACKWASH = 0.004;
 const BREAK_LINE = 0.035;
 
-const glsl = (hex) => {
-  const n = parseInt(hex.slice(1), 16);
-  return `vec3(${[16, 8, 0].map((s) => (((n >> s) & 255) / 255).toFixed(3)).join(", ")})`;
-};
 const f = (x) => x.toFixed(4);
 
 // sRGB, written straight to the canvas like the sun and the CSS sky
@@ -187,7 +183,7 @@ const FRAGMENT = /* glsl */ `
     float aerial = exp(-below / 0.14);
     float calm = 1.0 - aerial;
     float dx = (ndc.x - uSunNdc.x) * uAspect;
-    vec3 skyLine = mix(${glsl(SKY_LINE)}, ${glsl(SUN_LINE)}, exp(-pow(dx / uGlowWidth, 2.0)));
+    vec3 skyLine = mix(${glslSrgb(SKY_LINE)}, ${glslSrgb(SUN_LINE)}, exp(-pow(dx / uGlowWidth, 2.0)));
 
     // e: screen fraction from the shore line, positive over the sea
     float e = vLocal.x / unit + 0.5 - coastAt(D);
@@ -238,7 +234,7 @@ const FRAGMENT = /* glsl */ `
 
     // Body: deep indigo underfoot to mauve further out, lagoon teal in the
     // shallows; grazing facets mirror the rose sky
-    vec3 body = mix(${glsl(DEEP)}, ${glsl(MID)}, smoothstep(3.0, 30.0, D));
+    vec3 body = mix(${glslSrgb(DEEP)}, ${glslSrgb(MID)}, smoothstep(3.0, 30.0, D));
     float shallow = 1.0 - smoothstep(0.0, clamp(0.9 / unit, 0.02, 0.09), e);
     // The next wave rolls in, lifting and turning translucent as it nears the
     // water's edge, then breaks into the swash
@@ -246,8 +242,8 @@ const FRAGMENT = /* glsl */ `
     float crest = ${f(BACKWASH)} + ${f(BREAK_LINE - BACKWASH)} * (1.0 - incoming);
     float nearing = smoothstep(0.45, 0.85, tau) * (1.0 - smoothstep(0.85, 1.0, tau));
     shallow = clamp(shallow + 0.42 * nearing * aNext * exp(-pow((e - crest - 0.01) / 0.012, 2.0)), 0.0, 1.0);
-    body = mix(body, ${glsl(SHALLOW)}, shallow * 0.85);
-    vec3 color = mix(body, ${glsl(SKY)}, clamp(fresnel * 1.15, 0.0, 1.0));
+    body = mix(body, ${glslSrgb(SHALLOW)}, shallow * 0.85);
+    vec3 color = mix(body, ${glslSrgb(SKY)}, clamp(fresnel * 1.15, 0.0, 1.0));
     // Facets turned toward the sunset catch a little warmth
     color += vec3(0.1, 0.05, 0.03) * clamp(dot(N, uSunDir) * 3.0, -0.6, 1.0) * calm;
 
@@ -280,11 +276,11 @@ const FRAGMENT = /* glsl */ `
     float dash = step(0.45, pick) * shape * twinkle * (1.0 - smoothstep(60.0, 140.0, D));
     dash = pow(dash, 1.5);
     float glitter = column * (0.25 + 0.9 * spec + 1.1 * dash);
-    color = mix(color, ${glsl(SUN_PATH)}, clamp(glitter, 0.0, 0.9));
+    color = mix(color, ${glslSrgb(SUN_PATH)}, clamp(glitter, 0.0, 0.9));
     // Hottest at the water line right under the sun: the sun's own core,
     // never whiter
     float hot = exp(-pow(dx / 0.06, 2.0)) * exp(-below * 30.0);
-    color = mix(color, ${glsl(SUN_HOT)}, clamp(column * (0.5 * spec + 0.8 * dash) + 0.45 * hot, 0.0, 1.0));
+    color = mix(color, ${glslSrgb(SUN_HOT)}, clamp(column * (0.5 * spec + 0.8 * dash) + 0.45 * hot, 0.0, 1.0));
 
     // Foam: the swash front, bright as it runs up and thinning as it draws
     // back, lace left on the wet slope, and the next wave's breaker line,
@@ -297,10 +293,10 @@ const FRAGMENT = /* glsl */ `
       * exp(-w / (fw * 4.0)) * lace * 0.35;
     float breaker = exp(-pow((e - crest) / (fw * 0.65), 2.0)) * nearing * aNext * (0.6 + 0.4 * lace);
     float foam = clamp(front + sheet + breaker, 0.0, 1.0) * water * calm;
-    color = mix(color, ${glsl(FOAM)}, foam);
+    color = mix(color, ${glslSrgb(FOAM)}, foam);
 
     // Sand: wet and glossy where the swash has just been, dry beyond
-    vec3 sandColor = mix(${glsl(SAND)}, mix(${glsl(WET_SAND)}, ${glsl(WET_SHEEN)}, 0.3), wet);
+    vec3 sandColor = mix(${glslSrgb(SAND)}, mix(${glslSrgb(WET_SAND)}, ${glslSrgb(WET_SHEEN)}, 0.3), wet);
     color = mix(sandColor, color, water);
     float alpha = mix(max(rim * rim * 0.9, wet * 0.85) * calm, 1.0, water);
 
