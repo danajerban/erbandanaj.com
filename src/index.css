@@ -980,10 +980,10 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     font-size: 1rem;
   }
 
-  /* Phones: the mouse becomes a small glass pill, an up-chevron bouncing
-     gently beside "Swipe up", as high as the cards' bottom padding (clear
-     of Safari's floating toolbar); it fades out once the visitor scrolls,
-     like the mouse. Reduced motion stops the bounce (the global rule below
+  /* Phones: the mouse becomes a small glass pill, "Swipe up" with an
+     up-chevron bouncing gently on its right, as high as the cards' bottom
+     padding (clear of Safari's floating toolbar); it fades out once the
+     visitor scrolls, like the mouse. Reduced motion stops the bounce (the global rule below
      ends it at rest). */
   .scroll-down {
     width: auto;
@@ -1004,6 +1004,10 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   }
 
   .scroll-down::before {
+    content: "Swipe up";
+  }
+
+  .scroll-down::after {
     content: "";
     width: 0.5rem;
     height: 0.5rem;
@@ -1012,10 +1016,6 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     margin-top: 0.25rem;
     transform: rotate(45deg);
     animation: swipe-up 1.6s ease-in-out infinite;
-  }
-
-  .scroll-down::after {
-    content: "Swipe up";
   }
 
   .scroll-down__wheel {
