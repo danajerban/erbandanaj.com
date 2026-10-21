@@ -169,7 +169,11 @@ export const PRINT = { x: -0.76, y: 1.36, w: 0.26, h: 0.34 };
 // avatar lies under the card, so both titles hang overhead instead: above
 // the avatar's hat, under the menu, and clear of the moon (timeOfDay
 // MOON_AT). The floor spot clears the card by >= 45 px there (the room a
-// real iPhone's toolbar takes, about 40 px, plus a little). A phone held
+// real iPhone's toolbar takes, about 40 px, plus a little). A tablet in
+// the phone UI (768x1024 and up) has a wide stretch of bare floor between
+// the avatar and its short card, so there the floor spot comes forward to
+// "tablet", big and about 75-125 px above the card; phones (aspect up to
+// 0.5, at most 932 px tall in this UI) keep "portrait". A phone held
 // sideways lower than 852x393 lifts both titles off the floor, up the
 // blank back wall left of the room, toward "lowLandscape" (568x320), so
 // they keep 852x393's gap of about 22 px above the card.
@@ -180,6 +184,7 @@ const TITLE_AT = {
     tall: [-1.25, 0, 0.9],
     portrait: [-1.55, 0, 2.6],
     overhead: [-1.15, 2.05, 1.5],
+    tablet: [-1.5, 0, 4.6],
     landscape: [-4.6, 0, 0.5],
     lowLandscape: [-4.6, 0.85, 0.5],
   },
@@ -188,16 +193,21 @@ const TITLE_AT = {
     tall: [-0.9, 0, 2.3],
     portrait: [-0.5, 0, 3.0],
     overhead: [-0.5, 2.1, 1.5],
+    tablet: [-0.6, 0, 4.2],
     landscape: [-5.2, 0, -0.6],
     lowLandscape: [-5.2, 0.85, -0.6],
   },
 };
 const PORTRAIT_OVERHEAD = 830;
+const TABLET = { aspect: [0.5, 0.69], height: [830, 1024] };
 const LOW_LANDSCAPE = [393, 320];
 // height: the canvas's CSS height
 export const titleAt = (corner, layout, aspect, height) => {
   const spots = TITLE_AT[corner];
-  if (layout === "portrait" && height < PORTRAIT_OVERHEAD) return spots.overhead;
+  if (layout === "portrait") {
+    if (height < PORTRAIT_OVERHEAD) return spots.overhead;
+    return mix(spots.portrait, spots.tablet, Math.min(ramp(aspect, TABLET.aspect), ramp(height, TABLET.height)));
+  }
   if (layout === "landscape") return mix(spots.landscape, spots.lowLandscape, ramp(height, LOW_LANDSCAPE));
   return spotOf(spots, layout, aspect);
 };
