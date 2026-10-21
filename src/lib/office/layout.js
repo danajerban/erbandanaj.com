@@ -118,7 +118,14 @@ const CHAIR = {
   portrait: { x: -0.12, z: -0.75, yaw: Math.PI - 1.0 },
 };
 export const chairAt = (layout) => CHAIR[layout] ?? CHAIR.default;
-export const SNAKE_PLANT = { x: 2.25, z: -1.5, yaw: 0.4 };
+// The snake plant on the floor in the corner right of the desk (inside the
+// vignette, so on a phone held upright it stands closer to the desk, clear
+// of the backpack)
+const SNAKE_PLANT = {
+  default: { x: 2.32, z: -1.6, yaw: 0.4 },
+  portrait: { x: 2.15, z: -1.62, yaw: 0.4 },
+};
+export const snakePlantAt = (layout) => SNAKE_PLANT[layout] ?? SNAKE_PLANT.default;
 
 // Both titles stand on the floor in front of the furniture, like CONTACT
 // in the park (SectionTitle's own size and depth, turned toward the camera

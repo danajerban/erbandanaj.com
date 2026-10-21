@@ -7,11 +7,11 @@ import { buildBackpack, buildDesk, DESK_LIGHTS } from "../lib/office/desk";
 import {
   FRONT_Z,
   OFFICE_LAYER,
-  SNAKE_PLANT,
   TITLE_TURN,
   chairAt,
   monitorScreen,
   officeLayout,
+  snakePlantAt,
   titleAt,
   transformLights,
   vignetteMatrix,
@@ -34,7 +34,7 @@ const buildDeskCorner = (out, ctx) => {
   out.solid.push(vignette);
   out.glow.push(vignette);
   buildDesk(out, ctx);
-  buildSnakePlant(out, ctx, SNAKE_PLANT);
+  buildSnakePlant(out, ctx, snakePlantAt(ctx.layout));
   out.solid.pop();
   out.glow.pop();
 };

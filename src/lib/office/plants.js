@@ -1,15 +1,14 @@
 import * as THREE from "three";
 import { PALETTE, hex } from "./bake";
 import { FLOOR_Y } from "./layout";
-import { contactShadow, cylinder, cylinderBetween, fan, polygon, v3 } from "./shapes";
+import { contactShadow, cylinder, fan, polygon, v3 } from "./shapes";
 
-// Projects: the snake plant on its oak stool (desk corner step), at
-// { x, z, yaw } (layout.js SNAKE_PLANT); out = { solid, glow },
+// Projects: the snake plant on the floor beside the desk (desk corner
+// step), at { x, z, yaw } (layout.js SNAKE_PLANT); out = { solid, glow },
 // ctx = { isMobile, layout, random }. As in IMG_3657: a glossy white pot on
 // a saucer, dark clay pebbles with white stones, banded sword leaves with
 // yellow edges.
 
-const STOOL = { r: 0.15, h: 0.36, seat: 0.03 };
 const SAUCER = { r: 0.14, h: 0.015 };
 const POT = { r0: 0.115, r1: 0.13, h: 0.2, rim: 0.01, soil: 0.018 };
 const C = {
@@ -21,22 +20,11 @@ const C = {
 // The pot's glossy streak: a narrow highlight on the side facing `toward`
 const gloss = (a, toward) => 1 + 0.18 * Math.max(0, Math.cos(a - toward)) ** 12;
 
-const buildStool = (s, sides) => {
-  const { r, h, seat } = STOOL;
-  cylinder(s, [0, 0], [h - seat, h], [r, r], sides, PALETTE.oak, { caps: "end" });
-  for (let k = 0; k < 3; k++) {
-    const a = (k / 3) * Math.PI * 2 + 0.5;
-    const [cx, cz] = [Math.sin(a), Math.cos(a)];
-    cylinderBetween(s, v3(cx * 0.1, h - seat, cz * 0.1), v3(cx * 0.13, 0, cz * 0.13), 0.016, 0.014, 5, PALETTE.oakGrain, { caps: false });
-  }
-};
-
 // Pot on its saucer: walls with the glossy streak, the rim, the inner wall
 // down to the pebbles, clay pebbles with darker specks and 10 white stones
 const buildPot = (s, sides, random) => {
-  const y0 = STOOL.h;
-  cylinder(s, [0, 0], [y0, y0 + SAUCER.h], [SAUCER.r, SAUCER.r + 0.006], sides, PALETTE.ceramic, { caps: "end" });
-  const base = y0 + SAUCER.h;
+  cylinder(s, [0, 0], [0, SAUCER.h], [SAUCER.r, SAUCER.r + 0.006], sides, PALETTE.ceramic, { caps: "end" });
+  const base = SAUCER.h;
   const top = base + POT.h;
   const ring = (r, y) => Array.from({ length: sides }, (_, i) => {
     const a = (i / sides) * Math.PI * 2;
@@ -104,9 +92,8 @@ const leaf = (s, { root, out, length, width, lean, twist, face }, segments, rand
 export const buildSnakePlant = (out, ctx, { x, z, yaw }) => {
   const s = out.solid;
   const { isMobile, random } = ctx;
-  contactShadow(s, x, z, 0.17, 0.17, PALETTE.floorOak[1], FLOOR_Y, 12);
+  contactShadow(s, x, z, 0.19, 0.19, PALETTE.floorOak[1], FLOOR_Y, 12);
   s.push(new THREE.Matrix4().makeTranslation(x, FLOOR_Y, z).multiply(new THREE.Matrix4().makeRotationY(yaw)));
-  buildStool(s, 12);
   const soilY = buildPot(s, 16, random);
   // MOBILE_PERF: 5 snake-plant leaf segments on mobile — revert by removing the ternary
   const segments = isMobile ? 5 : 8;
