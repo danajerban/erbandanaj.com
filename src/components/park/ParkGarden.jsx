@@ -1,8 +1,17 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { useMobile } from "../../contexts/MobileContext";
 import { createRandom } from "../../lib/lowPoly";
-import { RAILING_FRONT, dogAt, lanterns, lawnTufts, pathCurve, pathPebbles, pondRocks } from "../../lib/parkLayout";
+import {
+  RAILING_FRONT,
+  REST_HALF_FOV_TAN,
+  dogAt,
+  lanterns,
+  lawnTufts,
+  pathCurve,
+  pathPebbles,
+  pondRocks,
+  restEyeZ,
+} from "../../lib/parkLayout";
 import { PARK_LAYER, ParkSink, parkSolidMaterial } from "../../lib/parkMaterials";
 import { useGLTF } from "../../lib/useGLTF";
 import { bench, dog, pebbles, rocks, tufts } from "./lawnDetails";
@@ -213,14 +222,8 @@ const railing = (sink, park, left, right, random) => {
   }
 };
 
-// The camera at Contact rest, Contact-local: z 5 (SceneCanvas), and the
-// section sits 4 further back on phones (ContactSection); fov 42
-const CAMERA_Z = 5;
-const PHONE_SECTION_Z = -4;
-const HALF_FOV = THREE.MathUtils.degToRad(21);
-
 // benchParts: Park Bench.glb's meshes as [geometry, day colour]
-const buildGarden = (park, layout, aspect, isMobile, benchParts) => {
+const buildGarden = (park, layout, aspect, benchParts) => {
   const sink = new ParkSink(park);
   const random = createRandom(24);
   const shade = crownShade(park);
@@ -231,7 +234,7 @@ const buildGarden = (park, layout, aspect, isMobile, benchParts) => {
   // The railing runs across the view at its depth, past both screen edges
   // (and further left on phones, where the section slides in)
   const z = park.row.z + RAILING_FRONT;
-  const half = Math.tan(HALF_FOV) * (CAMERA_Z - (isMobile ? PHONE_SECTION_Z : 0) - z) * aspect + 0.5;
+  const half = REST_HALF_FOV_TAN * (restEyeZ(layout) - z) * aspect + 0.5;
   railing(sink, park, -half - park.groundLeftExtra, half, random);
   // Origin at the content's centre: the near beds melt before the far row
   // (the lawn's small things below spread to the screen's bottom: they melt
@@ -247,19 +250,18 @@ const buildGarden = (park, layout, aspect, isMobile, benchParts) => {
 };
 
 export default function ParkGarden({ park, layout, aspect }) {
-  const { isMobile } = useMobile();
   const { nodes, materials } = useGLTF("/models/Park Bench.glb");
   const mesh = useMemo(() => {
     const benchParts = [
       [nodes["Park_Bench_Cube-Mesh"].geometry, materials.Metal.color],
       [nodes["Park_Bench_Cube-Mesh_1"].geometry, materials.Wood.color],
     ];
-    const { geometry, origin } = buildGarden(park, layout, aspect, isMobile, benchParts);
+    const { geometry, origin } = buildGarden(park, layout, aspect, benchParts);
     const m = new THREE.Mesh(geometry, parkSolidMaterial);
     m.position.fromArray(origin);
     m.layers.set(PARK_LAYER);
     return m;
-  }, [park, layout, aspect, isMobile, nodes, materials]);
+  }, [park, layout, aspect, nodes, materials]);
   useEffect(() => () => mesh.geometry.dispose(), [mesh]);
   return <primitive object={mesh} />;
 }

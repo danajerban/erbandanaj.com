@@ -1,7 +1,7 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { HOUSES, cafeWindow, houseSpans, pathCurve } from "../../lib/parkLayout";
+import { HOUSES, REST_EYE_Y, cafeWindow, houseSpans, pathCurve, restEyeZ } from "../../lib/parkLayout";
 import { PARK_LAYER, parkGroundMaterial } from "../../lib/parkMaterials";
 
 // The park's ground: one mesh of RGBA vertex colours, drawn first among the
@@ -49,11 +49,6 @@ const CAFE_GLOW_R = 1.4;
 const BED_GROW = 1.08;
 // Over the lawn in draw order; no depth writes, so no fighting
 const Y = { path: 0.002, sidewalk: 0.003, curb: 0.004, terrace: 0.005, soil: 0.006 };
-
-// The eye at Contact rest, Contact-local: the camera (0, 0.5, 5) over the
-// section's rest origin, (0, −1, 0) on desktop and (0, −1, −4) on phones
-const EYE_Y = 1.5;
-const eyeZ = (layout) => (layout === "portrait" || layout === "landscape" ? 9 : 5);
 
 const mix = (a, b, w) => [a[0] + (b[0] - a[0]) * w, a[1] + (b[1] - a[1]) * w, a[2] + (b[2] - a[2]) * w];
 const smoothstep = (e0, e1, x) => THREE.MathUtils.smoothstep(x, e0, e1);
@@ -192,9 +187,9 @@ const buildGround = (park, layout, aspect, camera) => {
   // on the left, where the section slides in from
   const forward = camera.getWorldDirection(new THREE.Vector3());
   const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-  const ez = eyeZ(layout);
-  const depthOf = (z) => -EYE_Y * forward.y + (z - ez) * forward.z;
-  const zOf = (depth) => ez + (depth + EYE_Y * forward.y) / forward.z;
+  const ez = restEyeZ(layout);
+  const depthOf = (z) => -REST_EYE_Y * forward.y + (z - ez) * forward.z;
+  const zOf = (depth) => ez + (depth + REST_EYE_Y * forward.y) / forward.z;
   const halfWidth = (z) => depthOf(z) * tan * aspect;
   const nearInv = 1 / depthOf(front);
   const farInv = 1 / depthOf(back);

@@ -2,7 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
-import { PARK, TITLE_TURN, parkLayoutOf, titleAt, titleInSky } from "../lib/parkLayout";
+import { PARK, PHONE_SECTION_Z, TITLE_TURN, parkLayoutOf, titleAt, titleInSky } from "../lib/parkLayout";
 import { PARK_LAYER, parkStats, useParkClock } from "../lib/parkMaterials";
 import { timeOfDay } from "../lib/timeOfDay";
 import ParkGarden from "./park/ParkGarden";
@@ -44,7 +44,7 @@ export const ContactSection = () => {
     <SectionGroup
       name="contact"
       position-x={isMobile ? 3 * sectionsDistance : 0}
-      position-z={isMobile ? -4 : 3 * sectionsDistance}
+      position-z={isMobile ? PHONE_SECTION_Z : 3 * sectionsDistance}
     >
       <SectionTitle position={title.position} scale={title.scale} rotation-y={TITLE_TURN}>
         CONTACT

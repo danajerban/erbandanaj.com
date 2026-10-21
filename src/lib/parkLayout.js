@@ -390,21 +390,25 @@ export const avatarAt = (layout) => [0, isPhone(layout) ? -1 : 0];
 // The railing along the sidewalk stands this far in front of the facades
 export const RAILING_FRONT = 1.55;
 
-// The camera at Contact rest, Contact-local: the eye 1.5 above the floor
-// at z 5 (phones: 9, the section sits 4 further back), looking at the point
-// 1 above the floor 5 ahead; fov 42. project([x, y, z]) gives [fx, fy], the
-// screen fractions (0..1 from the top left).
-const HALF_FOV_TAN = Math.tan((21 * Math.PI) / 180);
+// The camera at Contact rest, Contact-local: the eye REST_EYE_Y above the
+// floor at restEyeZ (the camera's z 5 in SceneCanvas; on phones the section
+// sits PHONE_SECTION_Z back, ContactSection), looking at the point 1 above
+// the floor 5 ahead; fov 42. project([x, y, z]) gives [fx, fy], the screen
+// fractions (0..1 from the top left).
+export const PHONE_SECTION_Z = -4;
+export const REST_EYE_Y = 1.5;
+export const restEyeZ = (layout) => 5 - (isPhone(layout) ? PHONE_SECTION_Z : 0);
+export const REST_HALF_FOV_TAN = Math.tan((21 * Math.PI) / 180);
+const REST_LOOK = Math.hypot(0.5, 5);
 export const restProjector = (layout, aspect) => {
-  const ez = isPhone(layout) ? 9 : 5;
-  const len = Math.hypot(0.5, 5);
-  const [fy, fz] = [-0.5 / len, -5 / len];
-  const [uy, uz] = [5 / len, -0.5 / len];
+  const ez = restEyeZ(layout);
+  const [fy, fz] = [-0.5 / REST_LOOK, -5 / REST_LOOK];
+  const [uy, uz] = [5 / REST_LOOK, -0.5 / REST_LOOK];
   return ([x, y, z]) => {
-    const [dy, dz] = [y - 1.5, z - ez];
+    const [dy, dz] = [y - REST_EYE_Y, z - ez];
     const depth = dy * fy + dz * fz;
     const up = dy * uy + dz * uz;
-    return [(x / (depth * HALF_FOV_TAN * aspect) + 1) / 2, (1 - up / (depth * HALF_FOV_TAN)) / 2];
+    return [(x / (depth * REST_HALF_FOV_TAN * aspect) + 1) / 2, (1 - up / (depth * REST_HALF_FOV_TAN)) / 2];
   };
 };
 
@@ -474,9 +478,8 @@ export const pathPebbles = (park) => {
 export const lawnTufts = (park, layout, aspect) => {
   const random = createRandom(11);
   const project = restProjector(layout, aspect);
-  const ez = isPhone(layout) ? 9 : 5;
-  const len = Math.hypot(0.5, 5);
-  const depthOf = (z) => (0.75 + 5 * (ez - z)) / len;
+  const ez = restEyeZ(layout);
+  const depthOf = (z) => (0.75 + 5 * (ez - z)) / REST_LOOK;
   const [near, far] = [park.groundFront, park.row.z + RAILING_FRONT + 0.6];
   const [nearInv, farInv] = [1 / depthOf(near), 1 / depthOf(far)];
   const samples = pathSamples(park);
@@ -488,8 +491,8 @@ export const lawnTufts = (park, layout, aspect) => {
   const tufts = [];
   for (let i = 0; i < park.tufts; i++) {
     const depth = 1 / (farInv + (nearInv - farInv) * random());
-    const z = ez - (depth * len - 0.75) / 5;
-    const half = depth * HALF_FOV_TAN * aspect;
+    const z = ez - (depth * REST_LOOK - 0.75) / 5;
+    const half = depth * REST_HALF_FOV_TAN * aspect;
     const x = (random() * 2 - 1) * half;
     const at = [x, z];
     const seed = random();
