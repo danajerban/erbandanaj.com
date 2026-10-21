@@ -81,11 +81,21 @@ body {
   background-color: var(--scene-sky-color);
 }
 
-@supports (height: 100lvh) {
-  html,
-  body,
-  #root {
-    height: 100lvh;
+/* iOS Safari held upright draws its toolbar over the bottom of the page, so
+   there the page and the canvas take the large viewport and the scene runs on
+   under the toolbar. Everywhere else the browser's bars push the page down
+   (sideways phones, iPads, Android), so a 100lvh page would run off the bottom
+   of the screen and cut the cards off (an iPhone 17 Pro held sideways with
+   tabs: lvh 402, dvh 292); those keep 100dvh, which the bars never change here
+   because the document does not scroll. -webkit-touch-callout exists only in
+   iOS WebKit. */
+@supports (height: 100lvh) and (-webkit-touch-callout: none) {
+  @media (max-width: 990px) and (orientation: portrait) {
+    html,
+    body,
+    #root {
+      height: 100lvh;
+    }
   }
 }
 
@@ -167,15 +177,18 @@ a {
 }
 
 /* Each section MUST be the same height as drei's scroll-page stride, which is
-   the canvas height (size.height = #root height = 100lvh — see @supports above).
-   drei translates the HTML overlay by `size.height * (pages-1) * offset`, so any
-   gap between this unit and the stride accumulates per section. On iOS Safari
-   dvh < lvh (dynamic toolbar), so a 100dvh section drifted up by i*(lvh-dvh) for
-   section i, pushing content out of view. Must come AFTER the 100dvh base rule
-   to win on source order. */
-@supports (height: 100lvh) {
-  .section {
-    height: 100lvh;
+   the canvas height (size.height = #root height: 100lvh on iOS Safari held
+   upright, 100dvh elsewhere — see @supports above). drei translates the HTML
+   overlay by `size.height * (pages-1) * offset`, so any gap between this unit
+   and the stride accumulates per section. On iOS Safari dvh < lvh (dynamic
+   toolbar), so a 100dvh section drifted up by i*(lvh-dvh) for section i,
+   pushing content out of view. Must come AFTER the 100dvh base rule to win on
+   source order. */
+@supports (height: 100lvh) and (-webkit-touch-callout: none) {
+  @media (max-width: 990px) and (orientation: portrait) {
+    .section {
+      height: 100lvh;
+    }
   }
 }
 

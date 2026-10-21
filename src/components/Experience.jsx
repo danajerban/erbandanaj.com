@@ -279,7 +279,7 @@ export const Experience = ({ revealed }) => {
   // the old pixel scrollTop or scroll-anchors it, so the overlay and scene land
   // between sections. Restore the section the visitor had scrolled to. Keyed on
   // R3F `size`, not window.resize: iOS fires resize when the toolbar collapses,
-  // but #root (lvh) — and so `size` — does not change then.
+  // but #root (lvh there, held upright) — and so `size` — does not change then.
   const size = useThree((state) => state.size);
   const sizeRef = useRef(size);
   const resyncIndexRef = useRef(0);

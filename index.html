@@ -30,15 +30,19 @@
            the haze band on the horizon line, their stops sampled from the
            shader's falloffs) over the resolved --scene-background from
            src/index.css. Keep all three in sync. Placed like the canvas,
-           which is 100lvh tall and sizes the sun by its short side (vh is
-           the large viewport in mobile browsers): --sun-reach and
-           --sun-band are SUN_REACH and SUN_BAND times SUN_SCALE, in 100vmin,
-           and 36.97vh is the camera's eye-level horizon. Desktop here; the
-           mobile block below moves and scales the sun. */
+           which sizes the sun by its short side and is 100dvh tall, or
+           100lvh in iOS Safari held upright (src/index.css): --canvas-vh
+           and --canvas-vmin are 1% of its height and of its short side.
+           --sun-reach and --sun-band are SUN_REACH and SUN_BAND times
+           SUN_SCALE, in 100 --canvas-vmin, and 36.97 --canvas-vh is the
+           camera's eye-level horizon. Desktop here; the mobile block below
+           moves and scales the sun. */
+        --canvas-vh: 1dvh;
+        --canvas-vmin: 1dvmin;
         --sun-x: 85.5%;
-        --sun-y: 27.8vh;
-        --sun-reach: 68.75vmin;
-        --sun-band: 100vmin 6.25vmin;
+        --sun-y: calc(27.8 * var(--canvas-vh));
+        --sun-reach: calc(68.75 * var(--canvas-vmin));
+        --sun-band: calc(100 * var(--canvas-vmin)) calc(6.25 * var(--canvas-vmin));
         --sun-warmth: 61.875rem 33.75rem;
         background:
           radial-gradient(
@@ -70,7 +74,7 @@
             rgba(242, 95, 74, 0) 100%
           ),
           radial-gradient(
-            ellipse var(--sun-band) at var(--sun-x) 36.97vh,
+            ellipse var(--sun-band) at var(--sun-x) calc(36.97 * var(--canvas-vh)),
             rgba(252, 161, 132, 0.5) 0%,
             rgba(252, 161, 132, 0.492) 7.26%,
             rgba(252, 161, 132, 0.468) 14.77%,
@@ -189,10 +193,18 @@
       @media (max-width: 990px) {
         #app-loader {
           --sun-x: 80%;
-          --sun-y: 31vh;
-          --sun-reach: 75.625vmin;
-          --sun-band: 110vmin 6.875vmin;
+          --sun-y: calc(31 * var(--canvas-vh));
+          --sun-reach: calc(75.625 * var(--canvas-vmin));
+          --sun-band: calc(110 * var(--canvas-vmin)) calc(6.875 * var(--canvas-vmin));
           --sun-warmth: 45rem 24rem;
+        }
+      }
+      @supports (height: 100lvh) and (-webkit-touch-callout: none) {
+        @media (max-width: 990px) and (orientation: portrait) {
+          #app-loader {
+            --canvas-vh: 1lvh;
+            --canvas-vmin: 1lvmin;
+          }
         }
       }
       @media (prefers-reduced-motion: reduce) {
