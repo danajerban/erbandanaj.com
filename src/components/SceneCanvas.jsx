@@ -14,6 +14,8 @@ import { SceneReady } from "./SceneReady";
 // Lazy: the HTML overlay is the only consumer of the motion library on the
 // scene side, so it stays off the path to the first visible frame.
 const Overlay = lazy(() => import("./Overlay"));
+// Lazy and phone-only: settles a swipe on a section (see SectionSnap).
+const SectionSnap = lazy(() => import("./SectionSnap"));
 
 // Loaded via React.lazy from App.jsx — this module is the seam that keeps
 // three.js/r3f/drei/motion out of the entry chunk. Never import it
@@ -57,6 +59,13 @@ function SceneCanvas() {
         {revealed && !isMobile && (
           <SilentErrorBoundary>
             <DesktopQuality onDpr={setQualityDpr} />
+          </SilentErrorBoundary>
+        )}
+        {revealed && isMobile && (
+          <SilentErrorBoundary>
+            <Suspense fallback={null}>
+              <SectionSnap reducedMotion={prefersReducedMotion} />
+            </Suspense>
           </SilentErrorBoundary>
         )}
         <Scroll html>
