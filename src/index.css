@@ -1219,10 +1219,13 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
 /* Phones held upright, shorter than about 2:1: the 3D scene frames by the
    height and the beach towel and the laptop sit lower on the screen, so the pill
    drops with the shape (to 3rem at 16:9) and stays on the open sand under
-   them; 390x844 and taller keep 6rem. A home-indicator phone keeps its
-   toolbar clearance (the inset plus 4.5rem; the min() is 0 without an
-   inset). */
-@media (max-width: 990px) and (orientation: portrait) and (max-aspect-ratio: 3/5) {
+   them; 390x844 and taller keep 6rem. In iOS Safari the canvas (100vh, the
+   large viewport) is about 120px shorter than the screen, so every iPhone
+   there drops fully; the gate goes by the smaller layout viewport (an
+   iPhone SE's is 375x549), and tablets have their own rules from 600px. A
+   home-indicator phone keeps its toolbar clearance (the inset plus 4.5rem;
+   the min() is 0 without an inset). */
+@media (max-width: 990px) and (orientation: portrait) and (not (min-width: 600px)) and (max-aspect-ratio: 3/4) {
   .scroll-down {
     margin-bottom: max(
       clamp(3rem, 60vh - 120vw + 3.6rem, 6rem),
