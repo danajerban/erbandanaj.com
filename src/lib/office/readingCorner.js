@@ -4,7 +4,7 @@ import { BACK, FLOOR_Y, RUG_Y } from "./layout";
 import { bevelBox, box, cylinder, cylinderBetween, ellipse, fan, orientedTri, polygon, strip, tube, v3 } from "./shapes";
 
 // Skills: the reading corner (reading corner step): armchair, fiddle-leaf
-// fig, side table, bookcase, books, pothos.
+// fig, side table with a pilea, bookcase, books, pothos.
 // out = { solid: OfficeSink, glow: GlowSink }; ctx = { isMobile, layout,
 // random }; room-frame coordinates.
 
@@ -28,6 +28,8 @@ const COLOR = {
   soil: hex("#3a2a22"),
   fig: hex("#3f6f35"),
   figLight: hex("#5e8f45"),
+  pilea: hex("#6a9a48"),
+  pileaLight: hex("#8cb85a"),
 };
 const UP = v3(0, 1, 0);
 const DEG = Math.PI / 180;
@@ -255,10 +257,46 @@ const buildSideTable = (sink) => {
     [[0.2, 0.028, 0.15], sand, -0.12],
     [[0.18, 0.025, 0.13], coral, 0.25],
   ]) {
-    placed(sink, frame(x - 0.04, y, z - 0.05, { yaw }), () => flatBook(sink, size, cover));
+    placed(sink, frame(x - 0.075, y, z - 0.03, { yaw }), () => flatBook(sink, size, cover));
     y += size[1];
   }
   buildMug(sink, x + 0.12, z + 0.09, top);
+};
+
+// A little pilea in a cream pot (r 0.04, h 0.065) at the side table's back
+// right: coin leaves on thin stems fanning out of the soil
+const buildPilea = (sink, random) => {
+  const [x, z, y] = [TABLE.x + 0.12, TABLE.z - 0.12, TABLE.top];
+  const h = 0.065;
+  cylinder(sink, [x, z], [y, y + h], [0.034, 0.04], 10, COLOR.cream, { caps: false });
+  polygon(sink, ellipse(v3(x, y + h - 0.006, z), 0.038, 0.038, 10), COLOR.soil, {}, UP);
+  for (let k = 0; k < 9; k++) {
+    const a = k * GOLDEN + random() * 0.3;
+    const reach = 0.03 + random() * 0.06;
+    const lift = 0.06 + random() * 0.08 - reach * 0.4;
+    const out = v3(Math.cos(a), 0, Math.sin(a));
+    const root = v3(x, y + h - 0.006, z).addScaledVector(out, 0.008);
+    const tip = v3(x, y + h + lift, z).addScaledVector(out, reach);
+    const bend = root.clone().lerp(tip, 0.5).add(v3(0, lift * 0.25, 0));
+    tube(sink, [root, bend, tip], 0.0018, 3, COLOR.stem);
+    // The coin leaf, tilted out from the plant's centre, both sides drawn
+    const facing = out.clone().multiplyScalar(0.5 + reach * 4).add(UP).normalize();
+    const r = 0.018 + random() * 0.01;
+    const green = COLOR.pilea.clone().lerp(COLOR.pileaLight, random()).multiplyScalar(0.9 + random() * 0.2);
+    const u = v3(-out.z, 0, out.x);
+    const w = new THREE.Vector3().crossVectors(facing, u).normalize();
+    const centre = tip.clone().addScaledVector(w, -r * 0.7);
+    const rim = [];
+    for (let i = 0; i < 7; i++) {
+      const t = (i / 7) * Math.PI * 2;
+      rim.push(centre.clone().addScaledVector(u, Math.cos(t) * r).addScaledVector(w, Math.sin(t) * r));
+    }
+    for (let i = 0; i < 7; i++) {
+      const [p, q] = [rim[i], rim[(i + 1) % 7]];
+      sink.tri(centre, p, q, green);
+      sink.tri(centre, q, p, shade(green, 0.85));
+    }
+  }
 };
 
 // A cream mug (r 0.04, h 0.09) with coffee in it and a handle to the right
@@ -535,4 +573,5 @@ export const buildReadingCorner = (out, ctx) => {
   buildPothos(solid, ctx.random);
   // After the books and the pothos, so their random draws stay as they were
   buildFig(solid, ctx.random);
+  buildPilea(solid, ctx.random);
 };
