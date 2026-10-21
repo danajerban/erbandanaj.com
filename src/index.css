@@ -267,6 +267,15 @@ a {
   transform: translateX(clamp(-4rem, -4vw, -2rem));
 }
 
+/* Upright iPad: the grid starts 4rem in from the left, like the menu, and
+   its cards are a little narrower so it ends before the avatar */
+@media (orientation: portrait) {
+  .projects {
+    max-width: 400px;
+    transform: translateX(3rem);
+  }
+}
+
 .project {
   background: var(--glass-color);
   overflow: hidden;
