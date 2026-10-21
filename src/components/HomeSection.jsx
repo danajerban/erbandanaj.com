@@ -136,6 +136,10 @@ const [FIRST_NAME, LAST_NAME] = config.home.title.split(/(?=[A-Z])/);
 const SURNAME = 1.3;
 const LINE_GAP = 0.3;
 const CAP = 1.01;
+// On a phone the small title reads weakly against the pink sky: a deeper
+// apricot face, ringed by a wider bevel whose coral, with less of the
+// sunset light on it, outlines each letter in terracotta
+const PHONE_TITLE = { color: "#ffcda0", envMapIntensity: 0.3, bevelSize: 0.04 };
 
 // An upright screen past the breakpoint (an iPad Pro held upright) has
 // the desktop's avatar, big in the middle, and the menu's logo top left:
@@ -172,7 +176,13 @@ export const HomeSection = ({ revealed }) => {
   const onTitleCentered = useCallback(({ width, height }) => setTitleSize([width, height]), []);
   const title = useMemo(() => titlePlacement(TITLE[spot], aspect, titleSize), [spot, aspect, titleSize]);
   const titleFont = isMobile ? 0.75 : 0.7;
-  const titleLook = { layers: TITLE_LAYER, bevelEnabled: true, bevelThickness: isMobile ? 0.1 : 0.2, letterSpacing: 0.05 };
+  const titleLook = {
+    layers: TITLE_LAYER,
+    bevelEnabled: true,
+    bevelThickness: isMobile ? 0.1 : 0.2,
+    letterSpacing: 0.05,
+    ...(isMobile && PHONE_TITLE),
+  };
   const camera = useThree((state) => state.camera);
   useEffect(() => {
     camera.layers.enable(TITLE_LAYER);

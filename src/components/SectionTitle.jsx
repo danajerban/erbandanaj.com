@@ -26,13 +26,15 @@ const SUN = {
   customProgramCacheKey: () => "section-title-sun",
 };
 
-export const SectionTitle = ({ children, ...props }) => {
+// color tints the face; envMapIntensity dims the sunset light on the whole
+// title (both uniforms, so any title keeps the one program)
+export const SectionTitle = ({ children, color = "#ffdcb4", envMapIntensity = 1, ...props }) => {
   const { isMobile } = useMobile();
   return (
     <Text3D font={"/fonts/Inter_Bold.json"} size={0.3} {...props}>
       {children}
       {/* MOBILE_PERF: the smoother title surface is desktop only — revert by removing the ternary */}
-      <meshStandardMaterial args={[SUN]} color="#ffdcb4" roughness={isMobile ? 1 : 0.7} />
+      <meshStandardMaterial args={[SUN]} color={color} envMapIntensity={envMapIntensity} roughness={isMobile ? 1 : 0.7} />
     </Text3D>
   );
 };
