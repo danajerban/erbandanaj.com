@@ -162,8 +162,9 @@ export function NightSky({ layout, aspect }) {
     const reach = (r * HALO) / size.height;
     u.uSize.value.set((reach * 2) / aspect, reach * 2);
     u.uEdge.value = 1.5 / r;
-    return () => geometry.dispose();
   }, [sky, geometry, dpr, moonCentre, r, size.height, aspect]);
+  // Freed only when replaced or unmounted, not on every resize
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   // Dispose the materials and the moon quad on unmount
   useEffect(

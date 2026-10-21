@@ -249,8 +249,9 @@ export default function Clouds({ sun, scale }) {
     // Sorted as if DEPTH down the view, so it draws after the sun
     mesh.parent.updateWorldMatrix(true, false);
     mesh.position.copy(mesh.parent.worldToLocal(camera.position.clone().addScaledVector(forward, DEPTH)));
-    return () => geometry.dispose();
   }, [mesh, geometry, camera, size, aspect, sun, scale]);
+  // Freed only when replaced or unmounted, not on every resize
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   useEffect(() => {
     ready.current = false;

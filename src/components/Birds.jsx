@@ -284,8 +284,9 @@ export default function Birds() {
     uniforms.uMinSide.value = Math.min(1, aspect);
     uniforms.uPx.value = 1 / size.height;
     uniforms.uMotion.value = prefersReducedMotion ? 0 : 1;
-    return () => geometry.dispose();
   }, [mesh, geometry, camera, size, prefersReducedMotion]);
+  // Freed only when replaced or unmounted, not on every resize
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   useEffect(() => {
     // A hot update (Fast Refresh) builds a new mesh, hidden at opacity 0,
