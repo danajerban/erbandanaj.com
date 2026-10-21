@@ -283,16 +283,23 @@ a {
    wall, in line with the logo, so the wardrobe, the print, the arch, the
    avatar and the desk all show; no screenshot (the desk monitor shows it).
    The column is pulled out of the centred 75rem .sections box to sit a
-   steady distance from the screen's left edge. */
+   steady distance from the screen's left edge; on screens wider than about
+   16:9 the scene stays centred and the side wall's window ends about half
+   the window height left of the centre, so the column follows it in, its
+   cards ending there. */
 
 .projects {
   --projects-left: clamp(1.5rem, 8vw - 4rem, 5rem);
+  --projects-card: clamp(17.5rem, 12vw + 7.5rem, 22.5rem);
   display: grid;
   gap: 0.625rem;
-  width: calc(clamp(17.5rem, 12vw + 7.5rem, 22.5rem) + 2rem);
+  width: calc(var(--projects-card) + 2rem);
   padding: 1rem;
   transform: translateX(
-    calc(var(--projects-left) - 1rem - max(0px, (100vw - 75rem) / 2))
+    calc(
+      max(var(--projects-left), 50vw - 50vh - var(--projects-card)) - 1rem -
+        max(0px, (100vw - 75rem) / 2)
+    )
   );
 }
 
