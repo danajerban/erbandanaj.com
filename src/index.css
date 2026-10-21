@@ -707,8 +707,24 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     min-width: 280px;
   }
 
+  /* No screenshot on phones: the site's icon and name in a row, as on the
+     skill cards, then the description */
   .project__details {
-    min-height: 126px;
+    min-height: 0;
+    padding: 0.75rem;
+  }
+
+  .project__label {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .project__label__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
   }
 
   .contact {

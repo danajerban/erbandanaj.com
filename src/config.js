@@ -45,6 +45,7 @@ export const config = {
       description:
         "Astro-powered hotel website for a local family business, optimized for speed, SEO, and multilingual discovery.",
       image: "/projects/project13.webp",
+      icon: "/icons/vilaemes.png",
       link: "https://vilaemes.com/",
     },
     {
@@ -52,6 +53,7 @@ export const config = {
       description:
         "ISIC platform for Albanian students to buy digital or physical cards and access local and global benefits.",
       image: "/projects/project14.webp",
+      icon: "/icons/studentcard.png",
       link: "https://studentcard.al/",
     },
     {
@@ -59,6 +61,7 @@ export const config = {
       description:
         "Biopharma intelligence platform with structured data pipelines, agentic workflows, and Monte Carlo forecasting tools.",
       image: "/projects/project11.webp",
+      icon: "/icons/bioloupe.png",
       link: "https://bioloupe.com/",
     },
     {
@@ -66,6 +69,7 @@ export const config = {
       description:
         "Video learning, social community, marketplace, and AI coaching platform serving 16K+ users.",
       image: "/projects/project12.webp",
+      icon: "/icons/coachingmasters.png",
       link: "https://thecoachingmasters.com/",
     },
   ],

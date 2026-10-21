@@ -146,17 +146,28 @@ export const Interface = ({ revealed }) => {
                       compete with the Home gate on the network), then eager so
                       they download, decode and rasterise while the visitor is
                       idle at Home — not mid-scroll, where a lazy image
-                      crossing the load margin cost frames over 50 ms. */}
-                  <img
-                    className="project__image"
-                    src={project.image}
-                    alt={project.name}
-                    crossOrigin="anonymous"
-                    loading={revealed ? "eager" : "lazy"}
-                    decoding="async"
-                  />
+                      crossing the load margin cost frames over 50 ms. Phones
+                      show the site's icon instead and never fetch a screenshot
+                      for the card (the desk monitor shows it). */}
+                  {!isMobile && (
+                    <img
+                      className="project__image"
+                      src={project.image}
+                      alt={project.name}
+                      crossOrigin="anonymous"
+                      loading={revealed ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                  )}
                   <div className="project__details">
-                    <h2 className="project__details__name">{project.name}</h2>
+                    {isMobile ? (
+                      <div className="project__label">
+                        <img className="project__label__icon" src={project.icon} alt="" />
+                        <h2 className="project__details__name">{project.name}</h2>
+                      </div>
+                    ) : (
+                      <h2 className="project__details__name">{project.name}</h2>
+                    )}
                     <p className="project__details__description">
                       {project.description}
                     </p>
