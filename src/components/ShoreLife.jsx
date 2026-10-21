@@ -28,7 +28,8 @@ import { createRandom } from "../lib/lowPoly";
 //
 // Sizes are fractions of the screen's height at their depth, so every prop
 // keeps its size on screen wherever the shore puts it. Mobile shows one shell,
-// the starfish, one crab and the turtle.
+// the starfish, one crab and the turtle, and a crab by the sandcastle
+// (CASTLE_CRAB).
 
 const SEED = 7;
 const LAYER = 3;
@@ -40,6 +41,15 @@ const screenHeightAt = (z) => 2 * Math.tan(THREE.MathUtils.degToRad(21)) * (CAME
 // The camera in Home-local coordinates (the Home group rests 1 below the
 // world origin), for turning the creatures toward the viewer
 const CAMERA_HOME = new THREE.Vector3(0, 1.5, CAMERA_Z);
+// Its tilt down toward (0, 1, 0) and half its vertical field
+const PITCH = Math.atan(0.1);
+const HALF_FOV_TAN = Math.tan(THREE.MathUtils.degToRad(21));
+// The point on the sand at a screen fraction
+const onSand = ([fx, fy], aspect) => {
+  const up = (1 - 2 * fy) * HALF_FOV_TAN;
+  const ray = V((2 * fx - 1) * HALF_FOV_TAN * aspect, up * Math.cos(PITCH) - Math.sin(PITCH), -Math.cos(PITCH) - up * Math.sin(PITCH));
+  return CAMERA_HOME.clone().addScaledVector(ray, -CAMERA_HOME.y / ray.y).setY(0);
+};
 // How far short of the dry line the creatures (in every pose, shadows
 // included) and the dry-sand shell stay: a hundredth of the screen's width
 // or height at their depth, whichever is longer
@@ -95,6 +105,16 @@ const CREATURES = {
   ],
 };
 const creatureList = (isMobile, aspect) => CREATURES[isMobile ? "mobile" : layoutOf(isMobile, aspect) === "portrait" ? "tall" : "desktop"];
+// Phones, either way round: one more crab, standing in the sand beside
+// BeachProps' sandcastle (TOYS castle), facing the viewer a little off
+// square: where it stands as a screen fraction [x from the left, y from the
+// top] and its size across its legs (Home units, about the castle's keep).
+// It holds still, so it costs no work per frame, and it is one more
+// instance of the creatures' mesh, so no draw call either.
+const CASTLE_CRAB = {
+  portrait: [[0.435, 0.585], 0.2],
+  landscape: [[0.618, 0.636], 0.3],
+};
 const MAX_CREATURES = 3;
 // How far (in its own body widths) a scuttle carries the crab
 const SCUTTLE = 0.8;
@@ -779,10 +799,12 @@ const seaward = (z, isMobile, aspect) => Math.atan2(0.1, coastX(z - 0.05, isMobi
 // Where each creature rests (Home-local), which way it faces and its scale:
 // at its depth, or the nearest depth in its range clear of the palms and the
 // others and right of the avatar. The crab turns toward the viewer,
-// a little off square; the turtle heads for the sea, turned toward the viewer
+// a little off square; the turtle heads for the sea, turned toward the viewer.
+// On phones last the still crab by the sandcastle, turned off square the
+// other way, toward the castle.
 const placeCreatures = (isMobile, aspect, palms, outlines) => {
   const taken = palms.map((p) => ({ x: p.x, z: p.z, r: PALM_CLEAR * p.scale }));
-  return creatureList(isMobile, aspect).map(({ kind, z: preferred, range, first }) => {
+  const placed = creatureList(isMobile, aspect).map(({ kind, z: preferred, range, first }) => {
     const outline = outlines[kind];
     const radius = Math.max(...outline.map(([x, z]) => Math.hypot(x, z)));
     const at = (z) => {
@@ -816,6 +838,17 @@ const placeCreatures = (isMobile, aspect, palms, outlines) => {
       first,
     };
   });
+  const byCastle = isMobile && CASTLE_CRAB[layoutOf(isMobile, aspect)];
+  if (byCastle) {
+    const [at, span] = byCastle;
+    const home = onSand(at, aspect);
+    const scale = span / CRAB_SPAN;
+    const yaw = Math.atan2(CAMERA_HOME.x - home.x, CAMERA_HOME.z - home.z) - 0.3;
+    // Clear of the wet sand
+    home.setX(Math.min(home.x, dryX(home.z, isMobile, aspect) - clearAt(home.z, aspect) - span / 2));
+    placed.push({ kind: CRAB, still: true, home, rotation: new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), yaw), scale: V(scale, scale, scale) });
+  }
+  return placed;
 };
 
 const smooth = (t) => t * t * (3 - 2 * t);
@@ -967,7 +1000,9 @@ export default function ShoreLife({ palms = NO_PALMS }) {
     aState.needsUpdate = true;
     aBob.needsUpdate = true;
     const now = get().clock.elapsedTime;
-    behavior.current = creatures.map((creature) => (creature.kind === CRAB ? newCrab(now + creature.first) : newTurtle(now + creature.first)));
+    behavior.current = creatures.map((creature) =>
+      creature.still ? null : creature.kind === CRAB ? newCrab(now + creature.first) : newTurtle(now + creature.first),
+    );
   }, [group, model, creatures, matrix, get]);
 
   useEffect(() => {
@@ -1011,6 +1046,7 @@ export default function ShoreLife({ palms = NO_PALMS }) {
     const { aState, aBob } = creatureMesh.geometry.attributes;
     creatures.forEach((creature, i) => {
       const b = behavior.current[i];
+      if (creature.still) return;
       if (creature.kind === CRAB) {
         stepCrab(b, t, delta);
         position.copy(creature.home).addScaledVector(creature.right, b.offset * creature.scale.x);

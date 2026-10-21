@@ -13,8 +13,8 @@ import { createRandom } from "../lib/lowPoly";
 // the cooler in its shade, which is cast away from the sun. Low-poly and flat, their light baked into the vertex colors (a
 // key from the sunset behind and to the right, a faint fill from the camera
 // side). Two draw calls: the flat things (towel, baked shadows) that lie on
-// the sand, then the solid props. On phones also a sandcastle, a surfboard
-// and footprints (TOYS), in the same two draw calls. A lazy chunk mounted
+// the sand, then the solid props. On phones also a sandcastle and
+// footprints (TOYS), in the same two draw calls. A lazy chunk mounted
 // after the first visible frame, compiled while hidden, then faded in, like
 // BeachDecor.
 //
@@ -85,12 +85,11 @@ const SHADE_ELEVATION = THREE.MathUtils.degToRad(75);
 const LEAN = THREE.MathUtils.degToRad(20);
 const TURN = THREE.MathUtils.degToRad(40);
 // Phones only, where the beach is emptier round the avatar: a little
-// sandcastle with a terracotta flag beside him, a surfboard standing in the
-// sand and a trail of footprints from the water up to his feet. By layout
-// (portrait or landscape), each where it touches the sand as a screen
-// fraction [x from the left, y from the top]; the castle and the board with
-// their size (Home units: the castle's keep, the board's length) and the
-// board's turn from facing the camera; the trail through three spots, from
+// sandcastle with a terracotta flag beside him (ShoreLife sets a crab
+// beside it) and a trail of footprints from the water up to his feet. By
+// layout (portrait or landscape), each where it touches the sand as a
+// screen fraction [x from the left, y from the top]; the castle with its
+// size (Home units: its keep); the trail through three spots, from
 // the dry line (lib/coast dryX) to just in front of the avatar's feet,
 // passing under the umbrella's canopy on phones held upright. All clear of
 // the avatar, the title, the palms, the props round the laptop, the grass
@@ -98,12 +97,10 @@ const TURN = THREE.MathUtils.degToRad(40);
 const TOYS = {
   portrait: {
     castle: [[0.375, 0.583], 0.12],
-    board: [[0.36, 0.535], 0.55, -0.5],
     trail: [[0.6, 0.79], [0.585, 0.665], [0.525, 0.574]],
   },
   landscape: {
     castle: [[0.57, 0.625], 0.2],
-    board: [[0.24, 0.585], 0.75, 0.5],
     trail: [[0.705, 0.73], [0.55, 0.7], [0.512, 0.574]],
   },
 };
@@ -142,12 +139,11 @@ const CORAL = hex("#ef6a55");
 const CREAM = hex("#f7e8cc");
 const POLE = hex("#efe4d4");
 // Damp packed sand for the castle, a terracotta flag on a driftwood stick;
-// the board cream with coral and teal stripes; the prints a darker sand
+// the prints a darker sand
 const CASTLE = hex("#e6aa72");
 const CASTLE_TOP = hex("#f2c08c");
 const FLAG = hex("#c4573a");
 const STICK = hex("#8a6448");
-const TEAL = hex("#3b8e96");
 const PRINT = hex("#b77a52");
 
 // Baked light: the sunset key behind and to the right (BeachDecor's
@@ -488,7 +484,7 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
   }
   shadow(cooler, 0, 0, W * 0.72, D * 0.7, 0.45, 0.003);
 
-  // Phones: the footprints, the sandcastle and the surfboard (TOYS). Last,
+  // Phones: the footprints and the sandcastle (TOYS). Last,
   // so everything above keeps its seeded looks.
   const toys = isMobile && TOYS[layout];
   if (toys) {
@@ -569,28 +565,6 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
       () => FLAG,
     );
     shadow(castle, 0, 0, 1.4, 1.1, 0.35, 0.003);
-
-    // Surfboard: standing on its tail, stuck in the sand, leaning back a
-    // little; flat, rounded at the tail, pointed at the nose, cream with a
-    // coral and a teal stripe across it. Its slices [from, to, radius at
-    // each, color], in board lengths up from the tail.
-    const [boardAt, length, turn] = toys.board;
-    const b = onSand(boardAt);
-    const upright = matrixOf(b.x, 0, b.z, facing(b) + turn, length);
-    const board = upright.clone().multiply(part(0, -0.06, 0, -0.1));
-    for (const [y0, y1, r0, r1, color] of [
-      [0, 0.12, 0.1, 0.13, CREAM],
-      [0.12, 0.4, 0.13, 0.15, CREAM],
-      [0.4, 0.47, 0.15, 0.149, CORAL],
-      [0.47, 0.51, 0.149, 0.147, CREAM],
-      [0.51, 0.56, 0.147, 0.143, TEAL],
-      [0.56, 0.76, 0.143, 0.12, CREAM],
-      [0.76, 0.9, 0.12, 0.075, CREAM],
-      [0.9, 1, 0.075, 0, CREAM],
-    ]) {
-      add(solid, cylinder(r1, r0, y1 - y0, 8, true), part(0, (y0 + y1) / 2, 0, 0, 0, 0, 1, 1, 0.16), board, () => color);
-    }
-    shadow(upright, 0, 0, 0.2, 0.07, 0.35, 0.003);
   }
 
   const group = new THREE.Group();
