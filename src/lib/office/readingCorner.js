@@ -152,6 +152,8 @@ const buildThrow = (sink, sand) => {
 // and a side branch, broad leaves turned up and out, the lower ones drooping;
 // the canopy stays clear of the lace (z −1.71) and the left wall
 const FIG = { x: -2.5, z: -1.15, leaves: 34 };
+// The canopy's clearance from the lace and from the left side wall's face
+const FIG_CLEAR = { lace: 0.09, wall: 0.08 };
 const FIG_POT = [[0, 0.13], [0.29, 0.165], [0.3, 0.18], [0.36, 0.18]];
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
 const leafSpan = new THREE.Vector3();
@@ -217,8 +219,8 @@ const buildFig = (sink, random) => {
     const length = 0.24 + random() * 0.08;
     // A short stalk, then the leaf; the canopy keeps off the lace and the wall
     const reach = length + 0.04;
-    if (at.z + dir.z * reach < -1.62) dir.z = Math.abs(dir.z);
-    if (at.x + dir.x * reach < -2.92) dir.x = Math.abs(dir.x);
+    if (at.z + dir.z * reach < WINDOW.skills.lace.at + FIG_CLEAR.lace) dir.z = Math.abs(dir.z);
+    if (at.x + dir.x * reach < WINDOW.skills.room.x0 + T + FIG_CLEAR.wall) dir.x = Math.abs(dir.x);
     dir.normalize();
     const stalk = at.clone().addScaledVector(dir, 0.04);
     tube(sink, [at, stalk], 0.004, 3, COLOR.bark);

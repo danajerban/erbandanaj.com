@@ -201,7 +201,7 @@ const buildWindow = (sink, corner) => {
     // The reveal's floor behind the sill
     polygon(sink, [v3(a, c, BACK - T), v3(b, c, BACK - T), v3(b, c, sill.z[0]), v3(a, c, sill.z[0])], PALETTE.limewash, { ao: AO.reveal }, UP);
     // Mullions and the transom between them, set in the reveal
-    const inset = [-1.88, -1.84];
+    const inset = [BACK - 0.08, BACK - 0.04];
     const bars = w.mullions.map((m) => [m - 0.02, m + 0.02]);
     for (const xs of bars) box(sink, xs, [c, d], inset, white, { omit: "-z-y+y" });
     const gaps = [a, ...bars.flat(), b];
