@@ -252,6 +252,7 @@ export const HOUSES = [
     // From x[0] to x[1] W, sloping from top on the facade to its scallops
     // at low, depth out (the string lights hang from its left front corner)
     awning: { x: [0.05, 0.95], top: 1.55, low: 1.37, depth: 0.6 },
+    pendant: 0.64, // the pendant lamp in the big window, at pendant W (cafeWindow)
     day: "#f2b48f",
     roofColor: "#5c4448",
     upperWindowX: [0.2, 0.5, 0.8],
@@ -282,7 +283,7 @@ export const cafeDoor = (park) => [cafeX(park, HOUSES[CAFE].door.at), park.row.z
 export const CAFE_PATH_END = 1.3;
 
 // The café's big window centre: [x, y, z], just in front of its facade
-export const cafeWindow = (park) => [cafeX(park, 0.64), 0.72 * park.row.scale, park.row.z + 0.02];
+export const cafeWindow = (park) => [cafeX(park, HOUSES[CAFE].pendant), 0.72 * park.row.scale, park.row.z + 0.02];
 
 // The two terrace tables on the sidewalk: [[x, z], [x, z]]
 export const cafeTables = (park) => [0.55, 0.85].map((f) => [cafeX(park, f), park.row.z + 0.8]);

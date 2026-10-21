@@ -302,7 +302,7 @@ const shopfront = (sink, park, house, fine) => {
   const [wx0, wx1] = [0.34 * W, 0.94 * W];
   rect(sink, wx0, wx1, 0.3, 1.15, 0.008, null, { color: CAFE.glass, glow: 1 });
   rect(sink, wx0, wx1, 0.3, 0.5, 0.01, null, { color: CAFE.counter });
-  const px = 0.64 * W;
+  const px = house.pendant * W;
   rect(sink, px - 0.005, px + 0.005, 1.0, 1.15, 0.01, null, { color: CAFE.counter });
   sink.tri(v(px - 0.07, 0.93, 0.011), v(px + 0.07, 0.93, 0.011), v(px, 1.0, 0.011), null, { color: CAFE.pendant, glow: 1 });
 
