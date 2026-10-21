@@ -147,8 +147,8 @@ export const PRINT = { x: -0.76, y: 1.36, w: 0.26, h: 0.34 };
 // z >= 0.2.
 export const TITLE_TURN = Math.PI / 6;
 const TITLE_AT = {
-  skills: { desktop: [-2.0, 0, 0.9], tall: [-1.25, 0, 0.9], portrait: [-1.55, 0, 2.6], landscape: [-1.6, 0, 3.0] },
-  projects: { desktop: [0.4, 0, 1.3], tall: [-0.9, 0, 2.3], portrait: [-0.5, 0, 3.0], landscape: [-0.9, 0, 3.4] },
+  skills: { desktop: [-2.0, 0, 0.9], tall: [-1.25, 0, 0.9], portrait: [-1.55, 0, 2.6], landscape: [-4.6, 0, 0.5] },
+  projects: { desktop: [0.4, 0, 1.3], tall: [-0.9, 0, 2.3], portrait: [-0.5, 0, 3.0], landscape: [-5.2, 0, -0.6] },
 };
 export const titleAt = (corner, layout) => TITLE_AT[corner][layout];
 
