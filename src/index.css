@@ -916,8 +916,10 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     font-size: 1.25rem;
   }
 
+  /* Three lines at most at 393px, so the carousel (as tall as its tallest
+     card) keeps clear of the PROJECTS letters */
   .project__details__description {
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     line-height: 1.3;
   }
 
