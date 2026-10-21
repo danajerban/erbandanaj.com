@@ -335,8 +335,10 @@ const byAspect = (rows, aspect) => {
 //   where the screen is too narrow for both, it steps back and shrinks.
 // - Phones: on the lawn in front of the avatar's feet. The contact card is
 //   fixed in CSS px, so on a short screen (a canvas under skyBelow CSS px
-//   tall) it covers his feet and that lawn: there the title floats in the
-//   sky above the houses, clear of the menu and the moon.
+//   tall: upright, the iPhone SE and 16:9 Android phones; a mini and
+//   taller keep the lawn) it covers his feet and that lawn: there the
+//   title floats in the sky above the houses, clear of the menu and the
+//   moon.
 export const TITLE_TURN = Math.PI / 6;
 const TITLE_DESKTOP = [
   [0.75, -1.52, -0.5, 0.55],
@@ -345,7 +347,7 @@ const TITLE_DESKTOP = [
   [1.45, -2.35, 0.5, 1],
 ];
 const TITLE_PHONE = {
-  portrait: { lawn: [-1.1, 0, 0.5], sky: [-1.6, 2.9, -2], skyBelow: 720 },
+  portrait: { lawn: [-1.1, 0, 0.5], sky: [-1.6, 2.9, -2], skyBelow: 680 },
   landscape: { lawn: [-1.1, 0, 0.5], sky: [-3.5, 2.3, -1], skyBelow: 380 },
 };
 export const titleInSky = (layout, height) => isPhone(layout) && height < TITLE_PHONE[layout].skyBelow;

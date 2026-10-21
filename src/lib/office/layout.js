@@ -164,12 +164,13 @@ export const PRINT = { x: -0.76, y: 1.36, w: 0.26, h: 0.34 };
 // aspect (DESKTOP_BLEND), so neither title runs off a near-square window.
 // The phone cards sit a fixed number of CSS px above the bottom
 // (index.css), so on phones the room a title has above them goes by the
-// screen's height (CSS px). On a phone held upright shorter than
-// PORTRAIT_OVERHEAD (16:9 phones, 375x812) the floor in front of the
-// avatar lies under the card, so both titles hang overhead instead: above
-// the avatar's hat, under the menu, and clear of the moon (timeOfDay
-// MOON_AT). The floor spot clears the card by >= 45 px there (the room a
-// real iPhone's toolbar takes, about 40 px, plus a little). A tablet in
+// canvas's height (CSS px; in iOS Safari the large viewport, about 120 px
+// less than the screen: an iPhone SE 589, a mini 704, a 402x874 iPhone
+// 754). On a phone held upright shorter than PORTRAIT_OVERHEAD (the SE and
+// 16:9 Android phones) the floor in front of the avatar lies under the
+// card, so both titles hang overhead instead: above the avatar's hat,
+// under the menu, and clear of the moon (timeOfDay MOON_AT). From the mini
+// up the floor spot clears the card. A tablet in
 // the phone UI (768x1024 and up) has a wide stretch of bare floor between
 // the avatar and its short card, so there the floor spot comes forward to
 // "tablet", big and about 75-125 px above the card; phones (aspect up to
@@ -198,7 +199,7 @@ const TITLE_AT = {
     lowLandscape: [-5.2, 0.85, -0.6],
   },
 };
-const PORTRAIT_OVERHEAD = 830;
+const PORTRAIT_OVERHEAD = 680;
 const TABLET = { aspect: [0.5, 0.69], height: [830, 1024] };
 const LOW_LANDSCAPE = [393, 320];
 // height: the canvas's CSS height
