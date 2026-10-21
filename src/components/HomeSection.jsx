@@ -48,18 +48,26 @@ const PALMS = {
   // An upright screen has no room for the group between the avatar and the
   // sun over the sea: the same three stand inland left of the avatar
   // instead, `foot` a screen fraction from the left at their depth, the
-  // swept crown up to the left of the avatar's head
+  // two that lean out to sea on wide screens turned the other way (yaw
+  // mirrored), so all three lean away from the avatar toward the left edge
+  // and the crowns rise high above his head. An iPad Pro held upright
+  // (tall) has room for a bigger group further left.
   portrait: [
-    { ...FAN[0], foot: 0.235 },
-    { ...FAN[1], foot: 0.205 },
-    { ...FAN[2], foot: 0.28 },
+    { ...FAN[0], foot: 0.24 },
+    { ...FAN[1], yaw: Math.PI - FAN[1].yaw, foot: 0.25 },
+    { ...FAN[2], yaw: Math.PI - FAN[2].yaw, foot: 0.27 },
+  ],
+  tall: [
+    { ...FAN[0], foot: 0.225 },
+    { ...FAN[1], yaw: Math.PI - FAN[1].yaw, foot: 0.235 },
+    { ...FAN[2], yaw: Math.PI - FAN[2].yaw, foot: 0.255 },
   ],
 };
 // The whole group's size by layout (each palm scales about its foot):
 // mobile held sideways a touch smaller, so the crowns stay below the menu
-// on the short screen; upright smaller still, so the crowns fit between the
-// left edge and the avatar
-const SIZE = { desktop: 1, landscape: 0.9, portrait: 0.7 };
+// on the short screen; upright a little smaller too, so the crowns stay
+// below the title and clear of the avatar's head
+const SIZE = { desktop: 1, landscape: 0.9, portrait: 0.85, tall: 0.95 };
 
 // The laptop rests on the sand left of the avatar, on a beach towel
 // with a cooler beside it (BeachProps) and sand under them (BeachDecor):
@@ -129,11 +137,17 @@ const SURNAME = 1.3;
 const LINE_GAP = 0.3;
 const CAP = 1.01;
 
+// An upright screen past the breakpoint (an iPad Pro held upright) has
+// the desktop's avatar, big in the middle, and the menu's logo top left:
+// its palms, laptop and title keep clear of both
+const spotOf = (isMobile, layout) => (!isMobile && layout === "portrait" ? "tall" : layout);
+
 const palmLayout = (isMobile, aspect) => {
   const layout = layoutOf(isMobile, aspect);
-  return PALMS[layout].map(({ inland = 0, foot, ...spec }, i) => {
+  const spot = spotOf(isMobile, layout);
+  return PALMS[spot].map(({ inland = 0, foot, ...spec }, i) => {
     const z = PALM_Z[layout][i];
-    const scale = spec.scale * SIZE[layout];
+    const scale = spec.scale * SIZE[spot];
     const x =
       foot === undefined
         ? dryX(z, isMobile, aspect) - (FOOT_MARGIN + inland) * scale
@@ -150,10 +164,7 @@ export const HomeSection = ({ revealed }) => {
   const palms = useMemo(() => palmLayout(isMobile, aspect), [isMobile, aspect]);
   // The dry line's x at depth z, where the beach dressing ends
   const dry = useMemo(() => (z) => dryX(z, isMobile, aspect), [isMobile, aspect]);
-  // An upright screen past the breakpoint (an iPad Pro held upright) has
-  // the desktop's avatar, big in the middle, and the menu's logo top left:
-  // its laptop and title keep clear of both
-  const spot = !isMobile && layout === "portrait" ? "tall" : layout;
+  const spot = spotOf(isMobile, layout);
   const laptop = LAPTOP[spot];
   // The title's width and height at scale 1, measured once its font loads
   // (hidden until then)
