@@ -416,13 +416,14 @@ const buildGeometry = (isMobile, aspect, halfTan) => {
   return geometry;
 };
 
-// coastX as a screen fraction from the left, evenly in 1 / distance
-const buildCoast = (isMobile, aspect, halfTan) => {
+// coastX (at the rounded shape) as a screen fraction from the left (at the
+// true one), evenly in 1 / distance
+const buildCoast = (isMobile, shapeAspect, aspect, halfTan) => {
   const data = new Float32Array(COAST_SAMPLES);
   for (let i = 0; i < COAST_SAMPLES; i++) {
     const u = i / (COAST_SAMPLES - 1);
     const depth = 1 / (1 / D_NEAR - (1 / D_NEAR - 1 / D_FAR) * u);
-    data[i] = coastX(CAMERA_Z - depth, isMobile, aspect) / (2 * halfTan * aspect * depth) + 0.5;
+    data[i] = coastX(CAMERA_Z - depth, isMobile, shapeAspect) / (2 * halfTan * aspect * depth) + 0.5;
   }
   const texture = new THREE.DataTexture(data, COAST_SAMPLES, 1, THREE.RedFormat, THREE.FloatType);
   texture.needsUpdate = true;
@@ -465,19 +466,34 @@ export default function Sea() {
   const get = useThree((state) => state.get);
   const camera = useThree((state) => state.camera);
   const aspect = useThree((state) => state.viewport.aspect);
+  // The shore's shape, rounded like HomeSection's, so it matches the palms'
+  // and the sand's and the mesh rebuilds only when the aspect really changes
+  const shapeAspect = Math.round(aspect * 100) / 100;
   const mesh = useMemo(createSea, []);
   const ready = useRef(false);
   const fade = useRef(0);
   const halfTan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-  const geometry = useMemo(() => buildGeometry(isMobile, aspect, halfTan), [isMobile, aspect, halfTan]);
-  const coast = useMemo(() => buildCoast(isMobile, aspect, halfTan), [isMobile, aspect, halfTan]);
+  const geometry = useMemo(() => buildGeometry(isMobile, shapeAspect, halfTan), [isMobile, shapeAspect, halfTan]);
+  const coast = useMemo(
+    () => buildCoast(isMobile, shapeAspect, aspect, halfTan),
+    [isMobile, shapeAspect, aspect, halfTan],
+  );
   const scroll = useScroll();
 
   useLayoutEffect(() => {
     mesh.geometry = geometry;
+    return () => geometry.dispose();
+  }, [mesh, geometry]);
+
+  useLayoutEffect(() => {
+    mesh.material.uniforms.uCoast.value = coast;
+    return () => coast.dispose();
+  }, [mesh, coast]);
+
+  // The screen mapping, at the true aspect
+  useLayoutEffect(() => {
     const { uniforms } = mesh.material;
     const variant = isMobile ? "mobile" : "desktop";
-    uniforms.uCoast.value = coast;
     uniforms.uRunup.value = SWASH.runup[variant];
     // In half screen heights, like the shader's dx
     uniforms.uGlowWidth.value = SUN_GLOW_WIDTH[variant] * 2 * Math.min(1, aspect);
@@ -493,11 +509,7 @@ export default function Sea() {
     const level = new THREE.Vector3(0, 0, -1).transformDirection(camera.matrixWorldInverse);
     uniforms.uHorizonY.value = level.y / (-level.z * halfTan);
     uniforms.uUp.value.set(0, 1, 0).transformDirection(camera.matrixWorldInverse);
-    return () => {
-      geometry.dispose();
-      coast.dispose();
-    };
-  }, [mesh, geometry, coast, camera, isMobile, aspect, halfTan]);
+  }, [mesh, camera, isMobile, aspect, halfTan]);
 
   useEffect(() => {
     // A hot update (Fast Refresh) builds a new mesh, hidden at opacity 0,
