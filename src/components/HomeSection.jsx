@@ -121,17 +121,50 @@ const onScreen = ([fx, fy], depth, aspect) => {
     5 - depth * Math.cos(PITCH) - up * Math.sin(PITCH),
   ];
 };
+// The menu over the title, in CSS px (index.css .menu): on phones the
+// links' row, centred, about `row` wide, its `bottom` from the top; past
+// the breakpoint the logo, its handwritten name's bottom (`logo`)
+const MENU = { row: 295, bottom: 45, logo: 114 };
+// How far below them the title's top stays even at the top of its float
+// (CSS px), by composition: on a short screen it would rise into them. A
+// phone's title moves down, the room under it is open sky; the others
+// shrink toward their bottom edge, which keeps clear of the umbrella below.
+// On a phone held sideways the title sits left of the links on a wide
+// screen: it keeps clear only as far as it reaches under them (OVERLAP px
+// to the full gap).
+const CLEAR = { desktop: 16, landscape: 10, portrait: 16 };
+const OVERLAP = 24;
+// Drei's Float rises its children up to this far (their own units)
+const FLOAT_RISE = 0.1;
 // The title's place, turn and scale (size: its width and height at scale
-// 1). It faces the camera, so off to the side it still reads as flat as it
-// did in the middle of the view.
-const titlePlacement = ({ at, depth, box }, aspect, size) => {
-  const position = onScreen(at, depth, aspect);
-  const [dx, dy, dz] = [-position[0], 1.5 - position[1], 5 - position[2]];
+// 1), on a screen `height` CSS px high. It faces the camera, so off to the
+// side it still reads as flat as it did in the middle of the view.
+const titlePlacement = (spot, aspect, height, size) => {
+  const { depth, box } = TITLE[spot];
+  let [fx, fy] = TITLE[spot].at;
   const view = 2 * HALF_FOV_TAN * depth;
+  let scale = size ? Math.min((box[0] * view * aspect) / size[0], (box[1] * view) / size[1]) : 0;
+  if (size && CLEAR[spot]) {
+    // Screen fractions: the title's half height and width, its float
+    const [half, halfWidth, rise] = [(scale * size[1]) / view / 2, (scale * size[0]) / (view * aspect) / 2, (scale * FLOAT_RISE) / view];
+    const width = height * aspect;
+    const under = spot === "desktop" ? 1 : Math.min(1, Math.max(0, ((fx + halfWidth) * width - (width - MENU.row) / 2) / OVERLAP));
+    const line = ((spot === "desktop" ? MENU.logo : MENU.bottom) + CLEAR[spot] * under) / height + rise;
+    const short = line - (fy - half);
+    if (under > 0 && short > 0) {
+      if (spot === "portrait") fy += short;
+      else {
+        scale *= (2 * half - short) / (2 * half);
+        fy += short / 2;
+      }
+    }
+  }
+  const position = onScreen([fx, fy], depth, aspect);
+  const [dx, dy, dz] = [-position[0], 1.5 - position[1], 5 - position[2]];
   return {
     position,
     rotation: [-Math.asin(dy / Math.hypot(dx, dy, dz)), Math.atan2(dx, dz), 0, "YXZ"],
-    scale: size ? Math.min((box[0] * view * aspect) / size[0], (box[1] * view) / size[1]) : 0,
+    scale,
   };
 };
 // The title sits on its own layer, which the camera renders and the
@@ -185,7 +218,8 @@ export const HomeSection = ({ revealed }) => {
   // (hidden until then)
   const [titleSize, setTitleSize] = useState(null);
   const onTitleCentered = useCallback(({ width, height }) => setTitleSize([width, height]), []);
-  const title = useMemo(() => titlePlacement(TITLE[spot], aspect, titleSize), [spot, aspect, titleSize]);
+  const height = useThree((state) => state.size.height);
+  const title = useMemo(() => titlePlacement(spot, aspect, height, titleSize), [spot, aspect, height, titleSize]);
   const titleFont = isMobile ? 0.75 : 0.7;
   const titleLook = {
     layers: TITLE_LAYER,
