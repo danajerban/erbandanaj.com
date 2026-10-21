@@ -189,6 +189,7 @@ export const Interface = () => {
           <h2 className="sr-only">Home</h2>
           <motion.div
             className="scroll-down"
+            aria-hidden="true"
             initial={{
               opacity: 0,
             }}
