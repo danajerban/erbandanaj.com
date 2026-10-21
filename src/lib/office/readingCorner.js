@@ -1,18 +1,16 @@
 import * as THREE from "three";
-import { AO, LIGHT, PALETTE, hex } from "./bake";
-import { BACK, FLOOR_Y, RUG_Y, T, WINDOW } from "./layout";
+import { AO, PALETTE, hex } from "./bake";
+import { BACK, FLOOR_Y, RUG_Y } from "./layout";
 import { bevelBox, box, cylinder, cylinderBetween, ellipse, fan, orientedTri, polygon, strip, tube, v3 } from "./shapes";
 
-// Skills: the reading corner (reading corner step): armchair, floor lamp,
-// side table, bookcase, books, pothos, reading glow decals.
+// Skills: the reading corner (reading corner step): armchair, side table,
+// bookcase, books, pothos.
 // out = { solid: OfficeSink, glow: GlowSink }; ctx = { isMobile, layout,
 // random }; room-frame coordinates.
 
-// The floor lamp's shade centre: its pool of light and a broad room fill
-export const READING_LIGHTS = [
-  { p: new THREE.Vector3(-2.2, 1.36, -1.25), color: LIGHT.reading, R: 1.8, w: 0.55 },
-  { p: new THREE.Vector3(-2.2, 1.36, -1.25), color: LIGHT.reading, R: 3.0, w: 0.18 },
-];
+// The afterglow coming in at the window: a broad warm light in front of it
+// that keeps the armchair, rug and bookcase warm
+export const READING_LIGHTS = [{ p: new THREE.Vector3(-1.7, 1.4, -1.1), color: hex("#ffc49a"), R: 3.2, w: 0.3 }];
 
 const COLOR = {
   olive: hex("#8a9a5b"),
@@ -20,7 +18,6 @@ const COLOR = {
   charcoal: hex("#3b3b3b"),
   mustard: hex("#d9a441"),
   page: hex("#efe5cf"),
-  linen: hex("#efe2cc"),
   terracotta: hex("#c66f4c"),
   coffee: hex("#4a2e1f"),
   stem: hex("#4d7a3a"),
@@ -28,7 +25,6 @@ const COLOR = {
   sun: hex("#ffd9a0"),
   island: hex("#6f8f4a"),
 };
-const BLACK = new THREE.Color(0, 0, 0);
 const UP = v3(0, 1, 0);
 const DEG = Math.PI / 180;
 
@@ -144,24 +140,6 @@ const buildThrow = (sink, sand) => {
     const y = hem(x);
     orientedTri(sink, v3(x - 0.008, y, lift), v3(x + 0.008, y, lift), v3(x, y - 0.03, lift), shade(sand, 0.85), {}, v3(0, 0, 1));
   }
-};
-
-// Floor lamp: an oak tripod whose legs meet under a glowing linen drum
-// shade centred on READING_LIGHTS; no leg points at the armchair
-const LAMP = { x: -2.2, z: -1.25, spread: 0.22, hub: 1.25, shade: { y: [1.25, 1.51], r: [0.2, 0.17] } };
-const LAMP_LEGS = (81 * Math.PI) / 180;
-
-const buildFloorLamp = (sink) => {
-  const { x, z, spread, hub } = LAMP;
-  const top = v3(x, hub, z);
-  for (let k = 0; k < 3; k++) {
-    const a = LAMP_LEGS + (k * 2 * Math.PI) / 3;
-    const foot = v3(x + spread * Math.cos(a), FLOOR_Y, z + spread * Math.sin(a));
-    cylinderBetween(sink, foot, top, 0.012, 0.009, 5, PALETTE.oak, { caps: false });
-  }
-  cylinder(sink, [x, z], [hub - 0.06, hub + 0.005], [0.02, 0.024], 8, PALETTE.oakGrain, { caps: "start" });
-  const { y, r } = LAMP.shade;
-  cylinder(sink, [x, z], y, r, 16, COLOR.linen, { caps: false, emissive: shade(COLOR.linen, 0.9) });
 };
 
 // Side table: round oak top on three legs; three stacked books and a mug
@@ -454,33 +432,18 @@ const buildContactBlobs = (sink) => {
   placed(sink, frame(ARMCHAIR.x, 0, ARMCHAIR.z, { yaw: ARMCHAIR.yaw }), () => {
     blob(sink, [0, 0], [0.5, 0.5], sand, { y: RUG_Y, onRug: true });
   });
-  blob(sink, [LAMP.x, LAMP.z], [0.27, 0.27], floorOak[0]);
   blob(sink, [TABLE.x, TABLE.z + 0.04], [0.21, 0.19], sand, { y: RUG_Y, onRug: true });
   blob(sink, [(SHELF.x[0] + SHELF.x[1]) / 2, (SHELF.z[0] + SHELF.z[1]) / 2], [0.5, 0.19], floorOak[0]);
 };
 
-// The reading lamp's light on the lamps channel: its pool on the rug and
-// floor, and a wash on the left side wall (the back wall behind the lamp
-// is the open window)
-const buildReadingGlow = (glow, isMobile) => {
-  // MOBILE_PERF: 12 glow-decal segments on mobile — revert by removing the ternary
-  const segments = isMobile ? 12 : 24;
-  const pool = v3(LAMP.x, RUG_Y + 0.003, LAMP.z);
-  fan(glow, pool, ellipse(pool, 0.7, 0.55, segments), hex("#ffb070").multiplyScalar(0.35), BLACK);
-  const wash = v3(WINDOW.skills.room.x0 + T + 0.003, 1.6, LAMP.z);
-  fan(glow, wash, ellipse(wash, 0.5, 0.5, segments, "zy"), shade(LIGHT.reading, 0.2), BLACK, { normal: v3(1, 0, 0) });
-};
-
 export const buildReadingCorner = (out, ctx) => {
-  const { solid, glow } = out;
+  const { solid } = out;
   buildContactBlobs(solid);
   buildArmchair(solid);
-  buildFloorLamp(solid);
   buildSideTable(solid);
   buildBookcase(solid);
   for (const y of SHELF.levels.slice(0, 3)) buildShelfBooks(solid, y, ctx.random);
   buildVase(solid, SHELF.levels[3]);
   buildPhoto(solid, SHELF.levels[3]);
   buildPothos(solid, ctx.random);
-  buildReadingGlow(glow, ctx.isMobile);
 };

@@ -50,7 +50,6 @@ export const PALETTE = {
 
 // Light colours (lamps, glow decals)
 export const LIGHT = {
-  reading: hex("#ffc58a"),
   desk: hex("#ffc27a"),
   lightBar: hex("#fff0d8"),
   screen: hex("#cfdcff"),
