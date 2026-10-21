@@ -1,6 +1,6 @@
 import { Center, Float } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { Suspense, lazy, use, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
 import { PALM_Z, dryX, layoutOf } from "../lib/coast";
@@ -87,15 +87,13 @@ const LAPTOP_BASE = [-0.023, 0.166, -0.253];
 
 // The title, by composition: wide screens set it in the sky left of the
 // avatar, below the menu's logo, clear of the palms, the sea and the sun;
-// upright ones across the top, under the menu (a phone held sideways sets
-// it a little smaller and higher, so the tagline under it clears the beach
-// umbrella). Its middle sits at a screen
+// upright ones across the top, under the menu. Its middle sits at a screen
 // fraction (x from the left, y from the top), `depth` down the view, and it
 // is as large as fits `box` (screen width and height fractions), which
 // leaves room for its gentle float.
 const TITLE = {
   desktop: { at: [0.28, 0.285], depth: 8.5, box: [0.396, 0.176] },
-  landscape: { at: [0.22, 0.23], depth: 8.5, box: [0.33, 0.19] },
+  landscape: { at: [0.22, 0.245], depth: 8.5, box: [0.33, 0.22] },
   portrait: { at: [0.5, 0.145], depth: 8, box: [0.924, 0.121] },
   tall: { at: [0.5, 0.155], depth: 8, box: [0.858, 0.11] },
 };
@@ -142,40 +140,6 @@ const CAP = 1.01;
 // apricot face, ringed by a wider bevel whose coral, with less of the
 // sunset light on it, outlines each letter in terracotta
 const PHONE_TITLE = { color: "#ffcda0", envMapIntensity: 0.3, bevelSize: 0.04 };
-// On a phone a small "Software Engineer" line hangs under the surname,
-// outside the measured lockup, so the name keeps its size and place: TAGLINE
-// first-name sizes high, TAGLINE_GAP below the surname's descender; thin and
-// lighter, in the title's program. The font has no space glyph: the
-// tagline's copy of it gains one SPACE wide (in font sizes), fetched once a
-// phone asks (a cache hit: the title loaded the same file), so both words
-// are one mesh.
-const TAGLINE = "Software Engineer";
-const TAGLINE_SIZE = 0.28;
-const TAGLINE_GAP = 0.25;
-const SPACE = 0.3;
-const TAGLINE_LOOK = {
-  layers: TITLE_LAYER,
-  height: 0.05,
-  bevelEnabled: true,
-  bevelThickness: 0.02,
-  bevelSize: 0.012,
-  bevelSegments: 1,
-  curveSegments: 4,
-  letterSpacing: 0.012,
-  envMapIntensity: 0.3,
-};
-let taglineFont;
-const loadTaglineFont = () =>
-  (taglineFont ??= fetch("/fonts/Inter_Bold.json")
-    .then((response) => response.json())
-    .then((font) => ({ ...font, glyphs: { ...font.glyphs, " ": { ha: SPACE * font.resolution } } })));
-const Tagline = ({ size, ...props }) => (
-  <Center disableY disableZ {...props}>
-    <SectionTitle {...TAGLINE_LOOK} font={use(loadTaglineFont())} size={size}>
-      {TAGLINE}
-    </SectionTitle>
-  </Center>
-);
 
 // An upright screen past the breakpoint (an iPad Pro held upright) has
 // the desktop's avatar, big in the middle, and the menu's logo top left:
@@ -286,16 +250,6 @@ export const HomeSection = ({ revealed }) => {
               </SectionTitle>
             </Center>
           </Center>
-          {isMobile && titleSize && (
-            <SilentErrorBoundary>
-              <Suspense fallback={null}>
-                <Tagline
-                  size={TAGLINE_SIZE * titleFont}
-                  position-y={-titleSize[1] / 2 - (TAGLINE_GAP + CAP * TAGLINE_SIZE) * titleFont}
-                />
-              </Suspense>
-            </SilentErrorBoundary>
-          )}
         </Float>
       </group>
     </SectionGroup>
