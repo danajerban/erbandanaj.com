@@ -1138,6 +1138,61 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   }
 }
 
+/* Upright tablets on the phone layout (600px wide and more): the carousel
+   keeps a large phone's width, centred, and the contact card is the short
+   wide one of the sideways phones, the four links beside the name */
+@media (max-width: 990px) and (orientation: portrait) and (min-width: 600px) {
+  .carousel {
+    max-width: 37.5rem;
+    margin-inline: auto;
+  }
+
+  .contact {
+    display: grid;
+  }
+
+  .section--contact .contact {
+    width: auto;
+    padding: 1.125rem 1.25rem 1rem;
+    column-gap: 1.25rem;
+  }
+
+  .contact__eyebrow {
+    font-size: 0.7rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .contact__name {
+    font-size: 1.5rem;
+  }
+
+  .contact__address {
+    font-size: 0.95rem;
+  }
+
+  .contact__socials {
+    gap: 0.75rem;
+    margin-top: 0;
+    padding: 0 0 0 1.25rem;
+    border-top: 0;
+    border-left: 1px solid rgba(26, 32, 44, 0.14);
+  }
+
+  .contact__socials a {
+    gap: 0.3rem;
+    padding: 0.25rem;
+  }
+
+  .contact__socials__icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .contact__socials__label {
+    font-size: 0.72rem;
+  }
+}
+
 /* Phone landscape reads like portrait: the room or the park fills the
    screen and the cards sit low and compact under it, the carousel as wide
    as a portrait one (one card in the middle, the neighbours peeking), the
