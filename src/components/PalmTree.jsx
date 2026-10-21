@@ -9,10 +9,10 @@ import { TriangleSink, createRandom } from "../lib/lowPoly";
 // palm) is merged into two draw calls (trunks + coconuts, fronds), built in
 // useMemo whenever the layout changes; fixed seeds, so every load grows the
 // same trees, and nothing is fetched. At scale 1 a palm is ≈2.7 units of
-// slim trunk with a crown ≈1.8 wide (≈2 on desktop).
+// slim trunk with a crown ≈2 wide.
 
 const TRUNK_HEIGHT = 2.7;
-const BASE_RADIUS = 0.095;
+const BASE_RADIUS = 0.095 * 1.12;
 
 const BARK_DARK = new THREE.Color("#9a6a43");
 const BARK_LIGHT = new THREE.Color("#c4915f");
@@ -260,14 +260,12 @@ const SWAY_VERTEX = /* glsl */ `
 // palms: [{ x, z, scale, yaw, bend, seed }] in Home coordinates (foot on
 // the floor); yaw turns the palm about its foot, so yaw 0 leans it toward -x
 // and yaw PI toward +x.
-const buildPalms = (isMobile, palms) => {
-  // MOBILE_PERF: fewer trunk rings and sides on mobile — revert by removing the ternaries
-  const rings = isMobile ? 10 : 13;
-  const sides = isMobile ? 6 : 7;
-  // MOBILE_PERF: fewer fronds and leaflet segments on mobile — revert by removing the ternaries
-  const fronds = isMobile ? 8 : 11;
-  const segments = isMobile ? 9 : 12;
+const RINGS = 13;
+const SIDES = 7;
+const FRONDS = 11;
+const SEGMENTS = 12;
 
+const buildPalms = (palms) => {
   const trunkSink = new TriangleSink(false);
   const frondSink = new TriangleSink(true);
   for (const { x, z, scale, yaw, bend, seed } of palms) {
@@ -282,12 +280,9 @@ const buildPalms = (isMobile, palms) => {
     // The sway offset is in Home units: a smaller palm sways less
     frondSink.swayScale = scale;
     const lit = LIT_DIR.clone().applyAxisAngle(UP, -yaw);
-    // Desktop: a sturdier, less tapered trunk and a wider crown
-    const crown = isMobile
-      ? buildTrunk(trunkSink, random, rings, sides, BASE_RADIUS, 0.45, lit, bend)
-      : buildTrunk(trunkSink, random, rings, sides, BASE_RADIUS * 1.12, 0.35, lit, bend);
+    const crown = buildTrunk(trunkSink, random, RINGS, SIDES, BASE_RADIUS, 0.35, lit, bend);
     buildCoconuts(trunkSink, random, crown, 4, lit);
-    buildFronds(frondSink, random, crown, fronds, segments, isMobile ? 0.8 : 0.9, lit);
+    buildFronds(frondSink, random, crown, FRONDS, SEGMENTS, 0.9, lit);
   }
   return { trunk: trunkSink.build(), fronds: frondSink.build() };
 };
@@ -323,9 +318,9 @@ const buildMaterials = () => {
 };
 
 export function PalmTree({ palms, ...props }) {
-  const { isMobile, prefersReducedMotion } = useMobile();
+  const { prefersReducedMotion } = useMobile();
   const materials = useMemo(buildMaterials, []);
-  const geometry = useMemo(() => buildPalms(isMobile, palms), [isMobile, palms]);
+  const geometry = useMemo(() => buildPalms(palms), [palms]);
 
   useEffect(() => {
     return () => {
