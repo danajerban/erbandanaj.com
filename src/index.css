@@ -1005,11 +1005,23 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     font-size: clamp(0.875rem, 5vw - 2px, 1rem);
   }
 
-  /* Phones: the mouse becomes a small glass pill, "Swipe up" with an
-     up-chevron bouncing gently on its right, as high as the cards' bottom
-     padding (clear of Safari's floating toolbar); it fades out once the
-     visitor scrolls, like the mouse. Reduced motion stops the bounce (the global rule below
-     ends it at rest). */
+  /* MOBILE_PERF: disable expensive backdrop-filter on mobile (the menu pill
+     is a tint only) — revert by removing this block */
+  .skill,
+  .project,
+  .contact,
+  .menu__buttons--glass {
+    backdrop-filter: none;
+  }
+}
+
+@media (max-width: 990px), (hover: none) and (pointer: coarse) {
+  /* Phones and touch tablets, whatever their width: the mouse becomes a
+     small glass pill, "Swipe up" with an up-chevron bouncing gently on its
+     right, as high as the cards' bottom padding (clear of Safari's floating
+     toolbar); it fades out once the visitor scrolls, like the mouse.
+     Reduced motion stops the bounce (the global rule below ends it at
+     rest). */
   .scroll-down {
     width: auto;
     height: auto;
@@ -1045,15 +1057,6 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
 
   .scroll-down__wheel {
     display: none;
-  }
-
-  /* MOBILE_PERF: disable expensive backdrop-filter on mobile (the menu pill
-     is a tint only) — revert by removing this block */
-  .skill,
-  .project,
-  .contact,
-  .menu__buttons--glass {
-    backdrop-filter: none;
   }
 }
 
