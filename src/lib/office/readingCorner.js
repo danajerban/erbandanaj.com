@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { AO, PALETTE, hex } from "./bake";
-import { BACK, FLOOR_Y, RUG_Y, T, WINDOW } from "./layout";
+import { BACK, FLOOR_Y, RUG_Y, WALL_T, WINDOW } from "./layout";
 import { bevelBox, box, cylinder, cylinderBetween, ellipse, fan, orientedTri, polygon, strip, tube, v3 } from "./shapes";
 
 // Skills: the reading corner: armchair, fiddle-leaf fig, side table with a
@@ -220,7 +220,7 @@ const buildFig = (sink, random) => {
     // A short stalk, then the leaf; the canopy keeps off the lace and the wall
     const reach = length + 0.04;
     if (at.z + dir.z * reach < WINDOW.skills.lace.at + FIG_CLEAR.lace) dir.z = Math.abs(dir.z);
-    if (at.x + dir.x * reach < WINDOW.skills.room.x0 + T + FIG_CLEAR.wall) dir.x = Math.abs(dir.x);
+    if (at.x + dir.x * reach < WINDOW.skills.room.x0 + WALL_T + FIG_CLEAR.wall) dir.x = Math.abs(dir.x);
     dir.normalize();
     const stalk = at.clone().addScaledVector(dir, 0.04);
     tube(sink, [at, stalk], 0.004, 3, COLOR.bark);
@@ -571,7 +571,7 @@ const buildPrint = (sink) => {
   const { z, y, w, h, bar, mat } = PRINT;
   const { oak, sand, coral } = PALETTE;
   // Its own frame faces +x (into the room); local +x runs toward −z
-  placed(sink, frame(WINDOW.skills.room.x0 + T, y, z, { yaw: Math.PI / 2 }), () => {
+  placed(sink, frame(WINDOW.skills.room.x0 + WALL_T, y, z, { yaw: Math.PI / 2 }), () => {
     const half = w / 2;
     const depth = [0, 0.018];
     box(sink, [-half, half], [0, bar], depth, oak, { omit: "-z" });

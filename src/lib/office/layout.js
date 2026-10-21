@@ -12,7 +12,7 @@ import { layoutOf } from "../coast";
 export const OFFICE_LAYER = 10;
 
 export const BACK = -1.8; // inner face of the back wall
-export const T = 0.12; // wall thickness: the back face lies at BACK - T
+export const WALL_T = 0.12; // wall thickness: the back face lies at BACK - WALL_T
 export const WALL_H = 2.4;
 export const FLOOR_Y = -0.012; // floor top, under the contact-shadow plane
 export const RUG_Y = -0.004;

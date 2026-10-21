@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { AO, LIGHT, PALETTE } from "./bake";
-import { ARCH, BACK, FLOOR_Y, RUG_Y, SHELL, SLAB, T, WALL_H, WINDOW } from "./layout";
+import { ARCH, BACK, FLOOR_Y, RUG_Y, SHELL, SLAB, WALL_H, WALL_T, WINDOW } from "./layout";
 import { box, cylinderBetween, fan, polygon, tube, v3, wallWithHoles } from "./shapes";
 
 // The empty room of each office corner (room frame): floor slab with oak
@@ -98,17 +98,17 @@ const slabEdges = (sink, [xa, xb], [za, zb], { front = true, left = true, right 
 const buildFloor = (sink, corner, layout, random) => {
   const { x0 } = WINDOW[corner].room;
   const { left, right, front, side } = SHELL[layout];
-  const xi = x0 + T;
+  const xi = x0 + WALL_T;
   const ao = (x, z) => floorAo(x, z, xi, side);
   const zBreaks = [BACK + AO_FLOOR, side, side + AO_FLOOR];
   if (left !== null) planks(sink, [left, x0], [BACK, front], random, { ao, zBreaks });
   planks(sink, [x0, xi], [side, front], random, { ao, zBreaks });
   planks(sink, [xi, right], [BACK, front], random, { ao, zBreaks });
-  slabEdges(sink, [left ?? x0, right], [BACK - T, front]);
+  slabEdges(sink, [left ?? x0, right], [BACK - WALL_T, front]);
   // The arch's threshold, flush with the floor, then the hallway stub
   // (nothing above it: the sky shows through the arch)
-  sink.quad(v3(-ARCH.x, FLOOR_Y, BACK), v3(ARCH.x, FLOOR_Y, BACK), v3(ARCH.x, FLOOR_Y, BACK - T), v3(-ARCH.x, FLOOR_Y, BACK - T), PALETTE.oak);
-  const stub = [BACK - T - 0.63, BACK - T];
+  sink.quad(v3(-ARCH.x, FLOOR_Y, BACK), v3(ARCH.x, FLOOR_Y, BACK), v3(ARCH.x, FLOOR_Y, BACK - WALL_T), v3(-ARCH.x, FLOOR_Y, BACK - WALL_T), PALETTE.oak);
+  const stub = [BACK - WALL_T - 0.63, BACK - WALL_T];
   planks(sink, [-ARCH.x, ARCH.x], stub, random, { tone: 0.9 });
   slabEdges(sink, [-ARCH.x, ARCH.x], [stub[0], stub[1]], { front: false });
 };
@@ -118,7 +118,7 @@ const buildWalls = (sink, corner, layout) => {
   const w = WINDOW[corner];
   const { x0 } = w.room;
   const { left, right: x1, side } = SHELL[layout];
-  const xi = x0 + T;
+  const xi = x0 + WALL_T;
   // On phones the back wall carries on left of the side wall
   const xl = left ?? x0;
   const foot = (y) => AO.wallFoot(y - FLOOR_Y);
@@ -131,7 +131,7 @@ const buildWalls = (sink, corner, layout) => {
   wallWithHoles(sink, { u: [left ?? xi, x1], v: [FLOOR_Y, WALL_H] }, backHoles, { o: v3(0, 0, BACK), u: v3(1, 0, 0), v: UP }, PALETTE.limewash, {
     ao: (u, v) => foot(v) * cornerAo(u),
     breaks: { u: [xi + AO_CORNER, ...(left === null ? [] : [x0 - AO_CORNER, x0, xi])], v: vBreaks },
-    depth: T,
+    depth: WALL_T,
     revealAo: AO.reveal,
   });
   // Left side wall: its face looks along +x, u runs along −z, from its
@@ -140,19 +140,19 @@ const buildWalls = (sink, corner, layout) => {
   wallWithHoles(sink, { u: [-side, -BACK], v: [FLOOR_Y, WALL_H] }, sideHoles, { o: v3(xi, 0, 0), u: v3(0, 0, -1), v: UP }, PALETTE.limewash, {
     ao: (u, v) => foot(v) * AO.corner(-BACK - u),
     breaks: { u: [-BACK - AO_CORNER], v: vBreaks },
-    depth: T,
+    depth: WALL_T,
     revealAo: AO.reveal,
   });
 
   // The model cut: wall tops, the side wall's front end, the back wall's
   // ends (past the screen edges)
   const cut = PALETTE.cut;
-  polygon(sink, [v3(xl, WALL_H, BACK - T), v3(x1, WALL_H, BACK - T), v3(x1, WALL_H, BACK), v3(xl, WALL_H, BACK)], cut, {}, UP);
+  polygon(sink, [v3(xl, WALL_H, BACK - WALL_T), v3(x1, WALL_H, BACK - WALL_T), v3(x1, WALL_H, BACK), v3(xl, WALL_H, BACK)], cut, {}, UP);
   polygon(sink, [v3(x0, WALL_H, BACK), v3(xi, WALL_H, BACK), v3(xi, WALL_H, side), v3(x0, WALL_H, side)], cut, {}, UP);
   polygon(sink, [v3(x0, FLOOR_Y, side), v3(xi, FLOOR_Y, side), v3(xi, WALL_H, side), v3(x0, WALL_H, side)], cut, {}, v3(0, 0, 1));
-  polygon(sink, [v3(x1, FLOOR_Y, BACK - T), v3(x1, FLOOR_Y, BACK), v3(x1, WALL_H, BACK), v3(x1, WALL_H, BACK - T)], cut, {}, v3(1, 0, 0));
+  polygon(sink, [v3(x1, FLOOR_Y, BACK - WALL_T), v3(x1, FLOOR_Y, BACK), v3(x1, WALL_H, BACK), v3(x1, WALL_H, BACK - WALL_T)], cut, {}, v3(1, 0, 0));
   if (left !== null) {
-    polygon(sink, [v3(xl, FLOOR_Y, BACK), v3(xl, FLOOR_Y, BACK - T), v3(xl, WALL_H, BACK - T), v3(xl, WALL_H, BACK)], cut, {}, v3(-1, 0, 0));
+    polygon(sink, [v3(xl, FLOOR_Y, BACK), v3(xl, FLOOR_Y, BACK - WALL_T), v3(xl, WALL_H, BACK - WALL_T), v3(xl, WALL_H, BACK)], cut, {}, v3(-1, 0, 0));
   }
 
   // Skirting: along the back wall, broken by the arch casing (and on
@@ -199,7 +199,7 @@ const buildWindow = (sink, corner) => {
     box(sink, [b, b + trim], [c, d], z, white, { omit: "-z-y" });
     box(sink, [a - trim, b + trim], [d, d + trim], z, white, { omit: "-z" });
     // The reveal's floor behind the sill
-    polygon(sink, [v3(a, c, BACK - T), v3(b, c, BACK - T), v3(b, c, sill.z[0]), v3(a, c, sill.z[0])], PALETTE.limewash, { ao: AO.reveal }, UP);
+    polygon(sink, [v3(a, c, BACK - WALL_T), v3(b, c, BACK - WALL_T), v3(b, c, sill.z[0]), v3(a, c, sill.z[0])], PALETTE.limewash, { ao: AO.reveal }, UP);
     // Mullions and the transom between them, set in the reveal
     const inset = [BACK - 0.08, BACK - 0.04];
     const bars = w.mullions.map((m) => [m - 0.02, m + 0.02]);
@@ -212,7 +212,7 @@ const buildWindow = (sink, corner) => {
     for (const x of rod.x) cylinderBetween(sink, v3(x - FINIAL_R, y, rod.z), v3(x + FINIAL_R, y, rod.z), FINIAL_R, FINIAL_R, 6, oak);
     for (const x of rod.brackets) box(sink, [x - 0.01, x + 0.01], [y - 0.01, y + 0.01], [BACK, rod.z], oak, { omit: "-z" });
   } else {
-    const xi = w.room.x0 + T;
+    const xi = w.room.x0 + WALL_T;
     const x = [xi, xi + 0.015];
     // u runs along z here: a, b are the hole's z range
     box(sink, x, [c, d], [a - trim, a], white, { omit: "-x-y" });
