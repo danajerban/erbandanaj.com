@@ -14,6 +14,7 @@ export const SkillsSection = () => {
   const sectionsDistance = getSectionsDistance(isMobile);
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
   const layout = officeLayout(isMobile, aspect);
+  const height = useThree((state) => state.size.height);
   return (
     <SectionGroup
       name="skills"
@@ -21,7 +22,7 @@ export const SkillsSection = () => {
       position-z={isMobile ? -5 : sectionsDistance}
     >
       <OfficeCorner corner="skills" lights={READING_LIGHTS} build={buildReadingCorner}>
-        <SectionTitle layers={OFFICE_LAYER} position={titleAt("skills", layout, aspect)} rotation-y={TITLE_TURN}>
+        <SectionTitle layers={OFFICE_LAYER} position={titleAt("skills", layout, aspect, height)} rotation-y={TITLE_TURN}>
           SKILLS
         </SectionTitle>
       </OfficeCorner>

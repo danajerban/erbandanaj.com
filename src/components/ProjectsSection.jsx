@@ -52,6 +52,7 @@ export const ProjectsSection = () => {
   const sectionsDistance = getSectionsDistance(isMobile);
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
   const layout = officeLayout(isMobile, aspect);
+  const height = useThree((state) => state.size.height);
   const lights = useMemo(() => transformLights(DESK_LIGHTS, vignetteMatrix(layout)), [layout]);
   return (
     <SectionGroup
@@ -60,7 +61,7 @@ export const ProjectsSection = () => {
       position-z={isMobile ? -5 : 2 * sectionsDistance}
     >
       <OfficeCorner corner="projects" lights={lights} build={buildDeskCorner}>
-        <SectionTitle layers={OFFICE_LAYER} position={titleAt("projects", layout, aspect)} rotation-y={TITLE_TURN}>
+        <SectionTitle layers={OFFICE_LAYER} position={titleAt("projects", layout, aspect, height)} rotation-y={TITLE_TURN}>
           PROJECTS
         </SectionTitle>
         {/* Own boundary: a screenshot texture that hasn't loaded yet
