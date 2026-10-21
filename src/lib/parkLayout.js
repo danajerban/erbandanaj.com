@@ -333,6 +333,10 @@ const byAspect = (rows, aspect) => {
 //   alone (so it frames the same at any size): [aspect, x, z, scale] rows.
 //   Its right end stays left of the avatar's legs, its left end on screen;
 //   where the screen is too narrow for both, it steps back and shrinks.
+// - Phones: on the lawn in front of the avatar's feet. The contact card is
+//   fixed in CSS px, so on a short screen (a canvas under skyBelow CSS px
+//   tall) it covers his feet and that lawn: there the title floats in the
+//   sky above the houses, clear of the menu and the moon.
 export const TITLE_TURN = Math.PI / 6;
 const TITLE_DESKTOP = [
   [0.75, -1.52, -0.5, 0.55],
@@ -340,8 +344,13 @@ const TITLE_DESKTOP = [
   [1.33, -2.45, 0, 1],
   [1.45, -2.35, 0.5, 1],
 ];
-export const titleAt = (layout, aspect) => {
-  if (isPhone(layout)) return { position: [-1.1, 0, 0.5], scale: 1 };
+const TITLE_PHONE = {
+  portrait: { lawn: [-1.1, 0, 0.5], sky: [-1.6, 2.9, -2], skyBelow: 720 },
+  landscape: { lawn: [-1.1, 0, 0.5], sky: [-3.5, 2.3, -1], skyBelow: 380 },
+};
+export const titleInSky = (layout, height) => isPhone(layout) && height < TITLE_PHONE[layout].skyBelow;
+export const titleAt = (layout, aspect, inSky) => {
+  if (isPhone(layout)) return { position: TITLE_PHONE[layout][inSky ? "sky" : "lawn"], scale: 1 };
   const [x, z, scale] = byAspect(TITLE_DESKTOP, aspect);
   return { position: [x, 0, z], scale };
 };

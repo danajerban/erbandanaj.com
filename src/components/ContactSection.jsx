@@ -2,7 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
-import { PARK, TITLE_TURN, parkLayoutOf, titleAt } from "../lib/parkLayout";
+import { PARK, TITLE_TURN, parkLayoutOf, titleAt, titleInSky } from "../lib/parkLayout";
 import { PARK_LAYER, parkStats, useParkClock } from "../lib/parkMaterials";
 import { MOON_AT, timeOfDay } from "../lib/timeOfDay";
 import ParkGarden from "./park/ParkGarden";
@@ -36,7 +36,9 @@ export const ContactSection = () => {
     if (import.meta.env.DEV) window.__park = { timeOfDay, MOON_AT, key, stats: parkStats };
   }, [key]);
   const parts = { park, layout: key };
-  const title = titleAt(key, aspect);
+  // On a short phone the title floats in the sky (lib/parkLayout)
+  const inSky = useThree((state) => titleInSky(key, state.size.height));
+  const title = titleAt(key, aspect, inSky);
   return (
     <SectionGroup
       name="contact"
