@@ -256,6 +256,9 @@ export const Interface = ({ revealed }) => {
             <motion.div
               ref={projectsCarousel.ref}
               className="projects"
+              role="region"
+              aria-label="Projects"
+              tabIndex={isMobile ? 0 : undefined}
               initial="hidden"
               whileInView="visible"
               variants={groupVariants}

@@ -847,10 +847,14 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     margin-bottom: 0.5rem;
   }
 
+  /* A small cream tile, so the thin line logos read on the glass */
   .project__label__icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    padding: 4px;
+    border-radius: 8px;
+    background: #fff8ec;
+    box-shadow: 0 0 0 1px rgba(26, 32, 44, 0.08);
   }
 
   /* Phones: the card across the screen bottom, at the phone sizes */
