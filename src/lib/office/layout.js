@@ -169,7 +169,10 @@ export const PRINT = { x: -0.76, y: 1.36, w: 0.26, h: 0.34 };
 // avatar lies under the card, so both titles hang overhead instead: above
 // the avatar's hat, under the menu, and clear of the moon (timeOfDay
 // MOON_AT). The floor spot clears the card by >= 45 px there (the room a
-// real iPhone's toolbar takes, about 40 px, plus a little).
+// real iPhone's toolbar takes, about 40 px, plus a little). A phone held
+// sideways lower than 852x393 lifts both titles off the floor, up the
+// blank back wall left of the room, toward "lowLandscape" (568x320), so
+// they keep 852x393's gap of about 22 px above the card.
 export const TITLE_TURN = Math.PI / 6;
 const TITLE_AT = {
   skills: {
@@ -178,6 +181,7 @@ const TITLE_AT = {
     portrait: [-1.55, 0, 2.6],
     overhead: [-1.15, 2.05, 1.5],
     landscape: [-4.6, 0, 0.5],
+    lowLandscape: [-4.6, 0.85, 0.5],
   },
   projects: {
     desktop: [0.4, 0, 1.3],
@@ -185,13 +189,16 @@ const TITLE_AT = {
     portrait: [-0.5, 0, 3.0],
     overhead: [-0.5, 2.1, 1.5],
     landscape: [-5.2, 0, -0.6],
+    lowLandscape: [-5.2, 0.85, -0.6],
   },
 };
 const PORTRAIT_OVERHEAD = 830;
+const LOW_LANDSCAPE = [393, 320];
 // height: the canvas's CSS height
 export const titleAt = (corner, layout, aspect, height) => {
   const spots = TITLE_AT[corner];
   if (layout === "portrait" && height < PORTRAIT_OVERHEAD) return spots.overhead;
+  if (layout === "landscape") return mix(spots.landscape, spots.lowLandscape, ramp(height, LOW_LANDSCAPE));
   return spotOf(spots, layout, aspect);
 };
 
