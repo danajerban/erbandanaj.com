@@ -85,7 +85,81 @@ const useSectionFades = (scrollData) => {
   const fadeRef = (i) => (el) => {
     refs.current[i] = el;
   };
-  return { fadeRef, entered };
+  return { fadeRef, sectionRefs: refs, entered };
+};
+
+// Desktop: the skill column scrolls up under the menu pill and the project
+// column under the logo while their room is still fading. Each card fades
+// out as its top crosses that band: a third factor on its opacity, `--pass`,
+// on the card itself like `--fade`. A card never fades at rest (its band
+// ends at or above its own resting top). Card tops are read from the layout
+// only when a column or the menu changes size; along the scroll they follow
+// from the scroll position. Written only when its step changes.
+const PASS_STEPS = 20;
+const PASS_PX = 64;
+const PASS_COLUMNS = [
+  { section: 0, index: config.sections.indexOf("skills"), column: ".skills", card: ".skill", band: ".menu__buttons" },
+  { section: 1, index: config.sections.indexOf("projects"), column: ".projects", card: ".project", band: ".menu__logo" },
+];
+// Layout position in the page, transforms (the scroll, the card entrance) left out
+const layoutTop = (el) => {
+  let top = 0;
+  for (let node = el; node; node = node.offsetParent) top += node.offsetTop;
+  return top;
+};
+const useMenuPass = (scrollData, sectionRefs, enabled) => {
+  const cards = useRef([]);
+  const dirty = useRef(true);
+  useEffect(() => {
+    if (!enabled) return;
+    const measure = () => {
+      dirty.current = true;
+    };
+    // A height change re-centres a column without resizing it
+    window.addEventListener("resize", measure);
+    const observer = new ResizeObserver(measure);
+    for (const { section, column, band } of PASS_COLUMNS) {
+      const el = sectionRefs.current[section]?.querySelector(column);
+      if (el) observer.observe(el);
+      const menu = document.querySelector(band);
+      if (menu) observer.observe(menu);
+    }
+    dirty.current = true;
+    return () => {
+      window.removeEventListener("resize", measure);
+      observer.disconnect();
+      for (const card of cards.current) card.el.style.removeProperty("--pass");
+      cards.current = [];
+    };
+  }, [enabled, sectionRefs]);
+  useFrame((state) => {
+    if (!enabled) return;
+    if (dirty.current) {
+      dirty.current = false;
+      for (const card of cards.current) card.el.style.removeProperty("--pass");
+      cards.current = PASS_COLUMNS.flatMap(({ section, index, card, band }) => {
+        const el = sectionRefs.current[section];
+        const bandBottom = document.querySelector(band)?.getBoundingClientRect().bottom;
+        if (!el || bandBottom == null) return [];
+        const sectionTop = layoutTop(el);
+        return [...el.querySelectorAll(card)].map((cardEl) => {
+          const rest = layoutTop(cardEl) - sectionTop;
+          return { el: cardEl, index, rest, band: Math.min(bandBottom, rest), pass: 1 };
+        });
+      });
+    }
+    const position = scrollData.offset * (scrollData.pages - 1);
+    const height = state.size.height;
+    for (const card of cards.current) {
+      const top = (card.index - position) * height + card.rest;
+      const pass =
+        Math.round(MathUtils.smoothstep(top, card.band - PASS_PX, card.band) * PASS_STEPS) /
+        PASS_STEPS;
+      if (pass === card.pass) continue;
+      card.el.style.setProperty("--pass", pass);
+      card.pass = pass;
+    }
+  });
 };
 
 // Phone carousels (Skills, Projects): one card at a time, snapped to the
@@ -168,9 +242,10 @@ export const Interface = () => {
       setHasScrolled(newHasScrolled);
     }
   });
-  const { fadeRef, entered } = useSectionFades(scrollData);
+  const { fadeRef, sectionRefs, entered } = useSectionFades(scrollData);
   const [shownProject, setProject] = useAtom(projectAtom);
   const { isMobile } = useMobile();
+  useMenuPass(scrollData, sectionRefs, !isMobile);
   const reduceMotion = useReducedMotion();
   const cardEntrance = reduceMotion ? cardVariantsReduced : cardVariants;
   const skillsCarousel = useCarousel(isMobile);

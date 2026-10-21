@@ -197,10 +197,11 @@ a {
 
 /* CARDS — each card's opacity is its entrance (`--enter`, animated once by
    motion) times its section's fade with the room (`--fade`, written along
-   the scroll by Interface). On the card itself, never on an ancestor: an
-   ancestor's opacity would switch off the card's backdrop blur. */
+   the scroll by Interface), times, on desktops, its fade as it passes under
+   the menu (`--pass`, Interface). On the card itself, never on an ancestor:
+   an ancestor's opacity would switch off the card's backdrop blur. */
 :is(.skill, .project, .contact) {
-  opacity: calc(var(--enter, 1) * var(--fade, 1));
+  opacity: calc(var(--enter, 1) * var(--fade, 1) * var(--pass, 1));
 }
 
 /* SKILLS SECTION */
