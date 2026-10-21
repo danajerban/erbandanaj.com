@@ -112,14 +112,14 @@ export const monitorScreen = (layout) => {
 
 // Yaw follows HomeSection: an object faces (sin yaw, cos yaw). The office
 // chair stands pulled out at the right end of the desk, just in front of
-// it, turned to the desk and the monitor. Where the desk's right end nears
-// the screen edge (an upright iPad) or the desk is scaled up (VIGNETTE, a
-// phone held upright), it turns side-on to the camera, so it hides less of
-// the desk.
+// it, turned three-quarters to the desk and the monitor. Where the desk's
+// right end nears the screen edge (an upright iPad) it turns side-on to the
+// camera, so it hides less of the desk; on a phone held upright it sits
+// further right, past the scaled-up monitor (VIGNETTE).
 const CHAIR = {
   default: { x: 1.62, z: -0.8, yaw: Math.PI + 1.05 },
   tall: { x: 1.42, z: -0.8, yaw: Math.PI + 1.45 },
-  portrait: { x: 1.75, z: -0.8, yaw: Math.PI + 1.45 },
+  portrait: { x: 1.75, z: -0.8, yaw: Math.PI + 1.05 },
 };
 export const chairAt = (layout) => CHAIR[layout] ?? CHAIR.default;
 // The snake plant on the floor in the corner right of the desk, between
