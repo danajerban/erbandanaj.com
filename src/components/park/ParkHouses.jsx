@@ -308,8 +308,8 @@ const shopfront = (sink, park, house, fine) => {
 
   // The awning: 8 stripes sloping from the facade to their scallops; its
   // underside catches the café's glow
-  const [ax0, ax1] = [0.05 * W, 0.95 * W];
-  const [top, low, depth] = [1.55, 1.37, 0.6];
+  const { top, low, depth } = house.awning;
+  const [ax0, ax1] = house.awning.x.map((f) => f * W);
   const n = 8;
   const sw = (ax1 - ax0) / n;
   for (let i = 0; i < n; i++) {

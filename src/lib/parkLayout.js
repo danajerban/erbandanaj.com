@@ -247,6 +247,9 @@ export const HOUSES = [
     roof: "hip", // a front trapezoid and two side triangles rising to a ridge
     hip: { rise: 0.8, ridge: [0.3, 0.7], z: -0.6 },
     door: { at: 0.2, glass: true },
+    // From x[0] to x[1] W, sloping from top on the facade to its scallops
+    // at low, depth out (the string lights hang from its left front corner)
+    awning: { x: [0.05, 0.95], top: 1.55, low: 1.37, depth: 0.6 },
     day: "#f2b48f",
     roofColor: "#5c4448",
     upperWindowX: [0.2, 0.5, 0.8],
@@ -273,7 +276,7 @@ export const houseSpans = (park) => {
 const cafeX = (park, fraction) => houseSpans(park)[CAFE].x0 + fraction * HOUSES[CAFE].W * park.row.scale;
 
 // The café's door: [x, z] on its facade
-export const cafeDoor = (park) => [cafeX(park, 0.2), park.row.z];
+export const cafeDoor = (park) => [cafeX(park, HOUSES[CAFE].door.at), park.row.z];
 
 // The café's big window centre: [x, y, z], just in front of its facade
 export const cafeWindow = (park) => [cafeX(park, 0.64), 0.72 * park.row.scale, park.row.z + 0.02];
@@ -284,7 +287,8 @@ export const cafeTables = (park) => [0.55, 0.85].map((f) => [cafeX(park, f), par
 // The chimney's top (H3), where the smoke starts: [x, y, z]
 export const chimneyTop = (park) => {
   const s = park.row.scale;
-  return [houseSpans(park)[2].x0 + 0.8 * HOUSES[2].W * s, 4.5 * s, park.row.z - 0.5 * s];
+  const { at, top, z } = HOUSES[2].chimney;
+  return [houseSpans(park)[2].x0 + at * HOUSES[2].W * s, top * s, park.row.z + z * s];
 };
 
 // The lamp posts' lanterns: [x, y, z][]
@@ -294,11 +298,12 @@ export const lanterns = (park) => park.lamps.map(([x, z]) => [x, LANTERN_Y, z]);
 // The café string lights: from the awning's left front corner to the café
 // lamp's crossbar, sagging 0.3 in the middle; bulbs evenly spaced along it.
 // point(u) gives the wire at u in 0..1.
-export const CAFE_LIGHTS_SAG = 0.3;
+const CAFE_LIGHTS_SAG = 0.3;
 export const cafeLights = (park) => {
   const s = park.row.scale;
   const [lx, lz] = park.lamps[park.cafeLamp];
-  const from = [cafeX(park, 0.05), 1.37 * s, park.row.z + 0.6 * s];
+  const { x, low, depth } = HOUSES[CAFE].awning;
+  const from = [cafeX(park, x[0]), low * s, park.row.z + depth * s];
   const to = [lx, 2.05, lz];
   const point = (u) => [
     from[0] + (to[0] - from[0]) * u,
@@ -308,7 +313,7 @@ export const cafeLights = (park) => {
   const length = Math.hypot(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
   const count = Math.max(6, Math.round(length / 0.24));
   const bulbs = Array.from({ length: count }, (_, i) => point((i + 0.5) / count));
-  return { from, to, sag: CAFE_LIGHTS_SAG, point, bulbs };
+  return { point, bulbs };
 };
 
 // The gravel path through its points at y 0 (centripetal Catmull-Rom); the
@@ -371,7 +376,7 @@ const BENCH_SHIFT = [[0.75, -0.75], [1.33, -0.9], [1.6, -1.333], [1.82, -1.875],
 const BENCH_SHIFT_PHONE = { portrait: -0.41, landscape: -0.89 };
 export const benchShift = (layout, aspect) =>
   isPhone(layout) ? BENCH_SHIFT_PHONE[layout] : byAspect(BENCH_SHIFT, aspect)[0];
-export const benchAt = (layout, aspect) => [benchShift(layout, aspect) + BENCH.x, BENCH.z, BENCH.yaw];
+const benchAt = (layout, aspect) => [benchShift(layout, aspect) + BENCH.x, BENCH.z, BENCH.yaw];
 // Both benches as [x, z, yaw]
 export const benches = (park, layout, aspect) => [benchAt(layout, aspect), park.bench2];
 
