@@ -286,6 +286,7 @@ export const Interface = ({ revealed }) => {
             variants={cardEntrance}
             viewport={{ once: true }}
           >
+            <p className="contact__eyebrow">Get in touch</p>
             <h1 className="contact__name">{config.contact.name}</h1>
             <p className="contact__address">{config.contact.address}</p>
             <div className="contact__socials">
@@ -298,8 +299,9 @@ export const Interface = ({ revealed }) => {
                 <img
                   className="contact__socials__icon"
                   src="/icons/linkedin.png"
-                  alt="LinkedIn"
+                  alt=""
                 />
+                <span className="contact__socials__label">LinkedIn</span>
               </a>
               <a
                 href={config.contact.socials.github}
@@ -310,15 +312,17 @@ export const Interface = ({ revealed }) => {
                 <img
                   className="contact__socials__icon"
                   src="/icons/github.png"
-                  alt="GitHub"
+                  alt=""
                 />
+                <span className="contact__socials__label">GitHub</span>
               </a>
               <a href={`mailto:${config.contact.mail}`} aria-label="Send email">
                 <img
                   className="contact__socials__icon"
                   src="/icons/gmail.png"
-                  alt="Email"
+                  alt=""
                 />
+                <span className="contact__socials__label">Email</span>
               </a>
               <a
                 href="/Erban Danaj - Software Engineer.pdf"
@@ -328,8 +332,9 @@ export const Interface = ({ revealed }) => {
                 <img
                   className="contact__socials__icon"
                   src="/icons/cv.png"
-                  alt="Download CV"
+                  alt=""
                 />
+                <span className="contact__socials__label">CV</span>
               </a>
             </div>
           </motion.div>

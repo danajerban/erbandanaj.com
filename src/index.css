@@ -360,15 +360,25 @@ a {
   box-shadow: none;
 }
 
-/* CONTACT */
+/* CONTACT — a lantern card: a small terracotta line, the name, the role,
+   then the four ways to reach me, each icon with its name under it */
 
 .contact {
   margin: 1rem;
-  padding: 1rem;
+  padding: 1.125rem 1.25rem 1rem;
   background: var(--glass-color);
   backdrop-filter: blur(8px);
   border-radius: 8px;
   min-width: 280px;
+}
+
+.contact__eyebrow {
+  color: #93351d;
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 0.3rem;
 }
 
 /* Landscape desktops: the card sits on the open lawn at the lower right,
@@ -392,24 +402,55 @@ a {
   color: var(--text-color);
   font-weight: bold;
   font-size: 1.5rem;
+  line-height: 1.2;
   margin: 0;
 }
 
 .contact__address {
   color: var(--text-light-color);
-  font-size: 1rem;
-  margin: 0;
+  font-size: 0.95rem;
+  margin: 0.125rem 0 0;
 }
 
 .contact__socials {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(26, 32, 44, 0.14);
+}
+
+.contact__socials a {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0;
+  border-radius: 6px;
 }
 
 .contact__socials__icon {
-  height: 32px;
-  width: 32px;
+  height: 28px;
+  width: 28px;
+  transition: translate 0.2s ease-out;
+}
+
+.contact__socials__label {
+  color: var(--text-light-color);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease-out;
+}
+
+@media (hover: hover) {
+  .contact__socials a:hover .contact__socials__icon {
+    translate: 0 -2px;
+  }
+
+  .contact__socials a:hover .contact__socials__label {
+    color: #93351d;
+  }
 }
 
 /* MENU */
@@ -625,6 +666,34 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   /* The landscape contact card spans the screen: let the park show through */
   html[data-sky="night"] {
     --glass-alpha: 0.8;
+  }
+}
+
+/* Phone landscape: the wide, short card puts the four links beside the name
+   instead of under it, so it covers less of the park */
+@media (max-width: 990px) and (orientation: landscape) {
+  .contact {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .contact > :not(.contact__socials) {
+    grid-column: 1;
+  }
+
+  .contact__socials {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    border-top: 0;
+    border-left: 1px solid rgba(26, 32, 44, 0.14);
+  }
+
+  .contact__socials a {
+    padding: 0.25rem;
   }
 }
 
