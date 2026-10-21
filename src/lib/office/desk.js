@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { LIGHT, PALETTE, hex } from "./bake";
-import { BACK, DESK, FLOOR_Y } from "./layout";
+import { BACK, DESK, FLOOR_Y, PANEL } from "./layout";
 import { bevelBox, box, contactShadow, cylinder, cylinderBetween, ellipse, fan, polygon, prism, tube, v3 } from "./shapes";
 
 // Projects: the owner's desk from the photos.
@@ -8,14 +8,19 @@ import { bevelBox, box, contactShadow, cylinder, cylinderBetween, ellipse, fan, 
 // random }; room-frame coordinates (ProjectsSection pushes the desk
 // vignette onto both sinks around buildDesk).
 
+// The desk lamp (base, pole top, head) and the monitor's light bar, which
+// the desk's lights sit on
+const LAMP = { base: [1.88, -1.62], poleTop: 1.24, head: v3(1.8, 1.21, -1.38) };
+const BAR = { y: 1.334, z: -1.493, r: 0.014, half: 0.267 };
+
 // The desk's lights (room frame, before the vignette): the desk lamp's cone
 // and its broad room fill, the monitor light bar (only in front of its
 // plane) and the screen's spill
 export const DESK_LIGHTS = [
-  { p: new THREE.Vector3(1.8, 1.21, -1.38), color: LIGHT.desk, R: 1.0, w: 0.7, cone: true },
-  { p: new THREE.Vector3(1.8, 1.21, -1.38), color: LIGHT.desk, R: 3.5, w: 0.8 },
-  { p: new THREE.Vector3(1.35, 1.334, -1.48), color: LIGHT.lightBar, R: 0.7, w: 0.5, front: -1.5 },
-  { p: new THREE.Vector3(1.35, 1.1, -1.45), color: LIGHT.screen, R: 1.4, w: 0.35 },
+  { p: LAMP.head.clone(), color: LIGHT.desk, R: 1.0, w: 0.7, cone: true },
+  { p: LAMP.head.clone(), color: LIGHT.desk, R: 3.5, w: 0.8 },
+  { p: v3(PANEL.x, BAR.y, -1.48), color: LIGHT.lightBar, R: 0.7, w: 0.5, front: -1.5 },
+  { p: v3(PANEL.x, PANEL.y, -1.45), color: LIGHT.screen, R: 1.4, w: 0.35 },
 ];
 
 const { DX, DZ, TOP } = DESK;
@@ -312,11 +317,8 @@ const buildLaptop = (s) => {
   });
 };
 
-// The 32" monitor: black panel tilted 5° back (its face 3 mm behind
-// layout.js SCREEN), VESA mount, neck and plate; the light bar on top (its
-// underside strip glows) with the webcam
-const PANEL = { x: 1.35, y: 1.1, z: -1.515, tilt: -0.087, w: 0.729, h: 0.439, d: 0.03 };
-const BAR = { y: 1.334, z: -1.493, r: 0.014, half: 0.267 };
+// The 32" monitor: black panel (layout.js PANEL), VESA mount, neck and
+// plate; the light bar on top (its underside strip glows) with the webcam
 const buildMonitor = (s, sides) => {
   const steel = PALETTE.steel;
   const { x } = PANEL;
@@ -365,9 +367,8 @@ const buildMagSafe = (s, sides) => {
 };
 
 // Architect lamp: navy base, chrome pole, black arm forward-left to the
-// round head (= DESK_LIGHTS[0].p), tipped toward the room so its warm inner
-// disc shows
-const LAMP = { base: [1.88, -1.62], poleTop: 1.24, head: v3(1.8, 1.21, -1.38) };
+// round head (DESK_LIGHTS' lamp lights), tipped toward the room so its warm
+// inner disc shows
 const buildDeskLamp = (s, sides) => {
   const [bx, bz] = LAMP.base;
   cylinder(s, [bx, bz], [TOP, TOP + 0.025], [0.11, 0.105], sides + 4, C.lampBase, { caps: "end" });
@@ -441,7 +442,7 @@ const buildBlobs = (s) => {
   const oak = [
     [0.78, -1.55, 0.17, 0.12],
     [1.35, -1.578, 0.155, 0.12],
-    [1.88, -1.62, 0.13, 0.13],
+    [...LAMP.base, 0.13, 0.13],
     [1.1, -1.68, 0.05, 0.055],
     [1.62, -1.68, 0.05, 0.055],
     [1.76, -1.45, 0.055, 0.055],
@@ -498,7 +499,7 @@ const buildDeskGlow = (glow) => {
   const inMat = (x, z) => x > MAT.x[0] && x < MAT.x[1] && z > MAT.z[0] && z < MAT.z[1];
   const surface = (x, z) => (inMat(x, z) ? MAT_Y : TOP) + 0.003;
   const deskClip = [[X0, X1], [Z0, Z1]];
-  pool(glow, { c: [1.8, -1.38], ra: 0.45, rb: 0.45, color: LIGHT.desk.clone().multiplyScalar(0.45), clip: deskClip, height: surface, step: 0.09 });
+  pool(glow, { c: [LAMP.head.x, LAMP.head.z], ra: 0.45, rb: 0.45, color: LIGHT.desk.clone().multiplyScalar(0.45), clip: deskClip, height: surface, step: 0.09 });
   pool(glow, { c: [1.35, -1.4], ra: 0.3, rb: 0.14, color: LIGHT.lightBar.clone().multiplyScalar(0.35), clip: [MAT.x, MAT.z], height: () => MAT_Y + 0.003, step: 0.07 });
   const wallClip = [[X0, X1 + 0.6], [TOP, 2.3]];
   const wall = BACK + 0.003;

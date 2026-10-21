@@ -115,16 +115,26 @@ export const transformLights = (lights, matrix) => {
 // The owner's desk: centre x, centre z, top height
 export const DESK = { DX: 1.3, DZ: -1.43, TOP: 0.73 };
 
+// The desk monitor's black panel: centre, tilt (5° back about x), width,
+// height, depth
+export const PANEL = { x: 1.35, y: 1.1, z: -1.515, tilt: -0.087, w: 0.729, h: 0.439, d: 0.03 };
+
 // The monitor screen in the room frame (32", 16:9, 3 mm in front of the
 // panel's face, same tilt), through the vignette
-const SCREEN = { position: [1.35, 1.1016, -1.4971], rotationX: -0.087, size: [0.708, 0.398] };
+const SCREEN = {
+  position: new THREE.Vector3(0, 0, PANEL.d / 2 + 0.003)
+    .applyAxisAngle(new THREE.Vector3(1, 0, 0), PANEL.tilt)
+    .add(new THREE.Vector3(PANEL.x, PANEL.y, PANEL.z)),
+  rotationX: PANEL.tilt,
+  size: [0.708, 0.398],
+};
 const screens = new Map();
 export const monitorScreen = (layout) => {
   if (!screens.has(layout)) {
     const m = vignetteMatrix(layout);
     const s = m.getMaxScaleOnAxis();
     screens.set(layout, {
-      position: new THREE.Vector3(...SCREEN.position).applyMatrix4(m).toArray(),
+      position: SCREEN.position.clone().applyMatrix4(m).toArray(),
       rotationX: SCREEN.rotationX,
       size: [SCREEN.size[0] * s, SCREEN.size[1] * s],
     });
