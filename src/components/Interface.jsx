@@ -1,7 +1,7 @@
 import { useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { motion, useReducedMotion } from "motion/react";
-import { useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MathUtils } from "three";
 import { config } from "../config";
@@ -146,7 +146,7 @@ const CarouselDots = ({ carousel, count, label, reduceMotion }) => {
   );
 };
 
-export const Interface = ({ revealed }) => {
+export const Interface = () => {
   const scrollData = useScroll();
   const [hasScrolled, setHasScrolled] = useState(false);
   const hasScrolledRef = useRef(false);
@@ -158,7 +158,7 @@ export const Interface = ({ revealed }) => {
     }
   });
   const fadeRef = useSectionFades(scrollData);
-  const setProject = useSetAtom(projectAtom);
+  const [shownProject, setProject] = useAtom(projectAtom);
   const { isMobile } = useMobile();
   const reduceMotion = useReducedMotion();
   const cardEntrance = reduceMotion ? cardVariantsReduced : cardVariants;
@@ -273,7 +273,11 @@ export const Interface = ({ revealed }) => {
                     onBlur: () => setProject(config.projects[0]),
                   })}
                   key={project.name + idx}
-                  className="project"
+                  className={
+                    !isMobile && project === shownProject
+                      ? "project project--on-monitor"
+                      : "project"
+                  }
                   variants={cardEntrance}
                 >
                   <a
@@ -282,32 +286,13 @@ export const Interface = ({ revealed }) => {
                     rel="noopener noreferrer"
                     aria-label={`${project.name} - ${project.description}`}
                   >
-                    {/* Lazy until the scene is visible (the screenshots must not
-                        compete with the Home gate on the network), then eager so
-                        they download, decode and rasterise while the visitor is
-                        idle at Home — not mid-scroll, where a lazy image
-                        crossing the load margin cost frames over 50 ms. Phones
-                        show the site's icon instead and never fetch a screenshot
-                        for the card (the desk monitor shows it). */}
-                    {!isMobile && (
-                      <img
-                        className="project__image"
-                        src={project.image}
-                        alt={project.name}
-                        crossOrigin="anonymous"
-                        loading={revealed ? "eager" : "lazy"}
-                        decoding="async"
-                      />
-                    )}
+                    {/* The site's icon, name and description; no screenshot
+                        on the card, the desk monitor shows it */}
                     <div className="project__details">
-                      {isMobile ? (
-                        <div className="project__label">
-                          <img className="project__label__icon" src={project.icon} alt="" />
-                          <h2 className="project__details__name">{project.name}</h2>
-                        </div>
-                      ) : (
+                      <div className="project__label">
+                        <img className="project__label__icon" src={project.icon} alt="" />
                         <h2 className="project__details__name">{project.name}</h2>
-                      )}
+                      </div>
                       <p className="project__details__description">
                         {project.description}
                       </p>

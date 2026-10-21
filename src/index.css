@@ -262,29 +262,64 @@ a {
   line-height: 1.4;
 }
 
-/* PROJECTS */
+/* PROJECTS — desktops: a single column of compact cards down the left side
+   wall, in line with the logo, so the wardrobe, the print, the arch, the
+   avatar and the desk all show; no screenshot (the desk monitor shows it).
+   The column is pulled out of the centred 1200px .sections box to sit a
+   steady distance from the screen's left edge. */
 
 .projects {
-  padding: 1rem;
+  --projects-left: clamp(1.5rem, 8vw - 4rem, 5rem);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: 100%;
-  max-width: 520px;
-  justify-content: flex-start;
-  gap: 0.75rem;
-  transform: translateX(clamp(-4rem, -4vw, -2rem));
+  gap: 0.625rem;
+  width: calc(clamp(280px, 12vw + 120px, 360px) + 2rem);
+  padding: 1rem;
+  transform: translateX(
+    calc(var(--projects-left) - 1rem - max(0px, (100vw - 1200px) / 2))
+  );
 }
 
-/* Upright iPad: the grid starts 4rem in from the left, like the menu, and
-   its cards are a little narrower so it ends before the avatar */
-@media (orientation: portrait) {
+/* Upright iPad: the side wall is a sliver, so a 2×2 grid sits high on the
+   left, under the logo, in the sky and over the wall above the wardrobe and
+   the arch */
+@media (orientation: portrait) and (not (max-width: 990px)) {
+  .section:has(> .carousel > .projects) {
+    align-items: flex-start;
+  }
+
   .projects {
-    max-width: 400px;
-    transform: translateX(3rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: calc(584px + 2rem);
+    margin-top: 6.75rem;
+  }
+
+  .projects .project__details {
+    padding: 0.5rem 0.5rem 0.5625rem 0.625rem;
+  }
+
+  .projects .project__label {
+    margin-bottom: 0.25rem;
+  }
+
+  .projects .project__label__icon {
+    width: 28px;
+    height: 28px;
+    padding: 3px;
+    border-radius: 6px;
+  }
+
+  .projects .project__details__name {
+    font-size: 0.95rem;
+  }
+
+  .projects .project__details__description {
+    font-size: 0.78rem;
   }
 }
 
 .project {
+  position: relative;
   background: var(--glass-color);
   overflow: hidden;
   backdrop-filter: blur(8px);
@@ -294,12 +329,28 @@ a {
     background-color 0.2s ease-in-out;
 }
 
+/* The project on the desk monitor: denser glass and a terracotta bar on the
+   card's left edge, as the menu marks the section you are in. Hovering or
+   focusing a card puts it on the monitor, so this is also the hover state. */
+.project--on-monitor {
+  background: rgba(var(--glass-rgb), calc(var(--glass-alpha) + 0.25));
+}
+
+.project--on-monitor::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: #93351d;
+}
+
 /* Hover styles only where a real (mouse) pointer exists. On touch, :hover
    sticks after a tap and "tricks" the user into thinking a card is active. */
 @media (hover: hover) {
   .project:hover {
-    background: rgba(var(--glass-rgb), calc(var(--glass-alpha) + 0.35));
-    scale: 1.05;
     cursor: pointer;
   }
 }
@@ -309,29 +360,39 @@ a {
   background: rgba(var(--glass-rgb), calc(var(--glass-alpha) + 0.1));
 }
 
-.project__image {
-  aspect-ratio: 16 / 9;
-  display: block;
-  width: 100%;
-  object-fit: cover;
+.project__details {
+  padding: 0.625rem 0.875rem 0.75rem;
 }
 
-.project__details {
-  min-height: 116px;
-  padding: 0.625rem;
+.project__label {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.375rem;
+}
+
+/* A small cream tile, so the thin line logos read on the glass */
+.project__label__icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 4px;
+  border-radius: 7px;
+  background: #fff8ec;
+  box-shadow: 0 0 0 1px rgba(26, 32, 44, 0.08);
 }
 
 .project__details__name {
   color: var(--text-color);
   font-weight: bold;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   margin: 0;
 }
 
 .project__details__description {
   color: var(--text-light-color);
-  font-size: 0.95rem;
-  line-height: 1.3;
+  font-size: 0.85rem;
+  line-height: 1.35;
   margin: 0;
 }
 
@@ -841,20 +902,23 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   }
 
   .project__label {
-    display: flex;
     gap: 1rem;
-    align-items: center;
     margin-bottom: 0.5rem;
   }
 
-  /* A small cream tile, so the thin line logos read on the glass */
   .project__label__icon {
     width: 40px;
     height: 40px;
-    padding: 4px;
     border-radius: 8px;
-    background: #fff8ec;
-    box-shadow: 0 0 0 1px rgba(26, 32, 44, 0.08);
+  }
+
+  .project__details__name {
+    font-size: 1.25rem;
+  }
+
+  .project__details__description {
+    font-size: 0.95rem;
+    line-height: 1.3;
   }
 
   /* Phones: the card across the screen bottom, at the phone sizes */
