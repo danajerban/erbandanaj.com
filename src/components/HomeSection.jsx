@@ -82,6 +82,17 @@ const LAPTOP = {
   portrait: { x: -0.3, z: 0.9, yaw: Math.PI / 4, scale: 0.117 },
   tall: { x: -0.45, z: 0.9, yaw: Math.PI / 4, scale: 0.135 },
 };
+// A desktop window nearer square than WIDE_ASPECT is too narrow for the
+// props on the laptop's left (BeachProps): the laptop eases from its
+// desktop spot toward its tall one as the aspect falls to 1, nearer the
+// avatar's feet and smaller, so the umbrella and cooler stay on screen
+const WIDE_ASPECT = 1.6;
+const laptopOf = (spot, aspect) => {
+  if (spot !== "desktop" || aspect >= WIDE_ASPECT) return LAPTOP[spot];
+  const t = Math.min(1, (WIDE_ASPECT - aspect) / (WIDE_ASPECT - 1));
+  const [from, to] = [LAPTOP.desktop, LAPTOP.tall];
+  return { x: from.x + (to.x - from.x) * t, z: from.z + (to.z - from.z) * t, yaw: from.yaw, scale: from.scale + (to.scale - from.scale) * t };
+};
 // The model's base middle and underside, from its origin
 const LAPTOP_BASE = [-0.023, 0.166, -0.253];
 
@@ -169,7 +180,7 @@ export const HomeSection = ({ revealed }) => {
   // The dry line's x at depth z, where the beach dressing ends
   const dry = useMemo(() => (z) => dryX(z, isMobile, aspect), [isMobile, aspect]);
   const spot = spotOf(isMobile, layout);
-  const laptop = LAPTOP[spot];
+  const laptop = useMemo(() => laptopOf(spot, aspect), [spot, aspect]);
   // The title's width and height at scale 1, measured once its font loads
   // (hidden until then)
   const [titleSize, setTitleSize] = useState(null);
