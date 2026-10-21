@@ -118,16 +118,25 @@ class GroundBuilder {
     return this.position.length / 3 - 1;
   }
 
-  // Facing up whichever way round the corners come (the material is
-  // front-sided)
-  quad(a, b, c, d) {
+  // Whether a, b, c in that order face up (the material is front-sided)
+  facesUp(a, b, c) {
     const p = this.position;
     const ux = p[b * 3] - p[a * 3];
     const uz = p[b * 3 + 2] - p[a * 3 + 2];
     const vx = p[c * 3] - p[a * 3];
     const vz = p[c * 3 + 2] - p[a * 3 + 2];
-    if (uz * vx - ux * vz >= 0) this.index.push(a, b, c, a, c, d);
+    return uz * vx - ux * vz >= 0;
+  }
+
+  // Facing up whichever way round the corners come
+  quad(a, b, c, d) {
+    if (this.facesUp(a, b, c)) this.index.push(a, b, c, a, c, d);
     else this.index.push(a, c, b, a, d, c);
+  }
+
+  tri(a, b, c) {
+    if (this.facesUp(a, b, c)) this.index.push(a, b, c);
+    else this.index.push(a, c, b);
   }
 
   // A grid of quads over (u, v) in 0..1: at(u, v) gives [x, y, z, colour]
@@ -155,7 +164,7 @@ class GroundBuilder {
   }
 }
 
-// An ellipse [x, z, rx, rz] as rings of quads round its centre
+// An ellipse [x, z, rx, rz] as a fan round its centre and rings of quads
 const ellipse = (builder, [cx, cz, rx, rz], y, colourAt, segments = 16, rings = 2) => {
   const centre = builder.vertex(cx, y, cz, colourAt(cx, cz));
   const ring = [];
@@ -171,7 +180,7 @@ const ellipse = (builder, [cx, cz, rx, rz], y, colourAt, segments = 16, rings = 
   }
   for (let i = 0; i < segments; i++) {
     const j = (i + 1) % segments;
-    builder.quad(centre, ring[0][i], ring[0][j], centre);
+    builder.tri(centre, ring[0][i], ring[0][j]);
     for (let k = 1; k < rings; k++) builder.quad(ring[k - 1][i], ring[k][i], ring[k][j], ring[k - 1][j]);
   }
 };
