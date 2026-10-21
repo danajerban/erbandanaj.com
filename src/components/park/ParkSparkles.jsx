@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { useMobile } from "../../contexts/MobileContext";
 import { dissolveUniform } from "../../lib/dissolve";
 import { createRandom } from "../../lib/lowPoly";
-import { cafeLights, cafeWindow, chimneyTop, lanterns } from "../../lib/parkLayout";
+import { CAFE_BULB_R, cafeLights, cafeWindow, chimneyTop, lanterns } from "../../lib/parkLayout";
 import { PARK_LAYER, parkUniforms } from "../../lib/parkMaterials";
 import { timeOfDay } from "../../lib/timeOfDay";
 
@@ -21,7 +21,6 @@ const FIREFLY = { size: 0.22, color: "#d6f07a", core: "#f6ffd0", reach: 1.6, y: 
 // Where the fireflies live: shares of them by the lamps, the beds, the pond
 const HOMES = { lamps: 0.6, beds: 0.25 };
 const SMOKE = { puffs: 6, size: 0.18, color: "#8a90b3" };
-const BULB_R = 0.03; // the bulbs hang under the wire (ParkLamps)
 // The largest a point may draw, in CSS px (× DPR)
 const MAX_CSS_PX = 256;
 
@@ -130,7 +129,7 @@ const buildSparkles = (park) => {
   };
   for (const p of lanterns(park)) add(KIND.halo, p, HALO.lamp[0], HALO.color, [HALO.lamp[1], 0, 0, 0]);
   for (const [x, y, z] of cafeLights(park).bulbs) {
-    add(KIND.halo, [x, y - BULB_R, z], HALO.bulb[0], HALO.color, [HALO.bulb[1], 0, 0, 0]);
+    add(KIND.halo, [x, y - CAFE_BULB_R, z], HALO.bulb[0], HALO.color, [HALO.bulb[1], 0, 0, 0]);
   }
   add(KIND.halo, cafeWindow(park), HALO.window[0], HALO.windowColor, [HALO.window[1], 0, 0, 0]);
 

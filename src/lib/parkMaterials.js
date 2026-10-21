@@ -67,12 +67,19 @@ export const useParkClock = (prefersReducedMotion) => {
   });
 };
 
+// Colours more than one part uses: the blooms (the beds and the flower
+// boxes) and the stone greys (the pond's rim stones and the boulders)
+export const FLOWERS = ["#e8798c", "#f3cf62", "#f2ece0", "#a88bd6", "#f19a6a"];
+export const STONE_GREYS = { light: "#837f8c", dark: "#6b6876" };
+
 // nightShade: a day colour as a face shows at night, in sRGB space. Moon
 // side bright and cool (+x, up), away from it dark; then the night air, then
-// the warmth of each lantern within the layout's lamp reach.
+// the warmth of each lantern within the layout's lamp reach (LANTERN_WARMTH,
+// which the ground's paving takes too).
+export const LANTERN_WARMTH = { color: "#ffb46a", amount: 0.45 };
 const COOL = new THREE.Color("#c9d0f0");
 const NIGHT_AIR = new THREE.Color("#2a3157");
-const WARM = new THREE.Color("#ffb46a");
+const WARM = new THREE.Color(LANTERN_WARMTH.color);
 const rgb = { r: 0, g: 0, b: 0 };
 const cool = { r: 0, g: 0, b: 0 };
 const air = { r: 0, g: 0, b: 0 };
@@ -112,9 +119,9 @@ export const nightShade = (dayHex, n, p, park) => {
   b += (air.b - b) * 0.15;
   for (const lantern of lanternsOf(park)) {
     const w = Math.max(0, 1 - p.distanceTo(lantern) / park.lampR) ** 2;
-    r += warm.r * 0.45 * w;
-    g += warm.g * 0.45 * w;
-    b += warm.b * 0.45 * w;
+    r += warm.r * LANTERN_WARMTH.amount * w;
+    g += warm.g * LANTERN_WARMTH.amount * w;
+    b += warm.b * LANTERN_WARMTH.amount * w;
   }
   const clamp = (v) => Math.min(Math.max(v, 0), 1);
   return new THREE.Color().setRGB(clamp(r), clamp(g), clamp(b), THREE.SRGBColorSpace);

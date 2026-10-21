@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../../contexts/MobileContext";
 import { FLOWER_BOX, HOUSE, HOUSES, cafeTables, houseSpans, isLit } from "../../lib/parkLayout";
-import { PARK_LAYER, ParkSink, nightShade, parkSolidMaterial, parkStats } from "../../lib/parkMaterials";
+import { FLOWERS, PARK_LAYER, ParkSink, nightShade, parkSolidMaterial, parkStats } from "../../lib/parkMaterials";
 
 // The old-town row behind the park: five narrow pastel houses, the corner
 // café with its awning and terrace, the cat on the sage house's ridge and
@@ -33,7 +33,7 @@ const UNLIT = new THREE.Color(HOUSE.unlit);
 const GLINT = new THREE.Color(HOUSE.glint);
 const TRANSOM = new THREE.Color(HOUSE.transom.color);
 const PLANT = new THREE.Color("#1d2622");
-const FLOWERS = ["#e8798c", "#f3cf62", "#f2ece0", "#a88bd6", "#f19a6a"].map((hex) => new THREE.Color(hex));
+const BLOOMS = FLOWERS.map((hex) => new THREE.Color(hex));
 const KNOB = "#b69552";
 const CHIMNEY = "#7a5148";
 
@@ -142,7 +142,7 @@ const flowerBox = (sink, cx, y, seed, fine) => {
   box(sink, [cx - w / 2, cx + w / 2], [y - h, y], [0, d], color, undefined, "b");
   for (let i = 0; i < blooms; i++) {
     const x = cx - w / 2 + (w * (i + 0.5)) / blooms;
-    cup(sink, x, y + 0.04 + (i % 2) * 0.015, d / 2, fine ? 0.06 : 0.075, FLOWERS[(seed + i) % FLOWERS.length], { sway: [0, 0.3, 0.3] });
+    cup(sink, x, y + 0.04 + (i % 2) * 0.015, d / 2, fine ? 0.06 : 0.075, BLOOMS[(seed + i) % BLOOMS.length], { sway: [0, 0.3, 0.3] });
   }
 };
 

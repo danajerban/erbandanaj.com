@@ -12,7 +12,7 @@ import {
   pondRocks,
   restEyeZ,
 } from "../../lib/parkLayout";
-import { PARK_LAYER, ParkSink, parkSolidMaterial } from "../../lib/parkMaterials";
+import { FLOWERS, PARK_LAYER, ParkSink, parkSolidMaterial } from "../../lib/parkMaterials";
 import { useGLTF } from "../../lib/useGLTF";
 import { bench, dog, pebbles, rocks, tufts } from "./lawnDetails";
 
@@ -39,7 +39,6 @@ const TREE = {
   jitter: 0.12,
 };
 const HEDGE = { color: "#2c4a37", height: 0.14, thick: 0.12, segments: 24 };
-const FLOWERS = ["#e8798c", "#f3cf62", "#f2ece0", "#a88bd6", "#f19a6a"];
 const FLOWER_VALUE = 0.8;
 const RAILING = {
   iron: new THREE.Color("#1a1e24"),

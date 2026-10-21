@@ -297,8 +297,10 @@ export const lanterns = (park) => park.lamps.map(([x, z]) => [x, LANTERN_Y, z]);
 
 // The café string lights: from the awning's left front corner to the café
 // lamp's crossbar, sagging 0.3 in the middle; bulbs evenly spaced along it.
-// point(u) gives the wire at u in 0..1.
+// point(u) gives the wire at u in 0..1; each bulb (ParkLamps, its halo in
+// ParkSparkles) hangs CAFE_BULB_R under it.
 const CAFE_LIGHTS_SAG = 0.3;
+export const CAFE_BULB_R = 0.03;
 export const cafeLights = (park) => {
   const s = park.row.scale;
   const [lx, lz] = park.lamps[park.cafeLamp];

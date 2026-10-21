@@ -2,7 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { HOUSES, REST_EYE_Y, cafeWindow, houseSpans, pathCurve, restEyeZ } from "../../lib/parkLayout";
-import { PARK_LAYER, parkGroundMaterial } from "../../lib/parkMaterials";
+import { LANTERN_WARMTH, PARK_LAYER, parkGroundMaterial } from "../../lib/parkMaterials";
 
 // The park's ground: one mesh of RGBA vertex colours, drawn first among the
 // transparent things (renderOrder −1) so the props' contact shadows still
@@ -34,7 +34,7 @@ const CURB = srgb("#5a5770");
 const TERRACE = srgb("#6e5747");
 const CAFE_POOL = srgb("#8a6a4c");
 const SOIL = srgb("#2b2420");
-const WARM = srgb("#ffb46a");
+const WARM = srgb(LANTERN_WARMTH.color);
 
 const NOISE_SCALE = 1.3;
 const STRIPE = { width: 0.6, angle: Math.PI / 6, amount: 0.03 };
@@ -83,7 +83,7 @@ const poolAt = (park, x, z) => {
   return Math.min(w, 1);
 };
 // Paving takes a lamp's warmth as the faces do (nightShade)
-const warmed = (c, w) => c.map((v, i) => Math.min(v + WARM[i] * 0.45 * w, 1));
+const warmed = (c, w) => c.map((v, i) => Math.min(v + WARM[i] * LANTERN_WARMTH.amount * w, 1));
 
 // spacing: the grid's cell size here; stripes finer than the grid would
 // alias, so they fade out where the rows spread (far back)

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { LANTERN_Y, cafeLights } from "../../lib/parkLayout";
+import { CAFE_BULB_R, LANTERN_Y, cafeLights } from "../../lib/parkLayout";
 import { PARK_LAYER, ParkSink, parkSolidMaterial } from "../../lib/parkMaterials";
 
 // The park's lamp posts and the café's string lights: one static mesh on
@@ -26,7 +26,6 @@ const CAP = { w: 0.26, h: 0.08 };
 const FINIAL = { r: 0.03, top: 2.62 };
 const WIRE_WIDTH = 0.012;
 const WIRE_SEGMENTS = 24;
-const BULB_R = 0.03;
 
 const X = new THREE.Vector3(1, 0, 0);
 const Y = new THREE.Vector3(0, 1, 0);
@@ -127,7 +126,7 @@ const addStringLights = (sink, park) => {
     sink.quad(v(ax, ay - w, az), v(bx, by - w, bz), v(bx, by + w, bz), v(ax, ay + w, az), null, wire);
   }
   const bulb = { color: BULB, glow: 1 };
-  for (const [x, y, z] of bulbs) octahedron(sink, [x, y - BULB_R, z], BULB_R, null, bulb);
+  for (const [x, y, z] of bulbs) octahedron(sink, [x, y - CAFE_BULB_R, z], CAFE_BULB_R, null, bulb);
 };
 
 const buildLamps = (park) => {

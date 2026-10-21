@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { useMobile } from "../../contexts/MobileContext";
 import { createRandom } from "../../lib/lowPoly";
 import { LANTERN_Y } from "../../lib/parkLayout";
-import { PARK_LAYER, ParkSink, parkSolidMaterial, parkUniforms } from "../../lib/parkMaterials";
+import { PARK_LAYER, ParkSink, STONE_GREYS, parkSolidMaterial, parkUniforms } from "../../lib/parkMaterials";
 import { timeOfDay } from "../../lib/timeOfDay";
 
 // The pond under the moon: dark water whose shader draws the moon's silver
@@ -138,7 +138,7 @@ const icosahedron = (sink, hex, opts) => {
 
 // Pond solids, pond-local: [radius fraction, angle, pad radius] (angles:
 // +π/2 is the near rim); the lily sits on the first pad
-const STONES = { min: 0.12, max: 0.2, height: 0.5, out: 0.03, light: "#837f8c", dark: "#6b6876" };
+const STONES = { min: 0.12, max: 0.2, height: 0.5, out: 0.03 };
 const PADS = [[0.8, 2.45, 0.14], [0.82, 3.05, 0.11], [0.76, 4.35, 0.13], [0.8, 5.5, 0.12]];
 const PAD = { color: "#2f5a3e", segments: 12, y: 0.012 };
 const LILY = { petals: 6, petal: "#f2ece0", heart: new THREE.Color("#ffe9a8"), r: 0.06, y: 0.045 };
@@ -151,8 +151,8 @@ const buildSolids = (park) => {
   const matrix = new THREE.Matrix4();
   const quaternion = new THREE.Quaternion();
   const stone = new THREE.Color();
-  const light = new THREE.Color(STONES.light);
-  const dark = new THREE.Color(STONES.dark);
+  const light = new THREE.Color(STONE_GREYS.light);
+  const dark = new THREE.Color(STONE_GREYS.dark);
   const up = v(0, 1, 0);
   sink.push(matrix.makeTranslation(x, 0, z));
   // Rim stones, squashed and turned, round the water's edge

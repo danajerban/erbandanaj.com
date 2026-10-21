@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { createRandom } from "../../lib/lowPoly";
 import { BENCH } from "../../lib/parkLayout";
+import { STONE_GREYS } from "../../lib/parkMaterials";
 
 // The lawn's small things, baked into the garden's mesh (ParkGarden: one
 // draw, the park-solid program): grass tufts, the pebble edge along the
@@ -53,8 +54,8 @@ export const tufts = (sink, spots) => {
 };
 
 // Pebbles (darker: they lie in the path's dust) and the boulders by the
-// pond, in the pond rim stones' greys; flattened, half sunk
-const STONE = { light: new THREE.Color("#837f8c"), dark: new THREE.Color("#6b6876") };
+// pond, in the rim stones' greys; flattened, half sunk
+const STONE = { light: new THREE.Color(STONE_GREYS.light), dark: new THREE.Color(STONE_GREYS.dark) };
 const PEBBLE = { light: new THREE.Color("#706c7a"), dark: new THREE.Color("#55525f"), flat: 0.45 };
 const greyHex = ({ light, dark }, u) => new THREE.Color().lerpColors(dark, light, u).getHex();
 export const pebbles = (sink, spots) => {
