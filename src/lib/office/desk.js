@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { LIGHT, PALETTE, hex } from "./bake";
 import { BACK, DESK, FLOOR_Y, PANEL } from "./layout";
-import { bevelBox, box, contactShadow, cylinder, cylinderBetween, ellipse, fan, polygon, prism, tube, v3 } from "./shapes";
+import { bevelBox, box, contactShadow, cylinder, cylinderBetween, ellipse, fan, inFrame, polygon, prism, tube, v3 } from "./shapes";
 
 // Projects: the owner's desk from the photos.
 // out = { solid: OfficeSink, glow: GlowSink }; ctx = { isMobile, layout,
@@ -60,13 +60,6 @@ const rotX = (a) => new THREE.Matrix4().makeRotationX(a);
 const move = (x, y, z) => new THREE.Matrix4().makeTranslation(x, y, z);
 // An item's frame: at (x, y, z), facing (sin yaw, cos yaw), then more
 const frame = (x, y, z, yaw = 0, ...more) => more.reduce((m, n) => m.multiply(n), move(x, y, z).multiply(rotY(yaw)));
-
-// Build `draw` in a frame pushed on the solid sink
-const inFrame = (sink, matrix, draw) => {
-  sink.push(matrix);
-  draw();
-  sink.pop();
-};
 
 // A flat, upward rectangle split into nx × nz quads (per-vertex lamp light)
 const flatGrid = (sink, [x0, x1], [z0, z1], y, nx, nz, albedo) => {

@@ -7,6 +7,13 @@ import * as THREE from "three";
 
 export const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
 
+// Build `draw` in a frame (a matrix) pushed on the sink
+export const inFrame = (sink, matrix, draw) => {
+  sink.push(matrix);
+  draw();
+  sink.pop();
+};
+
 const e1 = new THREE.Vector3();
 const e2 = new THREE.Vector3();
 const n = new THREE.Vector3();

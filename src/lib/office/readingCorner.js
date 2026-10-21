@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import { AO, PALETTE, hex } from "./bake";
+import { AO, PALETTE, hex, shade } from "./bake";
 import { BACK, FLOOR_Y, RUG_Y, WALL_T, WINDOW } from "./layout";
-import { bevelBox, box, cylinder, cylinderBetween, ellipse, fan, orientedTri, polygon, strip, tube, v3 } from "./shapes";
+import { bevelBox, box, cylinder, cylinderBetween, ellipse, fan, inFrame, orientedTri, polygon, strip, tube, v3 } from "./shapes";
 
 // Skills: the reading corner: armchair, fiddle-leaf fig, side table with a
 // pilea, bookcase, books, pothos, a print on the side wall.
@@ -42,14 +42,6 @@ const frame = (x, y, z, { yaw = 0, pitch = 0, roll = 0 } = {}) =>
     new THREE.Quaternion().setFromEuler(new THREE.Euler(pitch, yaw, roll, "YXZ")),
     v3(1, 1, 1),
   );
-
-const placed = (sink, matrix, draw) => {
-  sink.push(matrix);
-  draw();
-  sink.pop();
-};
-
-const shade = (color, k) => color.clone().multiplyScalar(k);
 
 // Armchair: a Scandinavian lounge chair in its own frame (origin at the
 // floor under its centre, facing +z), footprint x ±0.37, z ±0.40
@@ -94,19 +86,19 @@ const buildArmchair = (sink) => {
   // Back cushion tilted 15°, up to y 0.80; the coral lumbar pillow on the
   // seat against it; the sand knitted throw over its back-left corner
   const { y, z, height, depth } = BACK_CUSHION;
-  placed(sink, frame(0, y, z, { pitch: -RECLINE }), () => {
+  inFrame(sink, frame(0, y, z, { pitch: -RECLINE }), () => {
     bevelBox(sink, [-0.29, 0.29], [0, height], [-depth, 0], 0.03, seaTeal);
     buildThrow(sink, sand);
   });
-  placed(sink, frame(0.03, 0.42, z - 0.006, { yaw: -0.1, pitch: -RECLINE }), () => {
+  inFrame(sink, frame(0.03, 0.42, z - 0.006, { yaw: -0.1, pitch: -RECLINE }), () => {
     bevelBox(sink, [-0.18, 0.18], [0, 0.24], [0.002, 0.102], 0.035, coral);
   });
 
   // A book left face down over the right arm rail, its covers resting on
   // the rail's edges
-  placed(sink, frame(LEG_X, 0.635, 0.06, { yaw: 0.2 }), () => {
+  inFrame(sink, frame(LEG_X, 0.635, 0.06, { yaw: 0.2 }), () => {
     for (const sx of [-1, 1]) {
-      placed(sink, frame(0, 0, 0, { roll: -sx * 40 * DEG }), () => {
+      inFrame(sink, frame(0, 0, 0, { roll: -sx * 40 * DEG }), () => {
         box(sink, sx < 0 ? [-0.13, 0] : [0, 0.13], [-0.014, 0], [-0.1, 0.1], COLOR.page, {
           faces: { "+y": COLOR.mustard },
         });
@@ -259,7 +251,7 @@ const buildSideTable = (sink) => {
     [[0.2, 0.028, 0.15], sand, -0.12],
     [[0.18, 0.025, 0.13], coral, 0.25],
   ]) {
-    placed(sink, frame(x - 0.075, y, z - 0.03, { yaw }), () => flatBook(sink, size, cover));
+    inFrame(sink, frame(x - 0.075, y, z - 0.03, { yaw }), () => flatBook(sink, size, cover));
     y += size[1];
   }
   buildMug(sink, x + 0.12, z + 0.09, top);
@@ -392,13 +384,13 @@ const buildShelfBooks = (sink, y, random) => {
       const pivot = previous.end + contact * Math.tan(angle);
       const end = pivot + w * Math.cos(angle);
       if (end > x1) return false;
-      placed(sink, frame(pivot, y, zf, { roll: angle }), () => standingBook(sink, size, cover, band));
+      inFrame(sink, frame(pivot, y, zf, { roll: angle }), () => standingBook(sink, size, cover, band));
       cursor = end + 0.012;
       previous = null;
       return true;
     }
     if (cursor + w > x1) return false;
-    placed(sink, frame(cursor, y, zf), () => standingBook(sink, size, cover, band));
+    inFrame(sink, frame(cursor, y, zf), () => standingBook(sink, size, cover, band));
     previous = { end: cursor + w, h };
     cursor += w + 0.0015;
     return true;
@@ -413,7 +405,7 @@ const buildShelfBooks = (sink, y, random) => {
     let h = y;
     for (const size of books) {
       const cx = cursor + width / 2 + (random() - 0.5) * 0.012;
-      placed(sink, frame(cx, h, SHELF.z[1] - 0.01 - size[2] / 2, { yaw: (random() - 0.5) * 0.12 }), () => flatBook(sink, size, pick()));
+      inFrame(sink, frame(cx, h, SHELF.z[1] - 0.01 - size[2] / 2, { yaw: (random() - 0.5) * 0.12 }), () => flatBook(sink, size, pick()));
       h += size[1];
     }
     cursor += width + 0.012;
@@ -457,7 +449,7 @@ const PHOTO = { x: 0.8, z: -1.61, w: 0.26, h: 0.2, bar: 0.015, lean: 10 * DEG };
 const buildPhoto = (sink, y) => {
   const { charcoal, cream, skyGlow, sun, island } = COLOR;
   const { coral, seaTeal } = PALETTE;
-  placed(sink, frame(PHOTO.x, y, PHOTO.z, { pitch: -PHOTO.lean }), () => {
+  inFrame(sink, frame(PHOTO.x, y, PHOTO.z, { pitch: -PHOTO.lean }), () => {
     const { w, h, bar } = PHOTO;
     const half = w / 2;
     const depth = [0, 0.015];
@@ -555,7 +547,7 @@ const blob = (sink, [x, z], [rx, rz], under, { y = FLOOR_Y, onRug = false, segme
 
 const buildContactBlobs = (sink) => {
   const { sand, floorOak } = PALETTE;
-  placed(sink, frame(ARMCHAIR.x, 0, ARMCHAIR.z, { yaw: ARMCHAIR.yaw }), () => {
+  inFrame(sink, frame(ARMCHAIR.x, 0, ARMCHAIR.z, { yaw: ARMCHAIR.yaw }), () => {
     blob(sink, [0, 0], [0.5, 0.5], sand, { y: RUG_Y, onRug: true });
   });
   blob(sink, [FIG.x, FIG.z], [0.24, 0.24], floorOak[0]);
@@ -571,7 +563,7 @@ const buildPrint = (sink) => {
   const { z, y, w, h, bar, mat } = PRINT;
   const { oak, sand, coral } = PALETTE;
   // Its own frame faces +x (into the room); local +x runs toward −z
-  placed(sink, frame(WINDOW.skills.room.x0 + WALL_T, y, z, { yaw: Math.PI / 2 }), () => {
+  inFrame(sink, frame(WINDOW.skills.room.x0 + WALL_T, y, z, { yaw: Math.PI / 2 }), () => {
     const half = w / 2;
     const depth = [0, 0.018];
     box(sink, [-half, half], [0, bar], depth, oak, { omit: "-z" });

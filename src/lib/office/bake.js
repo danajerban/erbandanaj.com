@@ -6,6 +6,8 @@ import * as THREE from "three";
 // converted to linear by THREE.Color.
 
 export const hex = (value) => new THREE.Color(value);
+// A colour times k (a darker or lighter tone of it)
+export const shade = (color, k) => color.clone().multiplyScalar(k);
 
 // Scandinavian minimalist, warm to match the beach
 export const PALETTE = {

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { AO, LIGHT, PALETTE } from "./bake";
+import { AO, LIGHT, PALETTE, shade } from "./bake";
 import { ARCH, BACK, FLOOR_Y, RUG_Y, SHELL, SLAB, WALL_H, WALL_T, WINDOW } from "./layout";
 import { box, cylinderBetween, fan, polygon, tube, v3, wallWithHoles } from "./shapes";
 
@@ -39,7 +39,6 @@ const RUG_LINE = 0.02;
 const RUG_STEP = 0.3;
 
 const smooth01 = (x) => THREE.MathUtils.smoothstep(x, 0, 1);
-const shade = (color, k) => color.clone().multiplyScalar(k);
 
 // The floor's AO: in front of the back wall, and along the side wall up to
 // its front end `side` (fading out past it)
