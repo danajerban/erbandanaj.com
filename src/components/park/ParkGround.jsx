@@ -269,9 +269,7 @@ const buildGround = (park, layout, aspect, camera) => {
   return { geometry: builder.build(origin), origin };
 };
 
-export default function ParkGround({ park, layout }) {
-  // Rounded, as ContactSection reads it: rebuilt only when the shape changes
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+export default function ParkGround({ park, layout, aspect }) {
   const camera = useThree((state) => state.camera);
   const { geometry, origin } = useMemo(() => buildGround(park, layout, aspect, camera), [park, layout, aspect, camera]);
   useEffect(() => () => geometry.dispose(), [geometry]);

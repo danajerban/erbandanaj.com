@@ -20,7 +20,8 @@ import { SectionTitle } from "./SectionTitle";
 export const ContactSection = () => {
   const { isMobile, prefersReducedMotion } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
-  // Rounded, so the park rebuilds only when the aspect really changes
+  // Rounded, so the park rebuilds only when the aspect really changes; the
+  // ground, the garden and the props read it from here
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
   const key = parkLayoutOf(isMobile, aspect);
   const park = PARK[key];
@@ -48,17 +49,12 @@ export const ContactSection = () => {
       <SectionTitle position={title.position} scale={title.scale} rotation-y={TITLE_TURN}>
         CONTACT
       </SectionTitle>
-      <ParkGround {...parts} />
+      <ParkGround {...parts} aspect={aspect} />
       <ParkPond {...parts} />
       <ParkHouses {...parts} />
       <ParkLamps {...parts} />
-      <ParkGarden {...parts} />
-      <ParkProps
-        {...parts}
-        aspect={aspect}
-        isMobile={isMobile}
-        prefersReducedMotion={prefersReducedMotion}
-      />
+      <ParkGarden {...parts} aspect={aspect} />
+      <ParkProps {...parts} aspect={aspect} />
       <ParkSparkles {...parts} />
     </SectionGroup>
   );

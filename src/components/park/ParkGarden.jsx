@@ -1,4 +1,3 @@
-import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useMobile } from "../../contexts/MobileContext";
@@ -247,11 +246,9 @@ const buildGarden = (park, layout, aspect, isMobile, benchParts) => {
   return sink.build([centre.x, 0, centre.z]);
 };
 
-export default function ParkGarden({ park, layout }) {
+export default function ParkGarden({ park, layout, aspect }) {
   const { isMobile } = useMobile();
   const { nodes, materials } = useGLTF("/models/Park Bench.glb");
-  // Rounded, as in ContactSection: rebuilt only when the aspect really changes
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
   const mesh = useMemo(() => {
     const benchParts = [
       [nodes["Park_Bench_Cube-Mesh"].geometry, materials.Metal.color],

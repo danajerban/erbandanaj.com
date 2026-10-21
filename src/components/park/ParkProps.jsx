@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useMobile } from "../../contexts/MobileContext";
 import { BENCH, MAILBOX_AT, benchShift } from "../../lib/parkLayout";
 import { PARK_LAYER, parkSolidMaterial } from "../../lib/parkMaterials";
 import { timeOfDay } from "../../lib/timeOfDay";
@@ -75,7 +76,8 @@ const createStrings = () => {
   return mesh;
 };
 
-export default function ParkProps({ park, layout, aspect, prefersReducedMotion }) {
+export default function ParkProps({ park, layout, aspect }) {
+  const { prefersReducedMotion } = useMobile();
   const root = useRef();
   const balloons = useRef([]);
   const balloonMaterials = useRef([]);
