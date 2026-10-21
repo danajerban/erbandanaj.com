@@ -11,7 +11,7 @@
 // a grass tuft or pebble where it should not grow or lie; on desktop any of
 // them in the contact card's corner (CARD_ZONE), on phones and the iPad the
 // second bench in the card's band (y > 0.70); and any of them within 2r of
-// the moon (MOON_AT) at the Contact rest.
+// the moon (moonAt) at the Contact rest.
 // Usage: node scripts/check-park-layout.mjs
 import {
   BENCH,
@@ -36,7 +36,7 @@ import {
   pondRocks,
   restProjector,
 } from "../src/lib/parkLayout.js";
-import { MOON_AT } from "../src/lib/timeOfDay.js";
+import { moonAt } from "../src/lib/timeOfDay.js";
 
 const SAMPLES = 200;
 // Screen sizes per layout [W, H]: the first bench sits at benchShift + BENCH.x
@@ -175,7 +175,7 @@ for (const [key, park] of Object.entries(PARK)) {
       ...pebbles.map(([x, z]) => ["a pebble", [[x, 0, z]]]),
     ];
     const r = Math.min(28, Math.max(18, 0.026 * Math.min(W, H)));
-    const moon = MOON_AT[key];
+    const moon = moonAt(key, aspect);
     let moonClear = Infinity;
     for (const [name, points] of things) {
       const screen = points.map(project);

@@ -2,7 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
-import { MOON_AT, timeOfDay } from "../lib/timeOfDay";
+import { moonAt, timeOfDay } from "../lib/timeOfDay";
 
 // The night sky's render layer (1–8 Home, 9 here, 10 office, 11 park)
 const LAYER = 9;
@@ -132,7 +132,7 @@ export function NightSky({ layout, aspect }) {
   const size = useThree((state) => state.size);
   const dpr = useThree((state) => state.viewport.dpr);
   const camera = useThree((state) => state.camera);
-  const moonAt = MOON_AT[layout];
+  const moonCentre = useMemo(() => moonAt(layout, aspect), [layout, aspect]);
   const r = moonRadius(size);
   // Stars keep this far from the moon (screen heights), rounded so a resize
   // rebuilds them only on a real change
@@ -148,8 +148,8 @@ export function NightSky({ layout, aspect }) {
     return { points, moon };
   }, []);
   const geometry = useMemo(
-    () => buildStars(starCount(isMobile), EVENING_STAR[layout], moonAt, aspect, clear),
-    [isMobile, layout, moonAt, aspect, clear],
+    () => buildStars(starCount(isMobile), EVENING_STAR[layout], moonCentre, aspect, clear),
+    [isMobile, layout, moonCentre, aspect, clear],
   );
   const warm = useRef(0);
   const group = useRef();
@@ -158,12 +158,12 @@ export function NightSky({ layout, aspect }) {
     sky.points.geometry = geometry;
     sky.points.material.uniforms.uPx.value = dpr;
     const u = sky.moon.material.uniforms;
-    u.uAt.value.set(...moonAt);
+    u.uAt.value.set(...moonCentre);
     const reach = (r * HALO) / size.height;
     u.uSize.value.set((reach * 2) / aspect, reach * 2);
     u.uEdge.value = 1.5 / r;
     return () => geometry.dispose();
-  }, [sky, geometry, dpr, moonAt, r, size.height, aspect]);
+  }, [sky, geometry, dpr, moonCentre, r, size.height, aspect]);
 
   // Dispose the materials and the moon quad on unmount
   useEffect(

@@ -12,7 +12,7 @@ import { createRandom } from "./lowPoly.js";
 
 // The layout key: Home's composition by the screen's shape (aspect rounded to
 // 0.01, as HomeSection reads it), and an upright screen past the breakpoint
-// (an iPad Pro held upright) is "tall" — the same keys as MOON_AT.
+// (an iPad Pro held upright) is "tall" — the same keys as the moon's (timeOfDay).
 export const parkLayoutOf = (isMobile, aspect) => {
   const layout = layoutOf(isMobile, Math.round(aspect * 100) / 100);
   return !isMobile && layout === "portrait" ? "tall" : layout;

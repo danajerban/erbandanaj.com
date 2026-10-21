@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import { Color, MathUtils } from "three";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
-import { MOON_AT, timeOfDay } from "../lib/timeOfDay";
+import { moonAt, timeOfDay } from "../lib/timeOfDay";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { NightSky } from "./NightSky";
 
@@ -133,8 +133,8 @@ export default function TimeOfDay() {
   const dom = useRef({ layers: [], op: "", bar: "", mode: "" });
 
   useLayoutEffect(() => {
-    timeOfDay.moonAt = MOON_AT[layout];
-  }, [layout]);
+    timeOfDay.moonAt = moonAt(layout, aspect);
+  }, [layout, aspect]);
 
   // The sky after the sunset: three cross-faded layers inside #root, under
   // the canvas (#root is positioned and isolated, see index.css)

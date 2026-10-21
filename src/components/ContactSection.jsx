@@ -4,7 +4,7 @@ import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
 import { PARK, TITLE_TURN, parkLayoutOf, titleAt, titleInSky } from "../lib/parkLayout";
 import { PARK_LAYER, parkStats, useParkClock } from "../lib/parkMaterials";
-import { MOON_AT, timeOfDay } from "../lib/timeOfDay";
+import { timeOfDay } from "../lib/timeOfDay";
 import ParkGarden from "./park/ParkGarden";
 import ParkGround from "./park/ParkGround";
 import ParkHouses from "./park/ParkHouses";
@@ -33,7 +33,7 @@ export const ContactSection = () => {
   useEffect(() => {
     // Debug only (stripped from production builds): the shared time of day,
     // the layout and the parts' counters, for the headless checks
-    if (import.meta.env.DEV) window.__park = { timeOfDay, MOON_AT, key, stats: parkStats };
+    if (import.meta.env.DEV) window.__park = { timeOfDay, key, stats: parkStats };
   }, [key]);
   const parts = { park, layout: key };
   // On a short phone the title floats in the sky (lib/parkLayout)
