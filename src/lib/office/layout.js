@@ -88,9 +88,16 @@ const PLACE = {
   projects: { desktop: [0, 0], tall: [0, -0.8], portrait: [-0.4, 0], landscape: [0, 0] },
 };
 
+// The vignette carries the snake plant right by (scale − 1) × its distance
+// from the pivot, so on top of its table spot the Projects room moves left
+// by that much per unit of extra scale (tuned to 1 m; the portrait plant
+// stands 1.1 m right of the pivot) and the plant stays on screen at any
+// allowed VIGNETTE.scale
+const PLANT_FROM_PIVOT = 1.0;
+
 export const place = (corner, layout, aspect) => {
   const [x, z] = spotOf(PLACE[corner], layout, aspect);
-  return corner === "projects" ? [x - 1.0 * (vignetteScale(layout) - 1), z] : [x, z];
+  return corner === "projects" ? [x - PLANT_FROM_PIVOT * (vignetteScale(layout) - 1), z] : [x, z];
 };
 
 // Lights moved by a matrix (the desk vignette): position, the `front` plane
