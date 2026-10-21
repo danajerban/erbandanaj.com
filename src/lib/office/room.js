@@ -1,14 +1,13 @@
 import * as THREE from "three";
 import { AO, LIGHT, PALETTE } from "./bake";
-import { ARCH, BACK, FLOOR_Y, RUG_Y, SHELL, SLAB, T, TITLE, WALL_H, WINDOW, titleLeft } from "./layout";
+import { ARCH, BACK, FLOOR_Y, RUG_Y, SHELL, SLAB, T, WALL_H, WINDOW } from "./layout";
 import { box, cylinderBetween, fan, polygon, tube, v3, wallWithHoles } from "./shapes";
 
 // The empty room of each office corner (room frame): floor slab with oak
 // planks, back wall with the hallway arch (and, at Skills, the big window),
 // left side wall (at Projects, with the window), trim, sill, mullions, rod,
-// lace, rug, skirting, baked AO, the clay block behind the title; at
-// Projects the wall socket and its cable; at Skills the afterglow the
-// window throws on the floor.
+// lace, rug, skirting, baked AO; at Projects the wall socket and its
+// cable; at Skills the afterglow the window throws on the floor.
 // out = { solid: OfficeSink (shell), furniture: OfficeSink, glow: GlowSink,
 // lace: LaceSink }.
 
@@ -257,24 +256,6 @@ const buildLace = (sink, corner, isMobile) => {
   }
 };
 
-// The clay block painted behind the title, 2 mm proud of the wall, from
-// the wall top down past the caps; split along x so the lamps' light on it
-// stays smooth
-const BLOCK_STEP = 0.3;
-const buildTitleBlock = (sink, corner, layout) => {
-  const { ink, block } = TITLE;
-  const left = titleLeft(corner, layout);
-  const xa = left + ink[corner][0] - block.pad;
-  const xb = left + ink[corner][1] + block.pad;
-  const z = BACK + 0.002;
-  const count = Math.ceil((xb - xa) / BLOCK_STEP);
-  for (let k = 0; k < count; k++) {
-    const x0 = xa + ((xb - xa) * k) / count;
-    const x1 = xa + ((xb - xa) * (k + 1)) / count;
-    sink.quad(v3(x0, block.bottom, z), v3(x1, block.bottom, z), v3(x1, WALL_H, z), v3(x0, WALL_H, z), PALETTE.clay);
-  }
-};
-
 // Sand rug: coral border, cream inner line, a row of low-poly diamonds
 // along each long side, coral edges
 const buildRug = (sink, corner) => {
@@ -353,7 +334,6 @@ export const buildRoom = (out, corner, ctx) => {
   buildFloor(out.solid, corner, ctx.layout, ctx.random);
   buildWalls(out.solid, corner, ctx.layout);
   buildWindow(out.solid, corner);
-  buildTitleBlock(out.solid, corner, ctx.layout);
   buildRug(out.solid, corner);
   if (corner === "projects") buildSocket(out.furniture);
   else buildAfterglow(out.glow, ctx.isMobile);

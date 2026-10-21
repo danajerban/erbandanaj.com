@@ -120,25 +120,19 @@ const CHAIR = {
 export const chairAt = (layout) => CHAIR[layout] ?? CHAIR.default;
 export const SNAKE_PLANT = { x: 2.25, z: -1.5, yaw: 0.4 };
 
-// Both titles on the back wall: Text3D's origin is the left end of the
-// baseline, its back face 5 mm off the wall. Inter_Bold.json's caps are
-// 1.01 × size tall, so size 0.2 spans y 2.13–2.33 (0.07 under the wall top).
-// `ink` is each word's measured extent (boundingBox min and max x) from its
-// left end; a clay block painted on the wall behind it, from `block.bottom`
-// up to the wall top and `block.pad` past both ends of the ink, keeps the
-// light letters readable. On an upright iPad PROJECTS starts further left
-// (still clear of the arch casing), so its block keeps a margin to the
-// screen's right edge.
-export const TITLE = {
-  size: 0.2,
-  height: 0.04,
-  baseline: 2.13,
-  z: BACK + 0.005,
-  left: { skills: { default: -1.86 }, projects: { default: 0.585, tall: 0.42 } },
-  ink: { skills: [0.011, 0.937], projects: [0.018, 1.474] },
-  block: { bottom: 2.095, pad: 0.08 },
+// Both titles stand on the floor in front of the furniture, like CONTACT
+// in the park (SectionTitle's own size and depth, turned toward the camera
+// by TITLE_TURN), clear of the cards: Skills left of them, Projects right of
+// them on desktop; on phones above the card carousel (the bottom 30%), in
+// front of the avatar's feet. Per layout, the left end of the baseline
+// (Text3D's origin) in the room frame, on the floor; its far end stays at
+// z >= 0.2.
+export const TITLE_TURN = Math.PI / 6;
+const TITLE_AT = {
+  skills: { desktop: [-2.0, 0, 0.9], tall: [-1.25, 0, 0.9], portrait: [-1.55, 0, 2.6], landscape: [-1.6, 0, 3.0] },
+  projects: { desktop: [0.4, 0, 1.3], tall: [-0.9, 0, 2.3], portrait: [-0.5, 0, 3.0], landscape: [-0.9, 0, 3.4] },
 };
-export const titleLeft = (corner, layout) => TITLE.left[corner][layout] ?? TITLE.left[corner].default;
+export const titleAt = (corner, layout) => TITLE_AT[corner][layout];
 
 // Each corner's room and its window. Skills: a big open window in the back
 // wall, its lace gathered at the sides and swaying a little. Projects: the
