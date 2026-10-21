@@ -1,4 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from "three";
+import { byAspect } from "./aspectRows.js";
 import { layoutOf } from "./coast.js";
 import { createRandom } from "./lowPoly.js";
 
@@ -6,7 +7,7 @@ import { createRandom } from "./lowPoly.js";
 // composition means editing this file only. Contact-local units: x right,
 // y up from the floor, z toward the camera; the avatar stands at the origin
 // (desktop) or at z −1 (phones). Pure data and helpers (three core and
-// ./coast only), so node can import it: scripts/check-park-layout.mjs runs
+// the pure lib modules only), so node can import it: scripts/check-park-layout.mjs runs
 // the overlap check on these numbers, and the moon gate is checked against
 // the same table outside the repo.
 
@@ -324,15 +325,6 @@ export const cafeLights = (park) => {
 export const pathCurve = (park) => new CatmullRomCurve3(park.path.map(([x, z]) => new Vector3(x, 0, z)));
 
 const isPhone = (layout) => layout === "portrait" || layout === "landscape";
-
-// Linear between the rows of [aspect, ...values], held at either end
-const byAspect = (rows, aspect) => {
-  const i = rows.findIndex(([a]) => a >= aspect);
-  if (i <= 0) return (i < 0 ? rows[rows.length - 1] : rows[0]).slice(1);
-  const [from, to] = [rows[i - 1], rows[i]];
-  const t = (aspect - from[0]) / (to[0] - from[0]);
-  return from.slice(1).map((value, k) => value + (to[k + 1] - value) * t);
-};
 
 // The CONTACT title (ContactSection, SectionTitle): the left end of its
 // baseline [x, y, z] and its scale, turned TITLE_TURN toward the camera; at

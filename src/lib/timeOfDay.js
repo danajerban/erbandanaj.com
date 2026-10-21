@@ -1,3 +1,5 @@
+import { byAspect } from "./aspectRows.js";
+
 // The time of day: one object for the whole scene. The scroll is one evening,
 // Home sunset → Skills afterglow → Projects blue hour → Contact night.
 // <TimeOfDay> writes it once per frame, before every other frame callback;
@@ -24,14 +26,7 @@ const MOON_DESKTOP = [
   [2.6, 0.77, 0.25],
   [3, 0.7, 0.25],
 ];
-export const moonAt = (layout, aspect) => {
-  if (MOON_PHONE[layout]) return MOON_PHONE[layout];
-  const i = MOON_DESKTOP.findIndex(([a]) => a >= aspect);
-  if (i <= 0) return (i < 0 ? MOON_DESKTOP[MOON_DESKTOP.length - 1] : MOON_DESKTOP[0]).slice(1);
-  const [from, to] = [MOON_DESKTOP[i - 1], MOON_DESKTOP[i]];
-  const t = (aspect - from[0]) / (to[0] - from[0]);
-  return [1, 2].map((k) => from[k] + (to[k] - from[k]) * t);
-};
+export const moonAt = (layout, aspect) => MOON_PHONE[layout] ?? byAspect(MOON_DESKTOP, aspect);
 
 export const timeOfDay = {
   t: 0, // section position, clamped to 0..3
