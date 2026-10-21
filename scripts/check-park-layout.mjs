@@ -4,9 +4,10 @@
 // axis; the story window behind his head; the path not ending at the café
 // door. Samples the same curve the ground draws (pathCurve).
 // The lawn's small things, at each layout's named screen sizes (the first
-// bench moves with the width): the second bench on the path, in the pond,
-// a bed, on a lamp post or a tree trunk, behind the railing or on the first
-// bench (which is older than this check and is not held to it); on desktop
+// bench moves with the width): a bench or the dog on the path, in the pond,
+// a bed, on a lamp post or a tree trunk, behind the railing, on the other
+// bench (the dog lies at the first bench's foot, nowhere else; the first
+// bench itself is older than this check and is not held to it); on desktop
 // any of them in the contact card's corner (CARD_ZONE), on phones and the
 // iPad the second bench in the card's band (y > 0.70); and any of them
 // within 2r of the moon (MOON_AT) at the Contact rest.
@@ -14,6 +15,7 @@
 import {
   BENCH,
   BENCH_HALF,
+  DOG_R,
   HOUSE,
   HOUSES,
   MAILBOX_AT,
@@ -23,6 +25,7 @@ import {
   benchClear,
   benches,
   cafeDoor,
+  dogAt,
   ellipseClear as ellipse,
   houseSpans,
   inCardZone,
@@ -98,6 +101,7 @@ for (const [key, park] of Object.entries(PARK)) {
     const aspect = W / H;
     const project = restProjector(key, aspect);
     const seats = benches(park, sf);
+    const dog = dogAt(park, sf);
     // The first bench (ParkProps) predates this check: only the second is
     // held to the plan here; both are held to the new props below
     [seats[1]].forEach((bench) => {
@@ -122,10 +126,23 @@ for (const [key, park] of Object.entries(PARK)) {
       z - a * BENCH_HALF.across * Math.sin(yaw) + b * BENCH_HALF.along * Math.cos(yaw),
     ]));
     if (outline(seats[0]).some((q) => benchClear(q, seats[1], 0.1) < 0) || outline(seats[1]).some((q) => benchClear(q, seats[0], 0.1) < 0)) fail(at, "the benches overlap");
+    // The dog: at the first bench's foot, clear of everything else
+    const dogPlace = [dog[0], dog[1]];
+    if (benchClear(dogPlace, seats[0], DOG_R + 0.2) > 0) fail(at, "the dog is not by the first bench");
+    if (benchClear(dogPlace, seats[1], DOG_R) < 0) fail(at, "the dog on the second bench");
+    if (nearest(dogPlace) - half - DOG_R < 0) fail(at, "the dog on the path");
+    if (ellipse(dogPlace, pondEllipse, DOG_R) < 0) fail(at, "the dog in the pond");
+    park.beds.forEach((bed, j) => ellipse(dogPlace, bed, DOG_R) < 0 && fail(at, `the dog in bed ${j}`));
+    park.lamps.forEach(([lx, lz], j) => Math.hypot(dog[0] - lx, dog[1] - lz) < DOG_R + 0.12 && fail(at, `the dog on lamp ${j}`));
+    park.trees.forEach(([tx, tz, ts], j) => Math.hypot(dog[0] - tx, dog[1] - tz) < DOG_R + 0.15 * ts && fail(at, `the dog on tree ${j}`));
+    const [ax, az] = avatarAt(key);
+    if (Math.hypot(dog[0] - ax, dog[1] - az) < DOG_R + 0.4) fail(at, "the dog at the avatar's feet");
     // On screen: the card's place and the moon's 2r
     const outline3 = (bench) => outline(bench).flatMap(([x, z]) => [[x, 0, z], [x, BENCH_TOP, z]]);
+    const dog3 = [[dog[0] - DOG_R, 0, dog[1]], [dog[0] + DOG_R, 0, dog[1]], [dog[0], 0.35, dog[1]]];
     const things = [
       ["bench 1", outline3(seats[1])],
+      ["the dog", dog3],
     ];
     const r = Math.min(28, Math.max(18, 0.026 * Math.min(W, H)));
     const moon = MOON_AT[key];

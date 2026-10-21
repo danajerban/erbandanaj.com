@@ -3,16 +3,16 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useMobile } from "../../contexts/MobileContext";
 import { createRandom } from "../../lib/lowPoly";
-import { RAILING_FRONT, lanterns, pathCurve } from "../../lib/parkLayout";
+import { RAILING_FRONT, dogAt, lanterns, pathCurve } from "../../lib/parkLayout";
 import { PARK_LAYER, ParkSink, parkSolidMaterial } from "../../lib/parkMaterials";
 import { useGLTF } from "../../lib/useGLTF";
-import { bench } from "./lawnDetails";
+import { bench, dog } from "./lawnDetails";
 
 // The park's garden: round trees framing the edges, flower beds like sweets
 // inside low box hedges, the iron railing along the sidewalk with its gate
 // on the path, two shrubs beside it, and the lawn's small things
-// (lawnDetails: the second bench). One static mesh on the park-solid
-// program, built in Contact-local units.
+// (lawnDetails: the second bench, the dog). One static mesh on the
+// park-solid program, built in Contact-local units.
 
 const v = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -221,7 +221,7 @@ const PHONE_SECTION_Z = -4;
 const HALF_FOV = THREE.MathUtils.degToRad(21);
 
 // benchParts: Park Bench.glb's meshes as [geometry, day colour]
-const buildGarden = (park, aspect, isMobile, benchParts) => {
+const buildGarden = (park, aspect, isMobile, scaleFactor, benchParts) => {
   const sink = new ParkSink(park);
   const random = createRandom(24);
   const shade = crownShade(park);
@@ -240,11 +240,12 @@ const buildGarden = (park, aspect, isMobile, benchParts) => {
   const box = new THREE.Box3().setFromArray(sink.position);
   const centre = box.getCenter(new THREE.Vector3());
   bench(sink, benchParts, park.bench2);
+  dog(sink, dogAt(park, scaleFactor));
   return sink.build([centre.x, 0, centre.z]);
 };
 
 export default function ParkGarden({ park }) {
-  const { isMobile } = useMobile();
+  const { isMobile, scaleFactor } = useMobile();
   const { nodes, materials } = useGLTF("/models/Park Bench.glb");
   // Rounded, as in ContactSection: rebuilt only when the aspect really changes
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
@@ -253,12 +254,12 @@ export default function ParkGarden({ park }) {
       [nodes["Park_Bench_Cube-Mesh"].geometry, materials.Metal.color],
       [nodes["Park_Bench_Cube-Mesh_1"].geometry, materials.Wood.color],
     ];
-    const { geometry, origin } = buildGarden(park, aspect, isMobile, benchParts);
+    const { geometry, origin } = buildGarden(park, aspect, isMobile, scaleFactor, benchParts);
     const m = new THREE.Mesh(geometry, parkSolidMaterial);
     m.position.fromArray(origin);
     m.layers.set(PARK_LAYER);
     return m;
-  }, [park, aspect, isMobile, nodes, materials]);
+  }, [park, aspect, isMobile, scaleFactor, nodes, materials]);
   useEffect(() => () => mesh.geometry.dispose(), [mesh]);
   return <primitive object={mesh} />;
 }

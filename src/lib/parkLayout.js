@@ -39,7 +39,8 @@ const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false
 //   phone values are MOBILE_PERF degradations (tagged where they are read).
 // - balloonString: the balloon strings' length scale.
 // - bench2: the second bench [x, z, yaw] (yaw as BENCH's: −π/2 faces the
-//   camera).
+//   camera); dog: where the sleeping dog lies, [dx, dz, yaw] from the first
+//   bench's place (benchAt), so it stays by that bench at any width.
 export const PARK = {
   desktop: {
     row: { x: -3.7, z: -11, scale: 0.9 },
@@ -62,6 +63,7 @@ export const PARK = {
     bedFlowersMax: 40,
     balloonString: 1,
     bench2: [5.3, -7.1, -Math.PI / 2],
+    dog: [0.12, 0.12, Math.PI / 4],
     detail: DETAIL_FULL,
   },
   tall: {
@@ -85,6 +87,7 @@ export const PARK = {
     bedFlowersMax: 40,
     balloonString: 1,
     bench2: [-1.55, -8.7, -0.4 * Math.PI],
+    dog: [0.12, 0.12, Math.PI / 4],
     detail: DETAIL_FULL,
   },
   portrait: {
@@ -108,6 +111,7 @@ export const PARK = {
     bedFlowersMax: 22,
     balloonString: 0.9,
     bench2: [2.3, -7.7, -0.6 * Math.PI],
+    dog: [0.12, 0.12, Math.PI / 4],
     detail: DETAIL_PHONE,
   },
   landscape: {
@@ -131,6 +135,7 @@ export const PARK = {
     bedFlowersMax: 22,
     balloonString: 0.9,
     bench2: [2.6, -5.6, -0.6 * Math.PI],
+    dog: [0.12, 0.12, Math.PI / 4],
     detail: DETAIL_PHONE,
   },
 };
@@ -308,6 +313,14 @@ export const BENCH_HALF = { along: 0.78, across: 0.46 };
 export const benchAt = (scaleFactor) => [-2 * scaleFactor + BENCH.x, BENCH.z, BENCH.yaw];
 // Both benches as [x, z, yaw]
 export const benches = (park, scaleFactor) => [benchAt(scaleFactor), park.bench2];
+
+// The sleeping dog: [x, z, yaw]; DOG_R its footprint radius
+export const DOG_R = 0.3;
+export const dogAt = (park, scaleFactor) => {
+  const [bx, bz] = benchAt(scaleFactor);
+  const [dx, dz, yaw] = park.dog;
+  return [bx + dx, bz + dz, yaw];
+};
 
 // The mailbox's foot [x, z] (ParkProps) and the avatar's [x, z] by layout
 export const MAILBOX_AT = [1, 0.5];

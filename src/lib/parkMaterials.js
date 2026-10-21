@@ -27,7 +27,8 @@ export const parkStats = { blinks: 0, storyToggles: 0 };
 
 // Houses, café, cat, lamps, trees, beds, railing, pond solids, ducks and the
 // balloon strings: one program. Vertex colours (linear, through THREE.Color)
-// already hold the night; aSway (weight, phase) bends a vertex in the wind,
+// already hold the night; aSway (weight, phase) bends a vertex in the wind
+// (a negative weight lifts it instead, slowly: the sleeping dog's breath),
 // aGlow marks lamp-lit glass that dims with the lamps (windows, bulbs).
 export const parkSolidMaterial = new THREE.MeshBasicMaterial({
   vertexColors: true,
@@ -39,7 +40,7 @@ parkSolidMaterial.onBeforeCompile = (shader) => {
   shader.uniforms.uLamps = parkUniforms.uLamps;
   shader.vertexShader = `attribute vec2 aSway;\nattribute float aGlow;\nuniform float uTime;\nvarying float vGlow;\n${shader.vertexShader.replace(
     "#include <begin_vertex>",
-    "$&\ntransformed.xz += aSway.x * 0.025 * vec2(sin(uTime * 1.3 + aSway.y), cos((uTime * 1.3 + aSway.y) * 0.7));\nvGlow = aGlow;",
+    "$&\ntransformed.xz += max(aSway.x, 0.0) * 0.025 * vec2(sin(uTime * 1.3 + aSway.y), cos((uTime * 1.3 + aSway.y) * 0.7));\ntransformed.y += max(-aSway.x, 0.0) * 0.01 * sin(uTime * 1.6 + aSway.y);\nvGlow = aGlow;",
   )}`;
   shader.fragmentShader = `uniform float uLamps;\nvarying float vGlow;\n${shader.fragmentShader.replace(
     "#include <color_fragment>",
