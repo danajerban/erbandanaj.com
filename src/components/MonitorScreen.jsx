@@ -64,6 +64,22 @@ export const MonitorScreen = ({ screen, origin }) => {
   );
 };
 
-config.projects.forEach((project) => {
-  useTexture.preload(project.image);
-});
+// The screenshot the monitor shows first loads with the section. The others
+// (a hovered card or a swiped carousel picks one) wait for the first visible
+// frame: on a #projects landing this chunk loads inside the splash gate, and
+// they would share the connection with the gate's models.
+useTexture.preload(config.projects[0].image);
+const preloadOthers = () => {
+  config.projects.slice(1).forEach((project) => {
+    useTexture.preload(project.image);
+  });
+};
+if (performance.getEntriesByName("scene-visible").length) {
+  preloadOthers();
+} else {
+  new PerformanceObserver((list, observer) => {
+    if (!list.getEntriesByName("scene-visible").length) return;
+    observer.disconnect();
+    preloadOthers();
+  }).observe({ type: "mark" });
+}
