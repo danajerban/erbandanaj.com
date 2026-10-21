@@ -1,5 +1,6 @@
 import { CatmullRomCurve3, Vector3 } from "three";
 import { layoutOf } from "./coast.js";
+import { createRandom } from "./lowPoly.js";
 
 // The night park on Contact: every layout number in one place, so tuning the
 // composition means editing this file only. Contact-local units: x right,
@@ -41,6 +42,8 @@ const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false
 // - bench2: the second bench [x, z, yaw] (yaw as BENCH's: −π/2 faces the
 //   camera); dog: where the sleeping dog lies, [dx, dz, yaw] from the first
 //   bench's place (benchAt), so it stays by that bench at any width.
+// - pondRocks: [angle, size] boulders just outside the pond's rim (angle as
+//   the rim stones': +π/2 is the near rim, −π/2 the back).
 export const PARK = {
   desktop: {
     row: { x: -3.7, z: -11, scale: 0.9 },
@@ -64,6 +67,7 @@ export const PARK = {
     balloonString: 1,
     bench2: [5.3, -7.1, -Math.PI / 2],
     dog: [0.12, 0.12, Math.PI / 4],
+    pondRocks: [[-2.2, 0.26], [-0.75, 0.26], [-0.45, 0.18], [3.3, 0.18]],
     detail: DETAIL_FULL,
   },
   tall: {
@@ -88,6 +92,7 @@ export const PARK = {
     balloonString: 1,
     bench2: [-1.55, -8.7, -0.4 * Math.PI],
     dog: [0.12, 0.12, Math.PI / 4],
+    pondRocks: [[-1.9, 0.2], [-1.6, 0.14], [-0.5, 0.16]],
     detail: DETAIL_FULL,
   },
   portrait: {
@@ -112,6 +117,7 @@ export const PARK = {
     balloonString: 0.9,
     bench2: [2.3, -7.7, -0.6 * Math.PI],
     dog: [0.12, 0.12, Math.PI / 4],
+    pondRocks: [[-1.2, 0.2], [-0.6, 0.16]],
     detail: DETAIL_PHONE,
   },
   landscape: {
@@ -136,6 +142,7 @@ export const PARK = {
     balloonString: 0.9,
     bench2: [2.6, -5.6, -0.6 * Math.PI],
     dog: [0.12, 0.12, Math.PI / 4],
+    pondRocks: [[-2.5, 0.3], [-2.0, 0.2], [-0.7, 0.26]],
     detail: DETAIL_PHONE,
   },
 };
@@ -364,4 +371,40 @@ export const benchClear = ([x, z], [bx, bz, yaw], g) => {
   const across = Math.abs(dx * Math.cos(yaw) - dz * Math.sin(yaw)) - BENCH_HALF.across - g;
   const along = Math.abs(dx * Math.sin(yaw) + dz * Math.cos(yaw)) - BENCH_HALF.along - g;
   return across > 0 && along > 0 ? Math.hypot(across, along) : Math.max(across, along);
+};
+
+// The boulders by the pond: [x, z, size]
+export const pondRocks = (park) => {
+  const { x, z, rx, rz } = park.pond;
+  return park.pondRocks.map(([a, size]) => [x + (rx + 0.1 + size) * Math.cos(a), z + (rz + 0.1 + size) * Math.sin(a), size]);
+};
+
+// The pebble edge either side of the path, from the screen's bottom to the
+// railing: [x, z, size, seed]; a pebble a lamp post, bed or the pond would
+// stand on is left out
+const PEBBLES = { step: 0.16, out: 0.04, skip: 0.25, min: 0.035, max: 0.065 };
+export const pathPebbles = (park) => {
+  const random = createRandom(7);
+  const curve = pathCurve(park);
+  const count = Math.round(curve.getLength() / PEBBLES.step);
+  const end = park.row.z + RAILING_FRONT + 0.25;
+  const pebbles = [];
+  const point = new Vector3();
+  const tangent = new Vector3();
+  for (let i = 0; i <= count; i++) {
+    const u = (i + 0.4 * random()) / count;
+    curve.getPointAt(Math.min(u, 1), point);
+    curve.getTangentAt(Math.min(u, 1), tangent);
+    for (const side of [-1, 1]) {
+      const size = PEBBLES.min + (PEBBLES.max - PEBBLES.min) * random();
+      const out = park.pathW / 2 + PEBBLES.out + size / 2 + 0.03 * random();
+      const at = [point.x - side * tangent.z * out, point.z + side * tangent.x * out];
+      if (random() < PEBBLES.skip || at[1] < end) continue;
+      if (park.lamps.some(([lx, lz]) => Math.hypot(at[0] - lx, at[1] - lz) < 0.2)) continue;
+      if (park.beds.some((bed) => ellipseClear(at, bed, 0.05) < 0)) continue;
+      if (ellipseClear(at, [park.pond.x, park.pond.z, park.pond.rx, park.pond.rz], 0.1) < 0) continue;
+      pebbles.push([...at, size, random()]);
+    }
+  }
+  return pebbles;
 };

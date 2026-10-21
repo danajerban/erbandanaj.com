@@ -3,14 +3,16 @@ import { createRandom } from "../../lib/lowPoly";
 import { BENCH } from "../../lib/parkLayout";
 
 // The lawn's small things, baked into the garden's mesh (ParkGarden: one
-// draw, the park-solid program): the second bench (Park Bench.glb's own
-// triangles) and a sleeping dog. Positions come from lib/parkLayout; colours
+// draw, the park-solid program): the pebble edge along the path, boulders
+// by the pond, the second bench (Park Bench.glb's own triangles) and a
+// sleeping dog. Positions come from lib/parkLayout; colours
 // are day colours, shaded for the night by the sink (nightShade).
 
 const v = (x, y, z) => new THREE.Vector3(x, y, z);
 
-// Unit balls as triangle lists: an icosahedron (the dog's chest, paws,
-// snout and nose) and its detail-1 subdivision (its body and head)
+// Unit balls as triangle lists: an icosahedron (pebbles; the dog's chest,
+// paws, snout and nose) and its detail-1 subdivision (rocks; its body and
+// head)
 const ICO_0 = new THREE.IcosahedronGeometry(1, 0).getAttribute("position").array;
 const ICO_1 = new THREE.IcosahedronGeometry(1, 1).getAttribute("position").array;
 
@@ -28,6 +30,23 @@ const ball = (sink, ico, c, r, hex, { jitter = 0, random, sway, phase = 0 } = {}
   for (let i = 0; i < ico.length; i += 9) {
     const corners = [corner(i), corner(i + 3), corner(i + 6)];
     sink.tri(...corners, hex, { sway: sway ? corners.map(sway) : 0, phase });
+  }
+};
+
+// Pebbles (darker: they lie in the path's dust) and the boulders by the
+// pond, in the pond rim stones' greys; flattened, half sunk
+const STONE = { light: new THREE.Color("#837f8c"), dark: new THREE.Color("#6b6876") };
+const PEBBLE = { light: new THREE.Color("#706c7a"), dark: new THREE.Color("#55525f"), flat: 0.45 };
+const greyHex = ({ light, dark }, u) => new THREE.Color().lerpColors(dark, light, u).getHex();
+export const pebbles = (sink, spots) => {
+  for (const [x, z, size, seed] of spots) {
+    const r = size / 2;
+    ball(sink, ICO_0, v(x, r * PEBBLE.flat * 0.5, z), [r, r * PEBBLE.flat, r * (0.75 + 0.4 * seed)], greyHex(PEBBLE, seed));
+  }
+};
+export const rocks = (sink, spots, random) => {
+  for (const [x, z, size] of spots) {
+    ball(sink, ICO_1, v(x, size * 0.3, z), [size, size * 0.65, size * 0.85], greyHex(STONE, 0.3 + 0.5 * random()), { jitter: 0.15, random });
   }
 };
 

@@ -3,16 +3,16 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useMobile } from "../../contexts/MobileContext";
 import { createRandom } from "../../lib/lowPoly";
-import { RAILING_FRONT, dogAt, lanterns, pathCurve } from "../../lib/parkLayout";
+import { RAILING_FRONT, dogAt, lanterns, pathCurve, pathPebbles, pondRocks } from "../../lib/parkLayout";
 import { PARK_LAYER, ParkSink, parkSolidMaterial } from "../../lib/parkMaterials";
 import { useGLTF } from "../../lib/useGLTF";
-import { bench, dog } from "./lawnDetails";
+import { bench, dog, pebbles, rocks } from "./lawnDetails";
 
 // The park's garden: round trees framing the edges, flower beds like sweets
 // inside low box hedges, the iron railing along the sidewalk with its gate
 // on the path, two shrubs beside it, and the lawn's small things
-// (lawnDetails: the second bench, the dog). One static mesh on the
-// park-solid program, built in Contact-local units.
+// (lawnDetails: the second bench, the dog, pebbles, rocks). One static mesh
+// on the park-solid program, built in Contact-local units.
 
 const v = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -241,6 +241,8 @@ const buildGarden = (park, aspect, isMobile, scaleFactor, benchParts) => {
   const centre = box.getCenter(new THREE.Vector3());
   bench(sink, benchParts, park.bench2);
   dog(sink, dogAt(park, scaleFactor));
+  pebbles(sink, pathPebbles(park));
+  rocks(sink, pondRocks(park), random);
   return sink.build([centre.x, 0, centre.z]);
 };
 

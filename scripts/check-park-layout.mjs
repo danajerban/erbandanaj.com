@@ -4,13 +4,14 @@
 // axis; the story window behind his head; the path not ending at the café
 // door. Samples the same curve the ground draws (pathCurve).
 // The lawn's small things, at each layout's named screen sizes (the first
-// bench moves with the width): a bench or the dog on the path, in the pond,
-// a bed, on a lamp post or a tree trunk, behind the railing, on the other
-// bench (the dog lies at the first bench's foot, nowhere else; the first
-// bench itself is older than this check and is not held to it); on desktop
-// any of them in the contact card's corner (CARD_ZONE), on phones and the
-// iPad the second bench in the card's band (y > 0.70); and any of them
-// within 2r of the moon (MOON_AT) at the Contact rest.
+// bench moves with the width): a bench, the dog or a pond rock on the path,
+// in the pond, a bed, on a lamp post or a tree trunk, behind the railing,
+// on the other bench (the dog lies at the first bench's foot, nowhere else;
+// the first bench itself is older than this check and is not held to it);
+// a pebble where it should not lie; on desktop any of
+// them in the contact card's corner (CARD_ZONE), on phones and the iPad the
+// second bench in the card's band (y > 0.70); and any of them within 2r of
+// the moon (MOON_AT) at the Contact rest.
 // Usage: node scripts/check-park-layout.mjs
 import {
   BENCH,
@@ -30,6 +31,8 @@ import {
   houseSpans,
   inCardZone,
   pathCurve,
+  pathPebbles,
+  pondRocks,
   restProjector,
 } from "../src/lib/parkLayout.js";
 import { MOON_AT } from "../src/lib/timeOfDay.js";
@@ -95,6 +98,22 @@ for (const [key, park] of Object.entries(PARK)) {
   // The lawn's small things
   const pondEllipse = [park.pond.x, park.pond.z, park.pond.rx, park.pond.rz];
   const railing = park.row.z + RAILING_FRONT;
+  const rocks = pondRocks(park);
+  rocks.forEach(([x, z, size], i) => {
+    const at = [x, z];
+    if (ellipse(at, pondEllipse, size * 0.3) < 0) fail(key, `rock ${i} in the pond`);
+    if (nearest(at) - half - size < 0) fail(key, `rock ${i} on the path`);
+    park.beds.forEach((bed, j) => ellipse(at, bed, size) < 0 && fail(key, `rock ${i} in bed ${j}`));
+    park.lamps.forEach(([lx, lz], j) => Math.hypot(x - lx, z - lz) < size + 0.12 && fail(key, `rock ${i} on lamp ${j}`));
+    park.trees.forEach(([tx, tz, ts], j) => Math.hypot(x - tx, z - tz) < size + 0.15 * ts && fail(key, `rock ${i} on tree ${j}`));
+  });
+  const pebbles = pathPebbles(park);
+  pebbles.forEach(([x, z]) => {
+    if (ellipse([x, z], pondEllipse, 0) < 0) fail(key, `pebble in the pond at [${x.toFixed(2)}, ${z.toFixed(2)}]`);
+    if (park.beds.some((bed) => ellipse([x, z], bed, 0) < 0)) fail(key, `pebble in a bed at [${x.toFixed(2)}, ${z.toFixed(2)}]`);
+    if (z < railing) fail(key, `pebble behind the railing at [${x.toFixed(2)}, ${z.toFixed(2)}]`);
+  });
+
   for (const [W, H] of SIZES[key]) {
     const at = `${key} ${W}x${H}`;
     const sf = W / 1920;
@@ -116,6 +135,7 @@ for (const [key, park] of Object.entries(PARK)) {
       });
       park.lamps.forEach((lamp, j) => benchClear(lamp, bench, 0.15) < 0 && fail(at, `bench ${i} on lamp ${j}`));
       park.trees.forEach((tree, j) => benchClear(tree, bench, 0.2 * tree[2]) < 0 && fail(at, `bench ${i} on tree ${j}`));
+      rocks.forEach(([x, z, size], j) => benchClear([x, z], bench, size) < 0 && fail(at, `bench ${i} on rock ${j}`));
       if (benchClear(MAILBOX_AT, bench, 0.2) < 0) fail(at, `bench ${i} on the mailbox`);
       if (benchClear(avatarAt(key), bench, 0.35) < 0) fail(at, `bench ${i} on the avatar`);
       if (bench[1] - BENCH_HALF.along < railing) fail(at, `bench ${i} behind the railing`);
@@ -143,6 +163,8 @@ for (const [key, park] of Object.entries(PARK)) {
     const things = [
       ["bench 1", outline3(seats[1])],
       ["the dog", dog3],
+      ...rocks.map(([x, z, size], i) => [`rock ${i}`, [[x - size, 0, z], [x + size, size, z], [x, 0, z + size]]]),
+      ...pebbles.map(([x, z]) => ["a pebble", [[x, 0, z]]]),
     ];
     const r = Math.min(28, Math.max(18, 0.026 * Math.min(W, H)));
     const moon = MOON_AT[key];
@@ -154,7 +176,7 @@ for (const [key, park] of Object.entries(PARK)) {
     }
     if (key !== "desktop" && outline3(seats[1]).some((q) => project(q)[1] > CARD_BAND)) fail(at, "the second bench in the card's band");
     if (moonClear < 2 * r) fail(at, `a new prop ${moonClear.toFixed(0)} px from the moon (2r ${(2 * r).toFixed(0)})`);
-    console.log(`  ${at}: moon clear by ${moonClear.toFixed(0)} px (2r ${(2 * r).toFixed(0)})`);
+    console.log(`  ${at}: ${pebbles.length} pebbles, ${rocks.length} rocks; moon clear by ${moonClear.toFixed(0)} px (2r ${(2 * r).toFixed(0)})`);
   }
 
   console.log(`${key}: party wall ${wall.toFixed(2)}, story window ${story.toFixed(2)}, path-pond ${pathPond.toFixed(2)}`);
