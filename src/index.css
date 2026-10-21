@@ -369,90 +369,87 @@ a {
   box-shadow: none;
 }
 
-/* CONTACT — a lantern card: a small terracotta line, the name, the role,
-   then the four ways to reach me, each icon with its name under it */
+/* CONTACT — a lantern card: a small terracotta line, the name and the role
+   on the left, then, past a divider, the four ways to reach me, each icon
+   with its name under it. Desktops and an upright iPad show it wide, on the
+   open lawn at the bottom, centred under the avatar over the start of the
+   path, between the CONTACT letters and the mailbox; phones (the RESPONSIVE
+   block) stack it. */
 
 .contact {
-  margin: 1rem;
-  padding: 1.125rem 1.25rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 1.75rem;
+  width: clamp(600px, 36vw, 760px);
+  padding: 1.25rem 1.75rem;
   background: var(--glass-color);
   backdrop-filter: blur(8px);
   border-radius: 8px;
-  min-width: 280px;
+}
+
+.contact > :not(.contact__socials) {
+  grid-column: 1;
+  white-space: nowrap;
 }
 
 .contact__eyebrow {
   color: #93351d;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: bold;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin: 0 0 0.3rem;
+  margin: 0 0 0.35rem;
 }
 
-/* Desktops: the card sits on the open lawn at the lower right, clear of the
-   bench and the balloon strings, its right edge under the menu pill's (the
-   pill ends 4.1rem from the window's right; the sections column is at most
-   1200px wide and centred). An upright iPad has the lawn under the CONTACT
-   letters, so the card goes lower; phones (the RESPONSIVE block) put it at
-   the bottom. */
 .section--contact {
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-end;
-  padding-bottom: 13vh;
-}
-
-.section--contact .contact {
-  margin: 0 calc(4.1rem - max(0px, 50vw - 600px)) 0 0;
-}
-
-@media (orientation: portrait) {
-  .section--contact {
-    padding-bottom: 4vh;
-  }
+  padding-bottom: clamp(1.25rem, 9vh - 48px, 6rem);
 }
 
 .contact__name {
   color: var(--text-color);
   font-weight: bold;
-  font-size: 1.5rem;
-  line-height: 1.2;
+  font-size: clamp(1.75rem, 0.8rem + 1.1vw, 2.25rem);
+  line-height: 1.15;
   margin: 0;
 }
 
 .contact__address {
   color: var(--text-light-color);
-  font-size: 0.95rem;
-  margin: 0.125rem 0 0;
+  font-size: 1.05rem;
+  margin: 0.2rem 0 0;
 }
 
 .contact__socials {
+  grid-column: 2;
+  grid-row: 1 / span 3;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.25rem;
-  margin-top: 0.875rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(26, 32, 44, 0.14);
+  gap: 0.75rem;
+  padding-left: 1.75rem;
+  border-left: 1px solid rgba(26, 32, 44, 0.14);
 }
 
 .contact__socials a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.25rem 0;
+  gap: 0.35rem;
+  padding: 0.25rem;
   border-radius: 6px;
 }
 
 .contact__socials__icon {
-  height: 28px;
-  width: 28px;
+  height: clamp(32px, 1.2rem + 0.9vw, 42px);
+  width: clamp(32px, 1.2rem + 0.9vw, 42px);
   transition: translate 0.2s ease-out;
 }
 
 .contact__socials__label {
   color: var(--text-light-color);
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   letter-spacing: 0.02em;
   transition: color 0.2s ease-out;
 }
@@ -676,34 +673,6 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   box-shadow: var(--lantern-glow);
 }
 
-/* Phone landscape: the wide, short card puts the four links beside the name
-   instead of under it, so it covers less of the park */
-@media (max-width: 990px) and (orientation: landscape) {
-  .contact {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-  }
-
-  .contact > :not(.contact__socials) {
-    grid-column: 1;
-  }
-
-  .contact__socials {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    gap: 0.75rem;
-    margin: 0;
-    padding: 0 0 0 1.25rem;
-    border-top: 0;
-    border-left: 1px solid rgba(26, 32, 44, 0.14);
-  }
-
-  .contact__socials a {
-    padding: 0.25rem;
-  }
-}
-
 /* Chrome compiles a GPU pipeline the first time it paints a kind of draw,
    ~120 ms each on a cold cache, blocking the frame: the sky layers' radial
    gradients, the cream logo and the lanterns' blurred glow would first
@@ -875,9 +844,39 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     border-radius: 6px;
   }
 
+  /* Phones: the card across the screen bottom, at the phone sizes */
   .section--contact .contact {
     width: 100%;
     margin: 1rem;
+    padding: 1.125rem 1.25rem 1rem;
+  }
+
+  .contact__eyebrow {
+    font-size: 0.7rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .contact__name {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  .contact__address {
+    font-size: 0.95rem;
+    margin-top: 0.125rem;
+  }
+
+  .contact__socials a {
+    gap: 0.3rem;
+  }
+
+  .contact__socials__icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .contact__socials__label {
+    font-size: 0.72rem;
   }
 
   .menu {
@@ -910,6 +909,25 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   }
 }
 
+/* Phone portrait: the four links under the name, past a line */
+@media (max-width: 990px) and (orientation: portrait) {
+  .contact {
+    display: block;
+  }
+
+  .contact__socials {
+    gap: 0.25rem;
+    margin-top: 0.875rem;
+    padding: 0.75rem 0 0;
+    border-left: 0;
+    border-top: 1px solid rgba(26, 32, 44, 0.14);
+  }
+
+  .contact__socials a {
+    padding: 0.25rem 0;
+  }
+}
+
 /* Phone landscape reads like portrait: the room or the park fills the
    screen and the cards sit low and compact under it, the carousel as wide
    as a portrait one (one card in the middle, the neighbours peeking), the
@@ -931,10 +949,16 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     justify-content: center;
   }
 
+  /* The wide card, short: the four links beside the name, so it covers
+     less of the park */
   .section--contact .contact {
     width: auto;
     max-width: 520px;
     column-gap: 1.25rem;
+  }
+
+  .contact__socials {
+    padding-left: 1.25rem;
   }
 }
 
