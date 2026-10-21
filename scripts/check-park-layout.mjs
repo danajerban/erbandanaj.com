@@ -3,15 +3,45 @@
 // tree in the pond; a lamp in a bed; the H3/H4 party wall off the avatar's
 // axis; the story window behind his head; the path not ending at the café
 // door. Samples the same curve the ground draws (pathCurve).
+// The lawn's small things, at each layout's named screen sizes (the first
+// bench moves with the width): the second bench on the path, in the pond,
+// a bed, on a lamp post or a tree trunk, behind the railing or on the first
+// bench (which is older than this check and is not held to it); on desktop
+// any of them in the contact card's corner (CARD_ZONE), on phones and the
+// iPad the second bench in the card's band (y > 0.70); and any of them
+// within 2r of the moon (MOON_AT) at the Contact rest.
 // Usage: node scripts/check-park-layout.mjs
-import { HOUSE, HOUSES, PARK, cafeDoor, houseSpans, pathCurve } from "../src/lib/parkLayout.js";
+import {
+  BENCH,
+  BENCH_HALF,
+  HOUSE,
+  HOUSES,
+  MAILBOX_AT,
+  PARK,
+  RAILING_FRONT,
+  avatarAt,
+  benchClear,
+  benches,
+  cafeDoor,
+  ellipseClear as ellipse,
+  houseSpans,
+  inCardZone,
+  pathCurve,
+  restProjector,
+} from "../src/lib/parkLayout.js";
+import { MOON_AT } from "../src/lib/timeOfDay.js";
 
 const SAMPLES = 200;
-
-// Signed clearance of a point from an ellipse [cx, cz, rx, rz] grown by g
-// (approximate; > 0 outside)
-const ellipse = ([x, z], [cx, cz, rx, rz], g) =>
-  (Math.hypot((x - cx) / (rx + g), (z - cz) / (rz + g)) - 1) * Math.min(rx + g, rz + g);
+// Screen sizes per layout [W, H]: the first bench sits at −2·W/1920 + BENCH.x
+const SIZES = {
+  desktop: [[1800, 987], [1280, 800], [1920, 1080], [2560, 1440]],
+  tall: [[1024, 1366]],
+  portrait: [[393, 852], [402, 874]],
+  landscape: [[852, 393], [874, 402]],
+};
+// The phones' and the iPad's card band; a bench's height (raw 2.12 × scale)
+const CARD_BAND = 0.7;
+const BENCH_TOP = 2.12 * BENCH.scale;
 
 let failures = 0;
 const fail = (key, message) => {
@@ -58,6 +88,57 @@ for (const [key, park] of Object.entries(PARK)) {
   const [endX, endZ] = park.path[park.path.length - 1];
   if (Math.abs(endX - doorX) > 0.05 || Math.abs(endZ - (doorZ + 1.3)) > 0.05)
     fail(key, `path ends at [${endX}, ${endZ}], the café door is at [${doorX.toFixed(2)}, ${(doorZ + 1.3).toFixed(2)}]`);
+
+  // The lawn's small things
+  const pondEllipse = [park.pond.x, park.pond.z, park.pond.rx, park.pond.rz];
+  const railing = park.row.z + RAILING_FRONT;
+  for (const [W, H] of SIZES[key]) {
+    const at = `${key} ${W}x${H}`;
+    const sf = W / 1920;
+    const aspect = W / H;
+    const project = restProjector(key, aspect);
+    const seats = benches(park, sf);
+    // The first bench (ParkProps) predates this check: only the second is
+    // held to the plan here; both are held to the new props below
+    [seats[1]].forEach((bench) => {
+      const i = 1;
+      const clear = Math.min(...path.map((q) => benchClear(q, bench, half + 0.1)));
+      if (clear < 0) fail(at, `bench ${i} on the path (${clear.toFixed(2)})`);
+      const rim = Array.from({ length: 64 }, (_, k) => [pondEllipse[0] + pondEllipse[2] * Math.cos((k / 64) * 2 * Math.PI), pondEllipse[1] + pondEllipse[3] * Math.sin((k / 64) * 2 * Math.PI)]);
+      if (benchClear([pondEllipse[0], pondEllipse[1]], bench, 0) < 0 || rim.some((q) => benchClear(q, bench, 0.1) < 0)) fail(at, `bench ${i} in the pond`);
+      park.beds.forEach((bed, j) => {
+        const edge = Array.from({ length: 32 }, (_, k) => [bed[0] + bed[2] * Math.cos((k / 32) * 2 * Math.PI), bed[1] + bed[3] * Math.sin((k / 32) * 2 * Math.PI)]);
+        if (edge.some((q) => benchClear(q, bench, 0.05) < 0)) fail(at, `bench ${i} on bed ${j}`);
+      });
+      park.lamps.forEach((lamp, j) => benchClear(lamp, bench, 0.15) < 0 && fail(at, `bench ${i} on lamp ${j}`));
+      park.trees.forEach((tree, j) => benchClear(tree, bench, 0.2 * tree[2]) < 0 && fail(at, `bench ${i} on tree ${j}`));
+      if (benchClear(MAILBOX_AT, bench, 0.2) < 0) fail(at, `bench ${i} on the mailbox`);
+      if (benchClear(avatarAt(key), bench, 0.35) < 0) fail(at, `bench ${i} on the avatar`);
+      if (bench[1] - BENCH_HALF.along < railing) fail(at, `bench ${i} behind the railing`);
+    });
+    // The benches apart: no point of one's outline inside the other
+    const outline = ([x, z, yaw]) => [-1, 1].flatMap((a) => [-1, 1].map((b) => [
+      x + a * BENCH_HALF.across * Math.cos(yaw) + b * BENCH_HALF.along * Math.sin(yaw),
+      z - a * BENCH_HALF.across * Math.sin(yaw) + b * BENCH_HALF.along * Math.cos(yaw),
+    ]));
+    if (outline(seats[0]).some((q) => benchClear(q, seats[1], 0.1) < 0) || outline(seats[1]).some((q) => benchClear(q, seats[0], 0.1) < 0)) fail(at, "the benches overlap");
+    // On screen: the card's place and the moon's 2r
+    const outline3 = (bench) => outline(bench).flatMap(([x, z]) => [[x, 0, z], [x, BENCH_TOP, z]]);
+    const things = [
+      ["bench 1", outline3(seats[1])],
+    ];
+    const r = Math.min(28, Math.max(18, 0.026 * Math.min(W, H)));
+    const moon = MOON_AT[key];
+    let moonClear = Infinity;
+    for (const [name, points] of things) {
+      const screen = points.map(project);
+      if (screen.some((q) => inCardZone(key, q))) fail(at, `${name} in the contact card's corner`);
+      for (const [fx, fy] of screen) moonClear = Math.min(moonClear, Math.hypot((fx - moon[0]) * W, (fy - moon[1]) * H));
+    }
+    if (key !== "desktop" && outline3(seats[1]).some((q) => project(q)[1] > CARD_BAND)) fail(at, "the second bench in the card's band");
+    if (moonClear < 2 * r) fail(at, `a new prop ${moonClear.toFixed(0)} px from the moon (2r ${(2 * r).toFixed(0)})`);
+    console.log(`  ${at}: moon clear by ${moonClear.toFixed(0)} px (2r ${(2 * r).toFixed(0)})`);
+  }
 
   console.log(`${key}: party wall ${wall.toFixed(2)}, story window ${story.toFixed(2)}, path-pond ${pathPond.toFixed(2)}`);
 }

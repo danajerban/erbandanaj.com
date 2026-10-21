@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { BENCH, MAILBOX_AT } from "../../lib/parkLayout";
 import { PARK_LAYER, parkSolidMaterial } from "../../lib/parkMaterials";
 import { timeOfDay } from "../../lib/timeOfDay";
 import { Balloon } from "../Balloon";
@@ -12,8 +13,6 @@ import { ParkBench } from "../ParkBench";
 // Contact-local, like the other park parts. The GLB props stay on layer 0
 // (contact shadows, pointer events).
 
-// The bench (ParkBench, unchanged) inside its group at x −2·scaleFactor
-const BENCH = { x: -0.5, z: -2.5, yaw: -Math.PI / 4, scale: 0.5 };
 // Where the strings are tied: the top of the bench's armrest at its front
 // end, the one nearer the avatar (Park Bench.glb, raw; measured once: the
 // armrest runs x −0.73..0.41 at z −1.45..−1.56, top y 1.26)
@@ -184,9 +183,9 @@ export default function ParkProps({ park, scaleFactor, prefersReducedMotion }) {
       <Mailbox
         scale={0.25}
         rotation-y={1.25 * Math.PI}
-        position-x={1}
+        position-x={MAILBOX_AT[0]}
         position-y={0.25}
-        position-z={0.5}
+        position-z={MAILBOX_AT[1]}
       />
     </group>
   );

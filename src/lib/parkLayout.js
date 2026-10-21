@@ -38,6 +38,8 @@ const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false
 // - groundGrid [cols, rows], fireflies, crownLumps, bedFlowersMax: the
 //   phone values are MOBILE_PERF degradations (tagged where they are read).
 // - balloonString: the balloon strings' length scale.
+// - bench2: the second bench [x, z, yaw] (yaw as BENCH's: −π/2 faces the
+//   camera).
 export const PARK = {
   desktop: {
     row: { x: -3.7, z: -11, scale: 0.9 },
@@ -59,6 +61,7 @@ export const PARK = {
     crownLumps: 3,
     bedFlowersMax: 40,
     balloonString: 1,
+    bench2: [5.3, -7.1, -Math.PI / 2],
     detail: DETAIL_FULL,
   },
   tall: {
@@ -81,6 +84,7 @@ export const PARK = {
     crownLumps: 3,
     bedFlowersMax: 40,
     balloonString: 1,
+    bench2: [-1.55, -8.7, -0.4 * Math.PI],
     detail: DETAIL_FULL,
   },
   portrait: {
@@ -103,6 +107,7 @@ export const PARK = {
     crownLumps: 2,
     bedFlowersMax: 22,
     balloonString: 0.9,
+    bench2: [2.3, -7.7, -0.6 * Math.PI],
     detail: DETAIL_PHONE,
   },
   landscape: {
@@ -125,6 +130,7 @@ export const PARK = {
     crownLumps: 2,
     bedFlowersMax: 22,
     balloonString: 0.9,
+    bench2: [2.6, -5.6, -0.6 * Math.PI],
     detail: DETAIL_PHONE,
   },
 };
@@ -291,3 +297,58 @@ export const cafeLights = (park) => {
 // The gravel path through its points at y 0 (centripetal Catmull-Rom); the
 // ground and the overlap check sample the same curve
 export const pathCurve = (park) => new CatmullRomCurve3(park.path.map(([x, z]) => new Vector3(x, 0, z)));
+
+// The first bench (ParkProps, Park Bench.glb): its x in a group at
+// −2·scaleFactor, z, yaw (its seat faces raw +x: −π/4 turns it toward the
+// path and the camera) and scale; the second bench (PARK[key].bench2) shares
+// the scale. BENCH_HALF: a bench's footprint half-extents at that scale
+// (Park Bench.glb raw x −0.82..1.02, z ±1.56), along its seat and across it.
+export const BENCH = { x: -0.5, z: -2.5, yaw: -Math.PI / 4, scale: 0.5 };
+export const BENCH_HALF = { along: 0.78, across: 0.46 };
+export const benchAt = (scaleFactor) => [-2 * scaleFactor + BENCH.x, BENCH.z, BENCH.yaw];
+// Both benches as [x, z, yaw]
+export const benches = (park, scaleFactor) => [benchAt(scaleFactor), park.bench2];
+
+// The mailbox's foot [x, z] (ParkProps) and the avatar's [x, z] by layout
+export const MAILBOX_AT = [1, 0.5];
+const isPhone = (layout) => layout === "portrait" || layout === "landscape";
+export const avatarAt = (layout) => [0, isPhone(layout) ? -1 : 0];
+
+// The railing along the sidewalk stands this far in front of the facades
+export const RAILING_FRONT = 1.55;
+
+// The camera at Contact rest, Contact-local: the eye 1.5 above the floor
+// at z 5 (phones: 9, the section sits 4 further back), looking at the point
+// 1 above the floor 5 ahead; fov 42. project([x, y, z]) gives [fx, fy], the
+// screen fractions (0..1 from the top left).
+const HALF_FOV_TAN = Math.tan((21 * Math.PI) / 180);
+export const restProjector = (layout, aspect) => {
+  const ez = isPhone(layout) ? 9 : 5;
+  const len = Math.hypot(0.5, 5);
+  const [fy, fz] = [-0.5 / len, -5 / len];
+  const [uy, uz] = [5 / len, -0.5 / len];
+  return ([x, y, z]) => {
+    const [dy, dz] = [y - 1.5, z - ez];
+    const depth = dy * fy + dz * fz;
+    const up = dy * uy + dz * uz;
+    return [(x / (depth * HALF_FOV_TAN * aspect) + 1) / 2, (1 - up / (depth * HALF_FOV_TAN)) / 2];
+  };
+};
+
+// Desktop: the contact card sits on the lawn at the lower right; nothing
+// new and opaque goes there (screen fractions)
+export const CARD_ZONE = { x: 0.7, y: 0.6 };
+export const inCardZone = (layout, [fx, fy]) => layout === "desktop" && fx > CARD_ZONE.x && fy > CARD_ZONE.y;
+
+// Signed clearance of [x, z] from an ellipse [cx, cz, rx, rz] grown by g
+// (approximate; > 0 outside)
+export const ellipseClear = ([x, z], [cx, cz, rx, rz], g) =>
+  (Math.hypot((x - cx) / (rx + g), (z - cz) / (rz + g)) - 1) * Math.min(rx + g, rz + g);
+// Signed clearance of [x, z] from a bench's footprint grown by g (> 0 outside)
+export const benchClear = ([x, z], [bx, bz, yaw], g) => {
+  const [dx, dz] = [x - bx, z - bz];
+  // The bench's raw +x (across) and +z (along) after its yaw
+  const across = Math.abs(dx * Math.cos(yaw) - dz * Math.sin(yaw)) - BENCH_HALF.across - g;
+  const along = Math.abs(dx * Math.sin(yaw) + dz * Math.cos(yaw)) - BENCH_HALF.along - g;
+  return across > 0 && along > 0 ? Math.hypot(across, along) : Math.max(across, along);
+};
