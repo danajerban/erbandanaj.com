@@ -8,7 +8,7 @@ import { SectionGroup } from "./SectionGroup";
 import { SectionTitle } from "./SectionTitle";
 
 // Skills: the office's window corner, the reading corner (afterglow: the
-// window shows the live sky, the reading lamp half on)
+// window shows the live sky, its warm light (READING_LIGHTS) half on)
 export const SkillsSection = () => {
   const { isMobile } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
