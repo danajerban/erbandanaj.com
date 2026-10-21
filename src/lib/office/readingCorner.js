@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import { AO, PALETTE, hex } from "./bake";
-import { BACK, FLOOR_Y, RUG_Y } from "./layout";
+import { BACK, FLOOR_Y, RUG_Y, T, WINDOW } from "./layout";
 import { bevelBox, box, cylinder, cylinderBetween, ellipse, fan, orientedTri, polygon, strip, tube, v3 } from "./shapes";
 
 // Skills: the reading corner (reading corner step): armchair, fiddle-leaf
-// fig, side table with a pilea, bookcase, books, pothos.
+// fig, side table with a pilea, bookcase, books, pothos, a print on the
+// side wall.
 // out = { solid: OfficeSink, glow: GlowSink }; ctx = { isMobile, layout,
 // random }; room-frame coordinates.
 
@@ -561,6 +562,40 @@ const buildContactBlobs = (sink) => {
   blob(sink, [(SHELF.x[0] + SHELF.x[1]) / 2, (SHELF.z[0] + SHELF.z[1]) / 2], [0.5, 0.19], floorOak[0]);
 };
 
+// A small framed print on the left side wall, above the fig: an oak frame,
+// a cream mat, a terracotta sun setting over sand dunes
+const PRINT = { z: -1.0, y: 1.42, w: 0.32, h: 0.42, bar: 0.018, mat: 0.035 };
+
+const buildPrint = (sink) => {
+  const { z, y, w, h, bar, mat } = PRINT;
+  const { oak, sand, coral } = PALETTE;
+  // Its own frame faces +x (into the room); local +x runs toward −z
+  placed(sink, frame(WINDOW.skills.room.x0 + T, y, z, { yaw: Math.PI / 2 }), () => {
+    const half = w / 2;
+    const depth = [0, 0.018];
+    box(sink, [-half, half], [0, bar], depth, oak, { omit: "-z" });
+    box(sink, [-half, half], [h - bar, h], depth, oak, { omit: "-z" });
+    box(sink, [-half, -half + bar], [bar, h - bar], depth, oak, { omit: "-z-y+y" });
+    box(sink, [half - bar, half], [bar, h - bar], depth, oak, { omit: "-z-y+y" });
+    const zp = 0.008;
+    const front = v3(0, 0, 1);
+    const [l, r, b, t] = [-half + bar, half - bar, bar, h - bar];
+    sink.quad(v3(l, b, zp), v3(r, b, zp), v3(r, t, zp), v3(l, t, zp), COLOR.cream);
+    // The picture inside the mat: sky, the sun's half disc, two dunes
+    const [pl, pr, pb, pt] = [l + mat, r - mat, b + mat, t - mat];
+    const zi = zp + 0.0006;
+    sink.quad(v3(pl, pb, zi), v3(pr, pb, zi), v3(pr, pt, zi), v3(pl, pt, zi), COLOR.page);
+    const horizon = pb + (pt - pb) * 0.38;
+    const sun = v3((pl + pr) / 2, horizon, zi + 0.0004);
+    const rim = [];
+    for (let k = 0; k <= 10; k++) rim.push(v3(sun.x + 0.07 * Math.cos((k / 10) * Math.PI), horizon + 0.07 * Math.sin((k / 10) * Math.PI), sun.z));
+    fan(sink, sun, rim, coral, coral, { normal: front });
+    const zd = zi + 0.0008;
+    polygon(sink, [v3(pl, pb, zd), v3(pr, pb, zd), v3(pr, horizon - 0.01, zd), v3(pl + (pr - pl) * 0.6, horizon + 0.012, zd), v3(pl, horizon - 0.02, zd)], sand, {}, front);
+    polygon(sink, [v3(pl, pb, zd + 0.0004), v3(pr, pb, zd + 0.0004), v3(pr, pb + 0.03, zd + 0.0004), v3(pl + (pr - pl) * 0.3, pb + 0.06, zd + 0.0004), v3(pl, pb + 0.045, zd + 0.0004)], PALETTE.sandMotif, {}, front);
+  });
+};
+
 export const buildReadingCorner = (out, ctx) => {
   const { solid } = out;
   buildContactBlobs(solid);
@@ -574,4 +609,5 @@ export const buildReadingCorner = (out, ctx) => {
   // After the books and the pothos, so their random draws stay as they were
   buildFig(solid, ctx.random);
   buildPilea(solid, ctx.random);
+  buildPrint(solid);
 };
