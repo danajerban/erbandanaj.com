@@ -8,7 +8,7 @@
 // in the pond, a bed, on a lamp post or a tree trunk, behind the railing,
 // on the other bench (the dog lies at the first bench's foot, nowhere else;
 // the first bench itself is older than this check and is not held to it);
-// a pebble where it should not lie; on desktop any of
+// a grass tuft or pebble where it should not grow or lie; on desktop any of
 // them in the contact card's corner (CARD_ZONE), on phones and the iPad the
 // second bench in the card's band (y > 0.70); and any of them within 2r of
 // the moon (MOON_AT) at the Contact rest.
@@ -30,6 +30,7 @@ import {
   ellipseClear as ellipse,
   houseSpans,
   inCardZone,
+  lawnTufts,
   pathCurve,
   pathPebbles,
   pondRocks,
@@ -157,6 +158,13 @@ for (const [key, park] of Object.entries(PARK)) {
     park.trees.forEach(([tx, tz, ts], j) => Math.hypot(dog[0] - tx, dog[1] - tz) < DOG_R + 0.15 * ts && fail(at, `the dog on tree ${j}`));
     const [ax, az] = avatarAt(key);
     if (Math.hypot(dog[0] - ax, dog[1] - az) < DOG_R + 0.4) fail(at, "the dog at the avatar's feet");
+    // Grass tufts: never on the path, in the pond or a bed, under a bench or the dog
+    const tufts = lawnTufts(park, key, sf, aspect);
+    tufts.forEach(([x, z]) => {
+      const q = [x, z];
+      if (nearest(q) - half < 0 || ellipse(q, pondEllipse, 0) < 0 || park.beds.some((bed) => ellipse(q, bed, 0) < 0)) fail(at, `tuft at [${x.toFixed(2)}, ${z.toFixed(2)}] on the path, pond or a bed`);
+      if (seats.some((bench) => benchClear(q, bench, 0) < 0) || Math.hypot(x - dog[0], z - dog[1]) < DOG_R) fail(at, `tuft at [${x.toFixed(2)}, ${z.toFixed(2)}] under a bench or the dog`);
+    });
     // On screen: the card's place and the moon's 2r
     const outline3 = (bench) => outline(bench).flatMap(([x, z]) => [[x, 0, z], [x, BENCH_TOP, z]]);
     const dog3 = [[dog[0] - DOG_R, 0, dog[1]], [dog[0] + DOG_R, 0, dog[1]], [dog[0], 0.35, dog[1]]];
@@ -164,6 +172,7 @@ for (const [key, park] of Object.entries(PARK)) {
       ["bench 1", outline3(seats[1])],
       ["the dog", dog3],
       ...rocks.map(([x, z, size], i) => [`rock ${i}`, [[x - size, 0, z], [x + size, size, z], [x, 0, z + size]]]),
+      ...tufts.map(([x, z]) => ["a tuft", [[x, 0, z], [x, 0.12, z]]]),
       ...pebbles.map(([x, z]) => ["a pebble", [[x, 0, z]]]),
     ];
     const r = Math.min(28, Math.max(18, 0.026 * Math.min(W, H)));
@@ -176,7 +185,7 @@ for (const [key, park] of Object.entries(PARK)) {
     }
     if (key !== "desktop" && outline3(seats[1]).some((q) => project(q)[1] > CARD_BAND)) fail(at, "the second bench in the card's band");
     if (moonClear < 2 * r) fail(at, `a new prop ${moonClear.toFixed(0)} px from the moon (2r ${(2 * r).toFixed(0)})`);
-    console.log(`  ${at}: ${pebbles.length} pebbles, ${rocks.length} rocks; moon clear by ${moonClear.toFixed(0)} px (2r ${(2 * r).toFixed(0)})`);
+    console.log(`  ${at}: ${tufts.length} tufts, ${pebbles.length} pebbles, ${rocks.length} rocks; moon clear by ${moonClear.toFixed(0)} px (2r ${(2 * r).toFixed(0)})`);
   }
 
   console.log(`${key}: party wall ${wall.toFixed(2)}, story window ${story.toFixed(2)}, path-pond ${pathPond.toFixed(2)}`);

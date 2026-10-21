@@ -3,9 +3,9 @@ import { createRandom } from "../../lib/lowPoly";
 import { BENCH } from "../../lib/parkLayout";
 
 // The lawn's small things, baked into the garden's mesh (ParkGarden: one
-// draw, the park-solid program): the pebble edge along the path, boulders
-// by the pond, the second bench (Park Bench.glb's own triangles) and a
-// sleeping dog. Positions come from lib/parkLayout; colours
+// draw, the park-solid program): grass tufts, the pebble edge along the
+// path, boulders by the pond, the second bench (Park Bench.glb's own
+// triangles) and a sleeping dog. Positions come from lib/parkLayout; colours
 // are day colours, shaded for the night by the sink (nightShade).
 
 const v = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -30,6 +30,25 @@ const ball = (sink, ico, c, r, hex, { jitter = 0, random, sway, phase = 0 } = {}
   for (let i = 0; i < ico.length; i += 9) {
     const corners = [corner(i), corner(i + 3), corner(i + 6)];
     sink.tri(...corners, hex, { sway: sway ? corners.map(sway) : 0, phase });
+  }
+};
+
+// Grass tufts: three or four thin blades leaning out, their tips in the wind
+const TUFT = { greens: ["#426c46", "#4c7a4c", "#3c6243"], width: 0.014, height: [0.06, 0.12], lean: 0.04, sway: 0.5 };
+export const tufts = (sink, spots) => {
+  for (const [x, z, seed] of spots) {
+    const random = createRandom(Math.floor(seed * 1e6));
+    const blades = 3 + Math.floor(random() * 2);
+    const hex = TUFT.greens[Math.floor(seed * TUFT.greens.length)];
+    for (let k = 0; k < blades; k++) {
+      const a = (k / blades) * 2 * Math.PI + random();
+      const [bx, bz] = [x + 0.02 * Math.cos(a), z + 0.02 * Math.sin(a)];
+      const h = TUFT.height[0] + (TUFT.height[1] - TUFT.height[0]) * random();
+      // The blade's face turned across its lean
+      const [wx, wz] = [-Math.sin(a) * TUFT.width, Math.cos(a) * TUFT.width];
+      const tip = v(bx + TUFT.lean * Math.cos(a), h, bz + TUFT.lean * Math.sin(a));
+      sink.tri(v(bx - wx, 0, bz - wz), v(bx + wx, 0, bz + wz), tip, hex, { sway: [0, 0, TUFT.sway], phase: a });
+    }
   }
 };
 

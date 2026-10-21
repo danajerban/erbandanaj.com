@@ -44,6 +44,7 @@ const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false
 //   bench's place (benchAt), so it stays by that bench at any width.
 // - pondRocks: [angle, size] boulders just outside the pond's rim (angle as
 //   the rim stones': +π/2 is the near rim, −π/2 the back).
+// - tufts: grass tufts scattered over the visible lawn (lawnTufts).
 export const PARK = {
   desktop: {
     row: { x: -3.7, z: -11, scale: 0.9 },
@@ -68,6 +69,7 @@ export const PARK = {
     bench2: [5.3, -7.1, -Math.PI / 2],
     dog: [0.12, 0.12, Math.PI / 4],
     pondRocks: [[-2.2, 0.26], [-0.75, 0.26], [-0.45, 0.18], [3.3, 0.18]],
+    tufts: 340,
     detail: DETAIL_FULL,
   },
   tall: {
@@ -93,6 +95,7 @@ export const PARK = {
     bench2: [-1.55, -8.7, -0.4 * Math.PI],
     dog: [0.12, 0.12, Math.PI / 4],
     pondRocks: [[-1.9, 0.2], [-1.6, 0.14], [-0.5, 0.16]],
+    tufts: 240,
     detail: DETAIL_FULL,
   },
   portrait: {
@@ -118,6 +121,7 @@ export const PARK = {
     bench2: [2.3, -7.7, -0.6 * Math.PI],
     dog: [0.12, 0.12, Math.PI / 4],
     pondRocks: [[-1.2, 0.2], [-0.6, 0.16]],
+    tufts: 260,
     detail: DETAIL_PHONE,
   },
   landscape: {
@@ -143,6 +147,7 @@ export const PARK = {
     bench2: [2.6, -5.6, -0.6 * Math.PI],
     dog: [0.12, 0.12, Math.PI / 4],
     pondRocks: [[-2.5, 0.3], [-2.0, 0.2], [-0.7, 0.26]],
+    tufts: 260,
     detail: DETAIL_PHONE,
   },
 };
@@ -373,6 +378,10 @@ export const benchClear = ([x, z], [bx, bz, yaw], g) => {
   return across > 0 && along > 0 ? Math.hypot(across, along) : Math.max(across, along);
 };
 
+// Points along the path's middle, every ~0.1 (the tufts keep clear of them)
+const pathSamples = (park) => pathCurve(park).getSpacedPoints(200).map((p) => [p.x, p.z]);
+const pathClear = (samples, [x, z], half) => Math.min(...samples.map(([px, pz]) => Math.hypot(x - px, z - pz))) - half;
+
 // The boulders by the pond: [x, z, size]
 export const pondRocks = (park) => {
   const { x, z, rx, rz } = park.pond;
@@ -407,4 +416,46 @@ export const pathPebbles = (park) => {
     }
   }
   return pebbles;
+};
+
+// Grass tufts over the lawn, evenly spread on screen (uniform in 1 / view
+// depth, like the ground's rows) between the screen's bottom and the
+// railing, clear of the path and its pebbles, the pond and its rocks, the
+// beds, lamp posts, tree trunks, both benches, the dog, the mailbox, the
+// avatar's feet and (desktop) the contact card: [x, z, seed]
+export const lawnTufts = (park, layout, scaleFactor, aspect) => {
+  const random = createRandom(11);
+  const project = restProjector(layout, aspect);
+  const ez = isPhone(layout) ? 9 : 5;
+  const len = Math.hypot(0.5, 5);
+  const depthOf = (z) => (0.75 + 5 * (ez - z)) / len;
+  const [near, far] = [park.groundFront, park.row.z + RAILING_FRONT + 0.6];
+  const [nearInv, farInv] = [1 / depthOf(near), 1 / depthOf(far)];
+  const samples = pathSamples(park);
+  const pond = [park.pond.x, park.pond.z, park.pond.rx, park.pond.rz];
+  const rocks = pondRocks(park);
+  const seats = benches(park, scaleFactor);
+  const [dogX, dogZ] = dogAt(park, scaleFactor);
+  const avatar = avatarAt(layout);
+  const tufts = [];
+  for (let i = 0; i < park.tufts; i++) {
+    const depth = 1 / (farInv + (nearInv - farInv) * random());
+    const z = ez - (depth * len - 0.75) / 5;
+    const half = depth * HALF_FOV_TAN * aspect;
+    const x = (random() * 2 - 1) * half;
+    const at = [x, z];
+    const seed = random();
+    const [fx, fy] = project([x, 0, z]);
+    if (fx < -0.02 || fx > 1.02 || fy > 1.02 || inCardZone(layout, [fx, fy])) continue;
+    if (pathClear(samples, at, park.pathW / 2 + 0.2) < 0) continue;
+    if (ellipseClear(at, pond, 0.35) < 0 || park.beds.some((bed) => ellipseClear(at, bed, 0.15) < 0)) continue;
+    if (rocks.some(([rx, rz, size]) => Math.hypot(x - rx, z - rz) < size + 0.15)) continue;
+    if (park.lamps.some(([lx, lz]) => Math.hypot(x - lx, z - lz) < 0.25)) continue;
+    if (park.trees.some(([tx, tz, size]) => Math.hypot(x - tx, z - tz) < 0.2 * size + 0.1)) continue;
+    if (seats.some((bench) => benchClear(at, bench, 0.05) < 0)) continue;
+    if (Math.hypot(x - dogX, z - dogZ) < DOG_R + 0.1) continue;
+    if (Math.hypot(x - MAILBOX_AT[0], z - MAILBOX_AT[1]) < 0.3 || Math.hypot(x - avatar[0], z - avatar[1]) < 0.45) continue;
+    tufts.push([x, z, seed]);
+  }
+  return tufts;
 };
