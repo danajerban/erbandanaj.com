@@ -318,6 +318,48 @@ a {
   margin: 0;
 }
 
+/* CAROUSEL — phones only (the RESPONSIVE block); on desktop the wrapper
+   leaves the card layout alone */
+
+.carousel {
+  display: contents;
+}
+
+.carousel__dots {
+  display: none;
+}
+
+.carousel__dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.carousel__dot::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(var(--glass-rgb), 0.9);
+  box-shadow: 0 0 0 1px rgba(26, 32, 44, 0.3);
+  transition:
+    width 0.2s ease-out,
+    background-color 0.2s ease-out;
+}
+
+/* The current card: a terracotta bar, like the active menu link */
+.carousel__dot[aria-current="true"]::before {
+  width: 18px;
+  background: #93351d;
+  box-shadow: none;
+}
+
 /* CONTACT */
 
 .contact {
@@ -669,42 +711,55 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     justify-content: flex-start;
   }
 
-  .skills {
-    margin-top: 0;
+  /* The carousels: one card at a time, snapped to the centre, the
+     neighbours peeking 20px in from each side (2rem padding − 0.75rem gap) */
+  .carousel {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .skills,
+  .projects {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.75rem;
     overflow-x: auto;
     width: 100%;
-    touch-action: pan-x; /* iOS: a finger-swipe on the cards pans the carousel instead of being captured by drei's vertical scroll */
+    max-width: none;
+    margin-top: 0;
+    padding: 1rem 2rem;
+    transform: none;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    /* iOS: a sideways swipe pans the carousel, an upward one still scrolls
+       the page (drei's scroll container) instead of stopping on the cards */
+    touch-action: pan-x pan-y;
     overscroll-behavior-x: contain;
     /* iOS: stop a finger-drag on the card TEXT from starting a text selection,
-       which hijacks the swipe-scroll. Projects already scroll because their
-       content lives inside an <a> (not text-selectable); this gives skills parity. */
+       which hijacks the swipe-scroll. */
     user-select: none;
     -webkit-user-select: none;
+  }
+
+  .skill,
+  .project {
+    flex: 0 0 100%;
+    margin: 0;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
   }
 
   .skill {
     padding: 0.75rem;
-    min-width: 300px;
-    margin: 0;
   }
 
-  .projects {
+  /* The dots sit in the section's bottom padding, so the cards keep their
+     place; each is a 24px tap target */
+  .carousel__dots {
     display: flex;
-    justify-content: flex-start;
-    overflow-x: auto;
-    max-width: none;
-    width: 100%;
-    transform: none;
-    touch-action: pan-x; /* iOS: a finger-swipe on the cards pans the carousel instead of being captured by drei's vertical scroll */
-    overscroll-behavior-x: contain;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  .project {
-    min-width: 280px;
+    justify-content: center;
+    margin: -0.5rem 0 -1rem;
   }
 
   /* No screenshot on phones: the site's icon and name in a row, as on the
