@@ -65,6 +65,21 @@ export const SHELL = {
   landscape: { left: -13, right: 13, front: 7.5, side: SIDE_END },
 };
 
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
+// Exactly a at t 0 and b at t 1, so the tuned spots hold to the last digit
+const mix = (a, b, t) => (t <= 0 ? a : t >= 1 ? b : a.map((v, i) => v + (b[i] - v) * t));
+
+// Past the breakpoint the spots (the room's offset, the titles) slide by
+// the aspect from the upright iPad's ("tall", 1024x1366) to the laptop's
+// ("desktop", 1280x800 and wider): a window in between sees a width in
+// between, so both titles and the props at the room's ends stay in frame
+const DESKTOP_BLEND = [0.75, 1.6];
+const desktopBlend = (aspect) => clamp01((aspect - DESKTOP_BLEND[0]) / (DESKTOP_BLEND[1] - DESKTOP_BLEND[0]));
+// A spot table's entry for the layout; past the breakpoint, blended by the
+// aspect
+const spotOf = (spots, layout, aspect) =>
+  layout === "desktop" || layout === "tall" ? mix(spots.tall, spots.desktop, desktopBlend(aspect)) : spots[layout];
+
 // Each room's [x, z] offset in the section-local frame. Desktop and tall
 // keep x 0 (the arch is the avatar's corridor); the scaled portrait desk
 // shifts the Projects room left so the plant stays on screen.
@@ -73,8 +88,8 @@ const PLACE = {
   projects: { desktop: [0, 0], tall: [0, -0.8], portrait: [-0.4, 0], landscape: [0, 0] },
 };
 
-export const place = (corner, layout) => {
-  const [x, z] = PLACE[corner][layout];
+export const place = (corner, layout, aspect) => {
+  const [x, z] = spotOf(PLACE[corner], layout, aspect);
   return corner === "projects" ? [x - 1.0 * (vignetteScale(layout) - 1), z] : [x, z];
 };
 
@@ -145,13 +160,14 @@ export const PRINT = { x: -0.76, y: 1.36, w: 0.26, h: 0.34 };
 // them on desktop; on phones above the card carousel (the bottom 30%), in
 // front of the avatar's feet. Per layout, the left end of the baseline
 // (Text3D's origin) in the room frame, on the floor; its far end stays at
-// z >= 0.2.
+// z >= 0.2. Past the breakpoint, blended from tall to desktop by the
+// aspect (DESKTOP_BLEND), so neither title runs off a near-square window.
 export const TITLE_TURN = Math.PI / 6;
 const TITLE_AT = {
   skills: { desktop: [-2.0, 0, 0.9], tall: [-1.25, 0, 0.9], portrait: [-1.55, 0, 2.6], landscape: [-4.6, 0, 0.5] },
   projects: { desktop: [0.4, 0, 1.3], tall: [-0.9, 0, 2.3], portrait: [-0.5, 0, 3.0], landscape: [-5.2, 0, -0.6] },
 };
-export const titleAt = (corner, layout) => TITLE_AT[corner][layout];
+export const titleAt = (corner, layout, aspect) => spotOf(TITLE_AT[corner], layout, aspect);
 
 // Each corner's room and its window. Skills: a big open window in the back
 // wall, its lace gathered at the sides and swaying a little. Projects: the

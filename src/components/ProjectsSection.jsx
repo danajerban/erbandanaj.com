@@ -60,7 +60,7 @@ export const ProjectsSection = () => {
       position-z={isMobile ? -5 : 2 * sectionsDistance}
     >
       <OfficeCorner corner="projects" lights={lights} build={buildDeskCorner}>
-        <SectionTitle layers={OFFICE_LAYER} position={titleAt("projects", layout)} rotation-y={TITLE_TURN}>
+        <SectionTitle layers={OFFICE_LAYER} position={titleAt("projects", layout, aspect)} rotation-y={TITLE_TURN}>
           PROJECTS
         </SectionTitle>
         {/* Own boundary: a screenshot texture that hasn't loaded yet

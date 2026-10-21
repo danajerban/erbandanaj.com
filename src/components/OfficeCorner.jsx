@@ -103,7 +103,7 @@ export const OfficeCorner = ({ corner, lights, build, children }) => {
     if (!prefersReducedMotion && shown(group.current)) materials.uniforms.uTime.value += delta;
   });
 
-  const [x, z] = place(corner, layout);
+  const [x, z] = place(corner, layout, aspect);
   return (
     <group ref={group} position={[x, 0, z]}>
       {meshes.map((mesh) => (
