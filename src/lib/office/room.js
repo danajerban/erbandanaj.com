@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { AO, LIGHT, PALETTE } from "./bake";
-import { ARCH, BACK, FLOOR_Y, RUG_Y, SIDE_END, SLAB, SLAB_FRONT, T, TITLE, WALL_H, WINDOW, titleLeft } from "./layout";
+import { ARCH, BACK, FLOOR_Y, RUG_Y, SHELL, SLAB, T, TITLE, WALL_H, WINDOW, titleLeft } from "./layout";
 import { box, cylinderBetween, fan, polygon, tube, v3, wallWithHoles } from "./shapes";
 
 // The empty room of each office corner (room frame): floor slab with oak
@@ -24,8 +24,11 @@ const FINIAL_R = 0.02;
 const AO_FOOT = 0.25;
 const AO_CORNER = 0.2;
 const AO_FLOOR = 0.3;
-// Plank segments split on this grid too (per-vertex lamp light)
+// Plank segments split on this grid too (per-vertex lamp light), up to
+// where the lamps reach
 const PLANK_STEP = 0.5;
+const LIT_Z = 2;
+const PLANK_LENGTH = 1.3;
 // Curtains: pleats across the panel
 const PLEAT_AMPLITUDE = 0.035;
 const PLEAT_PERIOD = 0.12;
@@ -40,29 +43,31 @@ const smooth01 = (x) => THREE.MathUtils.smoothstep(x, 0, 1);
 const shade = (color, k) => color.clone().multiplyScalar(k);
 
 // The floor's AO: in front of the back wall, and along the side wall up to
-// its front end (fading out past it)
-const floorAo = (x, z, xi) => {
+// its front end `side` (fading out past it)
+const floorAo = (x, z, xi, side) => {
   const back = AO.floorEdge(z - BACK);
-  const side = 1 - (1 - AO.floorEdge(x - xi)) * (1 - smooth01((z - SIDE_END) / AO_FLOOR));
-  return back * side;
+  if (x < xi - 1e-6) return back;
+  return back * (1 - (1 - AO.floorEdge(x - xi)) * (1 - smooth01((z - side) / AO_FLOOR)));
 };
 
-// Oak planks along z over x [xa, xb], z [za, zb]: 2–3 segments each with
-// staggered 4 mm seams, the three tones by seeded random
+// Oak planks along z over x [xa, xb], z [za, zb]: about PLANK_LENGTH long,
+// with staggered 4 mm seams, the three tones by seeded random; split on the
+// PLANK_STEP grid only where the lamps reach (z < LIT_Z)
 const planks = (sink, [xa, xb], [za, zb], random, { y = FLOOR_Y, tone = 1, ao = () => 1, zBreaks = [] } = {}) => {
   const length = zb - za;
+  const pieces = Math.max(2, Math.round(length / PLANK_LENGTH));
   for (let x = xa; x < xb - 1e-6; x += PLANK) {
     const x2 = Math.min(x + PLANK, xb);
-    const count = random() < 0.5 ? 2 : 3;
+    const count = pieces + (random() < 0.5 ? 0 : 1);
     const joints = [];
-    for (let k = 1; k < count; k++) joints.push(za + length * (k / count + (random() - 0.5) * 0.25));
+    for (let k = 1; k < count; k++) joints.push(za + (length * (k + (random() - 0.5) * 0.6)) / count);
     const ends = [za, ...joints, zb];
     for (let k = 0; k < ends.length - 1; k++) {
       const z0 = ends[k] + (k > 0 ? SEAM / 2 : 0);
       const z1 = ends[k + 1] - (k < ends.length - 2 ? SEAM / 2 : 0);
       const color = shade(PALETTE.floorOak[Math.floor(random() * 3)], tone);
       const cuts = [z0];
-      for (let z = za + PLANK_STEP; z < zb; z += PLANK_STEP) if (z > z0 + 0.05 && z < z1 - 0.05) cuts.push(z);
+      for (let z = za + PLANK_STEP; z < Math.min(zb, LIT_Z); z += PLANK_STEP) if (z > z0 + 0.05 && z < z1 - 0.05) cuts.push(z);
       for (const z of zBreaks) if (z > z0 + 0.02 && z < z1 - 0.02) cuts.push(z);
       cuts.sort((a, b) => a - b).push(z1);
       for (let i = 0; i < cuts.length - 1; i++) {
@@ -88,16 +93,19 @@ const slabEdges = (sink, [xa, xb], [za, zb], { front = true, left = true, right 
   box(sink, [xa, xb], y, [za, zb], PALETTE.slabEdge, { omit });
 };
 
-// Floor slab, planks, hallway threshold and stub
-const buildFloor = (sink, corner, random) => {
-  const { x0, x1 } = WINDOW[corner].room;
+// Floor slab, planks, hallway threshold and stub. The floor runs past the
+// screen edges (SHELL); under the side wall's footprint only in front of
+// its end.
+const buildFloor = (sink, corner, layout, random) => {
+  const { x0 } = WINDOW[corner].room;
+  const { left, right, front, side } = SHELL[layout];
   const xi = x0 + T;
-  const ao = (x, z) => floorAo(x, z, xi);
-  const zBreaks = [BACK + AO_FLOOR, SIDE_END, SIDE_END + AO_FLOOR];
-  // Under the side wall's footprint only in front of its end
-  planks(sink, [x0, xi], [SIDE_END, SLAB_FRONT], random, { ao, zBreaks });
-  planks(sink, [xi, x1], [BACK, SLAB_FRONT], random, { ao, zBreaks });
-  slabEdges(sink, [x0, x1], [BACK - T, SLAB_FRONT]);
+  const ao = (x, z) => floorAo(x, z, xi, side);
+  const zBreaks = [BACK + AO_FLOOR, side, side + AO_FLOOR];
+  if (left !== null) planks(sink, [left, x0], [BACK, front], random, { ao, zBreaks });
+  planks(sink, [x0, xi], [side, front], random, { ao, zBreaks });
+  planks(sink, [xi, right], [BACK, front], random, { ao, zBreaks });
+  slabEdges(sink, [left ?? x0, right], [BACK - T, front]);
   // The arch's threshold, flush with the floor, then the hallway stub
   // (nothing above it: the sky shows through the arch)
   sink.quad(v3(-ARCH.x, FLOOR_Y, BACK), v3(ARCH.x, FLOOR_Y, BACK), v3(ARCH.x, FLOOR_Y, BACK - T), v3(-ARCH.x, FLOOR_Y, BACK - T), PALETTE.oak);
@@ -107,25 +115,30 @@ const buildFloor = (sink, corner, random) => {
 };
 
 // The walls: faces with holes, reveals, caps, skirting, arch casing
-const buildWalls = (sink, corner) => {
+const buildWalls = (sink, corner, layout) => {
   const w = WINDOW[corner];
-  const { x0, x1 } = w.room;
+  const { x0 } = w.room;
+  const { left, right: x1, side } = SHELL[layout];
   const xi = x0 + T;
+  // On phones the back wall carries on left of the side wall
+  const xl = left ?? x0;
   const foot = (y) => AO.wallFoot(y - FLOOR_Y);
   const arch = { u: [-ARCH.x, ARCH.x], v: [FLOOR_Y, ARCH.top], arch: true };
   const backHoles = w.wall === "back" ? [arch, { ...w.hole, bottom: false }] : [arch];
   const vBreaks = [FLOOR_Y + AO_FOOT];
 
   // Back wall: its face looks along +z
-  wallWithHoles(sink, { u: [xi, x1], v: [FLOOR_Y, WALL_H] }, backHoles, { o: v3(0, 0, BACK), u: v3(1, 0, 0), v: UP }, PALETTE.limewash, {
-    ao: (u, v) => foot(v) * AO.corner(u - xi),
-    breaks: { u: [xi + AO_CORNER], v: vBreaks },
+  const cornerAo = (u) => (u >= xi ? AO.corner(u - xi) : u <= x0 ? AO.corner(x0 - u) : 1);
+  wallWithHoles(sink, { u: [left ?? xi, x1], v: [FLOOR_Y, WALL_H] }, backHoles, { o: v3(0, 0, BACK), u: v3(1, 0, 0), v: UP }, PALETTE.limewash, {
+    ao: (u, v) => foot(v) * cornerAo(u),
+    breaks: { u: [xi + AO_CORNER, ...(left === null ? [] : [x0 - AO_CORNER, x0, xi])], v: vBreaks },
     depth: T,
     revealAo: AO.reveal,
   });
-  // Left side wall: its face looks along +x, u runs along −z
+  // Left side wall: its face looks along +x, u runs along −z, from its
+  // front end
   const sideHoles = w.wall === "side" ? [{ u: [-w.hole.u[1], -w.hole.u[0]], v: w.hole.v, bottom: false }] : [];
-  wallWithHoles(sink, { u: [-SIDE_END, -BACK], v: [FLOOR_Y, WALL_H] }, sideHoles, { o: v3(xi, 0, 0), u: v3(0, 0, -1), v: UP }, PALETTE.limewash, {
+  wallWithHoles(sink, { u: [-side, -BACK], v: [FLOOR_Y, WALL_H] }, sideHoles, { o: v3(xi, 0, 0), u: v3(0, 0, -1), v: UP }, PALETTE.limewash, {
     ao: (u, v) => foot(v) * AO.corner(-BACK - u),
     breaks: { u: [-BACK - AO_CORNER], v: vBreaks },
     depth: T,
@@ -133,20 +146,24 @@ const buildWalls = (sink, corner) => {
   });
 
   // The model cut: wall tops, the side wall's front end, the back wall's
-  // right end
+  // ends (past the screen edges)
   const cut = PALETTE.cut;
-  polygon(sink, [v3(x0, WALL_H, BACK - T), v3(x1, WALL_H, BACK - T), v3(x1, WALL_H, BACK), v3(x0, WALL_H, BACK)], cut, {}, UP);
-  polygon(sink, [v3(x0, WALL_H, BACK), v3(xi, WALL_H, BACK), v3(xi, WALL_H, SIDE_END), v3(x0, WALL_H, SIDE_END)], cut, {}, UP);
-  polygon(sink, [v3(x0, FLOOR_Y, SIDE_END), v3(xi, FLOOR_Y, SIDE_END), v3(xi, WALL_H, SIDE_END), v3(x0, WALL_H, SIDE_END)], cut, {}, v3(0, 0, 1));
+  polygon(sink, [v3(xl, WALL_H, BACK - T), v3(x1, WALL_H, BACK - T), v3(x1, WALL_H, BACK), v3(xl, WALL_H, BACK)], cut, {}, UP);
+  polygon(sink, [v3(x0, WALL_H, BACK), v3(xi, WALL_H, BACK), v3(xi, WALL_H, side), v3(x0, WALL_H, side)], cut, {}, UP);
+  polygon(sink, [v3(x0, FLOOR_Y, side), v3(xi, FLOOR_Y, side), v3(xi, WALL_H, side), v3(x0, WALL_H, side)], cut, {}, v3(0, 0, 1));
   polygon(sink, [v3(x1, FLOOR_Y, BACK - T), v3(x1, FLOOR_Y, BACK), v3(x1, WALL_H, BACK), v3(x1, WALL_H, BACK - T)], cut, {}, v3(1, 0, 0));
+  if (left !== null) {
+    polygon(sink, [v3(xl, FLOOR_Y, BACK), v3(xl, FLOOR_Y, BACK - T), v3(xl, WALL_H, BACK - T), v3(xl, WALL_H, BACK)], cut, {}, v3(-1, 0, 0));
+  }
 
-  // Skirting: along the back wall, broken by the arch casing; along the
-  // side wall to its front end
+  // Skirting: along the back wall, broken by the arch casing (and on
+  // phones by the side wall); along the side wall to its front end
   const skirt = [FLOOR_Y, FLOOR_Y + SKIRT_H];
   const edge = ARCH.x + CASING;
+  if (left !== null) box(sink, [left, x0], skirt, [BACK, BACK + SKIRT_D], PALETTE.trim, { omit: "-y-z+x", ao: AO.wallFoot(0.12) });
   box(sink, [xi, -edge], skirt, [BACK, BACK + SKIRT_D], PALETTE.trim, { omit: "-y-z-x", ao: AO.wallFoot(0.12) });
   box(sink, [edge, x1], skirt, [BACK, BACK + SKIRT_D], PALETTE.trim, { omit: "-y-z-x", ao: AO.wallFoot(0.12) });
-  box(sink, [xi, xi + SKIRT_D], skirt, [BACK + SKIRT_D, SIDE_END], PALETTE.trim, { omit: "-y-z-x", ao: AO.wallFoot(0.12) });
+  box(sink, [xi, xi + SKIRT_D], skirt, [BACK + SKIRT_D, side], PALETTE.trim, { omit: "-y-z-x", ao: AO.wallFoot(0.12) });
 
   // Arch casing: a flat band around the jambs and the head
   for (const s of [-1, 1]) {
@@ -333,8 +350,8 @@ const buildAfterglow = (glow, isMobile) => {
 
 // out = { solid, furniture, glow, lace }; ctx = { isMobile, layout, random }
 export const buildRoom = (out, corner, ctx) => {
-  buildFloor(out.solid, corner, ctx.random);
-  buildWalls(out.solid, corner);
+  buildFloor(out.solid, corner, ctx.layout, ctx.random);
+  buildWalls(out.solid, corner, ctx.layout);
   buildWindow(out.solid, corner);
   buildTitleBlock(out.solid, corner, ctx.layout);
   buildRug(out.solid, corner);

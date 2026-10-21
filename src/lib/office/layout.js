@@ -16,10 +16,9 @@ export const T = 0.12; // wall thickness: the back face lies at BACK - T
 export const WALL_H = 2.4;
 export const FLOOR_Y = -0.012; // floor top, under the contact-shadow plane
 export const RUG_Y = -0.004;
-export const SIDE_END = -0.45; // front end of the left side wall
+export const SIDE_END = -0.45; // the side wall's front end on phones
 export const FRONT_Z = -0.4; // furniture mesh origin (its front edge)
 export const SLAB = 0.14; // floor slab thickness
-export const SLAB_FRONT = 1.3; // floor slab front edge
 // The open hallway arch at room x 0 in both back walls: jambs to `spring`,
 // a semicircular head up to `top`
 export const ARCH = { x: 0.45, spring: 1.65, top: 2.1 };
@@ -45,6 +44,24 @@ export const vignetteMatrix = (layout) => {
     .makeTranslation(x, y, z)
     .multiply(new THREE.Matrix4().makeScale(s, s, s))
     .multiply(new THREE.Matrix4().makeTranslation(-x, -y, -z));
+};
+
+// The room is a background, like the park: per layout, the floor and the
+// back wall run past the screen edges, at rest and while the corner
+// dissolves (the camera travels up to 0.48 sections before it is gone), so
+// sky shows only above the wall tops. Room frame: `right` the back wall's
+// and the floor's right end, `front` the floor's front edge, `side` the left
+// side wall's front end, `left` the back wall's and the floor's left end
+// where the side wall stops short. On desktop and an upright iPad the avatar
+// walks along z through the arch, so the side wall runs on toward the camera
+// and closes the frame on the left. On phones the avatar walks along x
+// across the room, so the side wall stops behind it (SIDE_END) and the back
+// wall and floor carry on past it to the left.
+export const SHELL = {
+  desktop: { left: null, right: 11, front: 7.5, side: 7 },
+  tall: { left: null, right: 11, front: 7.5, side: 7 },
+  portrait: { left: -6.5, right: 6.5, front: 7.5, side: SIDE_END },
+  landscape: { left: -13, right: 13, front: 7.5, side: SIDE_END },
 };
 
 // Each room's [x, z] offset in the section-local frame. Desktop and tall
@@ -126,11 +143,11 @@ export const titleLeft = (corner, layout) => TITLE.left[corner][layout] ?? TITLE
 // Each corner's room and its window. Skills: a big open window in the back
 // wall, its lace gathered at the sides and swaying a little. Projects: the
 // window in the left side wall (as in the desk photos), lace closed and
-// still. x0 is the outer face of the left side wall, x1 the room's cut
-// right end; rod and lace in the room frame.
+// still. x0 is the outer face of the left side wall (the room's extents per
+// layout: SHELL); rod and lace in the room frame.
 export const WINDOW = {
   skills: {
-    room: { x0: -3.12, x1: 2.0 },
+    room: { x0: -3.12 },
     wall: "back",
     hole: { u: [-2.65, -0.65], v: [0.55, 2.0] },
     trim: 0.05,
@@ -143,7 +160,7 @@ export const WINDOW = {
     rug: { x: [-2.1, 0.5], z: [-1.5, 0.3] },
   },
   projects: {
-    room: { x0: -2.12, x1: 2.82 },
+    room: { x0: -2.12 },
     wall: "side",
     hole: { u: [-1.62, -0.72], v: [0.85, 2.1] },
     trim: 0.05,
