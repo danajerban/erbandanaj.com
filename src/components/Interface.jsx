@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { motion, useReducedMotion } from "motion/react";
 import { useSetAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { MathUtils } from "three";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
@@ -11,15 +12,17 @@ import { projectAtom } from "../store";
 // Card entrance: fade in and rise, once per page load (viewport `once`, no
 // storage). The rise is on the cards themselves — never on `.projects`, whose
 // CSS translateX an inline motion transform would override. A section's
-// cards are staggered by the shared constant via the container's variant.
+// cards are staggered by the shared constant via the container's variant. The
+// entrance animates `--enter`, which the card's CSS opacity multiplies with
+// its section's `--fade` (below).
 const groupVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: ANIMATION_CONSTANTS.CARD_STAGGER_DELAY } },
 };
 const cardVariants = {
-  hidden: { opacity: 0, y: ANIMATION_CONSTANTS.CARD_RISE_PX },
+  hidden: { "--enter": 0, y: ANIMATION_CONSTANTS.CARD_RISE_PX },
   visible: {
-    opacity: 1,
+    "--enter": 1,
     y: 0,
     transition: { duration: ANIMATION_CONSTANTS.CARD_ENTRANCE_DURATION, ease: "easeOut" },
   },
@@ -27,11 +30,51 @@ const cardVariants = {
 // Reduced motion: fade only. Motion would snap `y` anyway, but cards that have
 // not entered the viewport yet would still sit 12 px down in their hidden state.
 const cardVariantsReduced = {
-  hidden: { opacity: 0 },
+  hidden: { "--enter": 0 },
   visible: {
-    opacity: 1,
+    "--enter": 1,
     transition: { duration: ANIMATION_CONSTANTS.CARD_ENTRANCE_DURATION, ease: "easeOut" },
   },
+};
+
+// The cards leave with their room: a section's cards fade on the same curve,
+// from the same scroll position, as its 3D group dissolves into the haze
+// (SectionGroup). The fade is a `--fade` variable on the section, which each
+// card's own opacity multiplies (index.css): an opacity on an ancestor would
+// switch off the cards' backdrop blur. Written only when its step changes;
+// at 0 the section is hidden and inert, so its cards take no tap or focus.
+const FADE_STEPS = 40;
+const FADED_SECTIONS = ["skills", "projects", "contact"];
+const useSectionFades = (scrollData) => {
+  const refs = useRef([]);
+  const fades = useRef(FADED_SECTIONS.map(() => 1));
+  useFrame(() => {
+    const position = scrollData.offset * (scrollData.pages - 1);
+    FADED_SECTIONS.forEach((name, i) => {
+      const away = Math.abs(position - config.sections.indexOf(name));
+      const fade =
+        Math.round(
+          (1 -
+            MathUtils.smoothstep(
+              away,
+              ANIMATION_CONSTANTS.DISSOLVE_START,
+              ANIMATION_CONSTANTS.DISSOLVE_END,
+            )) *
+            FADE_STEPS,
+        ) / FADE_STEPS;
+      const el = refs.current[i];
+      if (!el || fade === fades.current[i]) return;
+      el.style.setProperty("--fade", fade);
+      if ((fade === 0) !== (fades.current[i] === 0)) {
+        el.style.visibility = fade === 0 ? "hidden" : "";
+        el.inert = fade === 0;
+      }
+      fades.current[i] = fade;
+    });
+  });
+  return (i) => (el) => {
+    refs.current[i] = el;
+  };
 };
 
 // Phone carousels (Skills, Projects): one card at a time, snapped to the
@@ -114,6 +157,7 @@ export const Interface = ({ revealed }) => {
       setHasScrolled(newHasScrolled);
     }
   });
+  const fadeRef = useSectionFades(scrollData);
   const setProject = useSetAtom(projectAtom);
   const { isMobile } = useMobile();
   const reduceMotion = useReducedMotion();
@@ -160,7 +204,10 @@ export const Interface = ({ revealed }) => {
           </motion.div>
         </section>
         {/* SKILLS */}
-        <section className="section section--right mobile--section--left mobile--section--bottom">
+        <section
+          ref={fadeRef(0)}
+          className="section section--right mobile--section--left mobile--section--bottom"
+        >
           <h2 className="sr-only">Skills</h2>
           <div className="carousel">
             <motion.div
@@ -203,7 +250,7 @@ export const Interface = ({ revealed }) => {
           </div>
         </section>
         {/* PROJECTS */}
-        <section className="section section--left mobile--section--bottom">
+        <section ref={fadeRef(1)} className="section section--left mobile--section--bottom">
           <h2 className="sr-only">Projects</h2>
           <div className="carousel">
             <motion.div
@@ -277,7 +324,10 @@ export const Interface = ({ revealed }) => {
           </div>
         </section>
         {/* CONTACT */}
-        <section className="section section--left section--contact mobile--section--bottom">
+        <section
+          ref={fadeRef(2)}
+          className="section section--left section--contact mobile--section--bottom"
+        >
           <h2 className="sr-only">Contact</h2>
           <motion.div
             className="contact"

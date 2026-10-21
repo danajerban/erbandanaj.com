@@ -189,6 +189,14 @@ a {
   margin-top: 4px;
 }
 
+/* CARDS — each card's opacity is its entrance (`--enter`, animated once by
+   motion) times its section's fade with the room (`--fade`, written along
+   the scroll by Interface). On the card itself, never on an ancestor: an
+   ancestor's opacity would switch off the card's backdrop blur. */
+:is(.skill, .project, .contact) {
+  opacity: calc(var(--enter, 1) * var(--fade, 1));
+}
+
 /* SKILLS SECTION */
 
 /* Desktop: the column centres in the space under the menu pill (it ends
@@ -336,6 +344,7 @@ a {
 
 .carousel__dots {
   display: none;
+  opacity: var(--fade, 1);
 }
 
 .carousel__dot {
