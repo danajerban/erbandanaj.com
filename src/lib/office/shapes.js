@@ -272,7 +272,6 @@ export const wallWithHoles = (sink, rect, holes, basis, albedo, opts = {}) => {
     (y) => heads.some((h) => y > h.spring && y < h.hole.v[1]),
   );
   const between = (values, lo, hi) => values.filter((x) => x > lo + 1e-6 && x < hi - 1e-6);
-  const aoAt = (u, v) => ao(u, v);
   const arc = (h) => {
     const pts = [];
     for (let k = 0; k <= segments; k++) {
@@ -286,7 +285,7 @@ export const wallWithHoles = (sink, rect, holes, basis, albedo, opts = {}) => {
     for (const [i, j, k] of THREE.ShapeUtils.triangulateShape(contour.slice(), [])) {
       let [a, b, c] = [contour[i], contour[j], contour[k]];
       if (area2(a, b, c) < 0) [b, c] = [c, b];
-      sink.tri(at(a.x, a.y), at(b.x, b.y), at(c.x, c.y), albedo, { ao: [aoAt(a.x, a.y), aoAt(b.x, b.y), aoAt(c.x, c.y)] });
+      sink.tri(at(a.x, a.y), at(b.x, b.y), at(c.x, c.y), albedo, { ao: [ao(a.x, a.y), ao(b.x, b.y), ao(c.x, c.y)] });
     }
   };
   const drawn = new Set();
@@ -316,7 +315,7 @@ export const wallWithHoles = (sink, rect, holes, basis, albedo, opts = {}) => {
         continue;
       }
       sink.quad(at(ua, va), at(ub, va), at(ub, vb), at(ua, vb), albedo, {
-        ao: [aoAt(ua, va), aoAt(ub, va), aoAt(ub, vb), aoAt(ua, vb)],
+        ao: [ao(ua, va), ao(ub, va), ao(ub, vb), ao(ua, vb)],
       });
     }
   }
