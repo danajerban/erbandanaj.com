@@ -81,16 +81,16 @@ body {
   background-color: var(--scene-sky-color);
 }
 
-/* iOS Safari held upright draws its toolbar over the bottom of the page, so
-   there the page and the canvas take the large viewport and the scene runs on
-   under the toolbar. Everywhere else the browser's bars push the page down
-   (sideways phones, iPads, Android), so a 100lvh page would run off the bottom
-   of the screen and cut the cards off (an iPhone 17 Pro held sideways with
-   tabs: lvh 402, dvh 292); those keep 100dvh, which the bars never change here
-   because the document does not scroll. -webkit-touch-callout exists only in
-   iOS WebKit. */
+/* Safari on an iPhone held upright draws its toolbar over the bottom of the
+   page, so there the page and the canvas take the large viewport and the
+   scene runs on under the toolbar. Everywhere else the browser's bars push
+   the page down (sideways phones, iPads, Android), so a 100lvh page would run
+   off the bottom of the screen and cut the cards off (an iPhone 17 Pro held
+   sideways with tabs: lvh 402, dvh 292); those keep 100dvh, which the bars
+   never change here because the document does not scroll.
+   -webkit-touch-callout exists only in iOS WebKit; iPads are 600px and up. */
 @supports (height: 100lvh) and (-webkit-touch-callout: none) {
-  @media (max-width: 990px) and (orientation: portrait) {
+  @media (max-width: 990px) and (orientation: portrait) and (not (min-width: 600px)) {
     html,
     body,
     #root {
@@ -177,7 +177,7 @@ a {
 }
 
 /* Each section MUST be the same height as drei's scroll-page stride, which is
-   the canvas height (size.height = #root height: 100lvh on iOS Safari held
+   the canvas height (size.height = #root height: 100lvh on an iPhone held
    upright, 100dvh elsewhere — see @supports above). drei translates the HTML
    overlay by `size.height * (pages-1) * offset`, so any gap between this unit
    and the stride accumulates per section. On iOS Safari dvh < lvh (dynamic
@@ -185,7 +185,7 @@ a {
    pushing content out of view. Must come AFTER the 100dvh base rule to win on
    source order. */
 @supports (height: 100lvh) and (-webkit-touch-callout: none) {
-  @media (max-width: 990px) and (orientation: portrait) {
+  @media (max-width: 990px) and (orientation: portrait) and (not (min-width: 600px)) {
     .section {
       height: 100lvh;
     }

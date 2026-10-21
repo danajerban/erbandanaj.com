@@ -31,7 +31,7 @@
            shader's falloffs) over the resolved --scene-background from
            src/index.css. Keep all three in sync. Placed like the canvas,
            which sizes the sun by its short side and is 100dvh tall, or
-           100lvh in iOS Safari held upright (src/index.css): --canvas-vh
+           100lvh on an iPhone held upright (src/index.css): --canvas-vh
            and --canvas-vmin are 1% of its height and of its short side.
            --sun-reach and --sun-band are SUN_REACH and SUN_BAND times
            SUN_SCALE, in 100 --canvas-vmin, and 36.97 --canvas-vh is the
@@ -200,7 +200,7 @@
         }
       }
       @supports (height: 100lvh) and (-webkit-touch-callout: none) {
-        @media (max-width: 990px) and (orientation: portrait) {
+        @media (max-width: 990px) and (orientation: portrait) and (not (min-width: 600px)) {
           #app-loader {
             --canvas-vh: 1lvh;
             --canvas-vmin: 1lvmin;
