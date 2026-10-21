@@ -2,7 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
-import { PARK, parkLayoutOf } from "../lib/parkLayout";
+import { PARK, TITLE_TURN, parkLayoutOf, titleAt } from "../lib/parkLayout";
 import { PARK_LAYER, parkStats, useParkClock } from "../lib/parkMaterials";
 import { MOON_AT, timeOfDay } from "../lib/timeOfDay";
 import ParkGarden from "./park/ParkGarden";
@@ -18,7 +18,7 @@ import { SectionTitle } from "./SectionTitle";
 // Contact: a night park in an old town. Its layout by the screen's shape
 // (lib/parkLayout), the same keys as the moon's (lib/timeOfDay).
 export const ContactSection = () => {
-  const { isMobile, scaleFactor, prefersReducedMotion } = useMobile();
+  const { isMobile, prefersReducedMotion } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
   // Rounded, so the park rebuilds only when the aspect really changes
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
@@ -36,17 +36,14 @@ export const ContactSection = () => {
     if (import.meta.env.DEV) window.__park = { timeOfDay, MOON_AT, key, stats: parkStats };
   }, [key]);
   const parts = { park, layout: key };
+  const title = titleAt(key, aspect);
   return (
     <SectionGroup
       name="contact"
       position-x={isMobile ? 3 * sectionsDistance : 0}
       position-z={isMobile ? -4 : 3 * sectionsDistance}
     >
-      <SectionTitle
-        position-x={isMobile ? -1.1 : -2 * scaleFactor}
-        position-z={0.5}
-        rotation-y={Math.PI / 6}
-      >
+      <SectionTitle position={title.position} scale={title.scale} rotation-y={TITLE_TURN}>
         CONTACT
       </SectionTitle>
       <ParkGround {...parts} />
@@ -56,7 +53,7 @@ export const ContactSection = () => {
       <ParkGarden {...parts} />
       <ParkProps
         {...parts}
-        scaleFactor={scaleFactor}
+        aspect={aspect}
         isMobile={isMobile}
         prefersReducedMotion={prefersReducedMotion}
       />

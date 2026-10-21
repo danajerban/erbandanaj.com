@@ -315,28 +315,65 @@ export const cafeLights = (park) => {
 // ground and the overlap check sample the same curve
 export const pathCurve = (park) => new CatmullRomCurve3(park.path.map(([x, z]) => new Vector3(x, 0, z)));
 
+const isPhone = (layout) => layout === "portrait" || layout === "landscape";
+
+// Linear between the rows of [aspect, ...values], held at either end
+const byAspect = (rows, aspect) => {
+  const i = rows.findIndex(([a]) => a >= aspect);
+  if (i <= 0) return (i < 0 ? rows[rows.length - 1] : rows[0]).slice(1);
+  const [from, to] = [rows[i - 1], rows[i]];
+  const t = (aspect - from[0]) / (to[0] - from[0]);
+  return from.slice(1).map((value, k) => value + (to[k + 1] - value) * t);
+};
+
+// The CONTACT title (ContactSection, SectionTitle): the left end of its
+// baseline [x, y, z] and its scale, turned TITLE_TURN toward the camera; at
+// scale 1 it runs 1.84 to the right and 1.06 back.
+// - Desktop and upright screens past the breakpoint, by the screen's shape
+//   alone (so it frames the same at any size): [aspect, x, z, scale] rows.
+//   Its right end stays left of the avatar's legs, its left end on screen;
+//   where the screen is too narrow for both, it steps back and shrinks.
+export const TITLE_TURN = Math.PI / 6;
+const TITLE_DESKTOP = [
+  [0.75, -1.52, -0.5, 0.55],
+  [1, -1.92, -0.5, 0.75],
+  [1.33, -2.45, 0, 1],
+  [1.45, -2.35, 0.5, 1],
+];
+export const titleAt = (layout, aspect) => {
+  if (isPhone(layout)) return { position: [-1.1, 0, 0.5], scale: 1 };
+  const [x, z, scale] = byAspect(TITLE_DESKTOP, aspect);
+  return { position: [x, 0, z], scale };
+};
+
 // The first bench (ParkProps, Park Bench.glb): its x in a group at
-// −2·scaleFactor, z, yaw (its seat faces raw +x: −π/4 turns it toward the
-// path and the camera) and scale; the second bench (PARK[key].bench2) shares
-// the scale. BENCH_HALF: a bench's footprint half-extents at that scale
-// (Park Bench.glb raw x −0.82..1.02, z ±1.56), along its seat and across it.
+// benchShift, z, yaw (its seat faces raw +x: −π/4 turns it toward the path
+// and the camera) and scale; the second bench (PARK[key].bench2) shares the
+// scale. BENCH_HALF: a bench's footprint half-extents at that scale (Park
+// Bench.glb raw x −0.82..1.02, z ±1.56), along its seat and across it.
 export const BENCH = { x: -0.5, z: -2.5, yaw: -Math.PI / 4, scale: 0.5 };
 export const BENCH_HALF = { along: 0.78, across: 0.46 };
-export const benchAt = (scaleFactor) => [-2 * scaleFactor + BENCH.x, BENCH.z, BENCH.yaw];
+// The group's x, by aspect ([aspect, x] rows): where it stood at 1280×800
+// and 1800×987, further left on wider screens, nearer the avatar on narrower
+// ones (whole on screen, its balloons clear of the logo). Phones: per layout.
+const BENCH_SHIFT = [[0.75, -0.75], [1.33, -0.9], [1.6, -1.333], [1.82, -1.875], [2.4, -2.6]];
+const BENCH_SHIFT_PHONE = { portrait: -0.41, landscape: -0.89 };
+export const benchShift = (layout, aspect) =>
+  isPhone(layout) ? BENCH_SHIFT_PHONE[layout] : byAspect(BENCH_SHIFT, aspect)[0];
+export const benchAt = (layout, aspect) => [benchShift(layout, aspect) + BENCH.x, BENCH.z, BENCH.yaw];
 // Both benches as [x, z, yaw]
-export const benches = (park, scaleFactor) => [benchAt(scaleFactor), park.bench2];
+export const benches = (park, layout, aspect) => [benchAt(layout, aspect), park.bench2];
 
 // The sleeping dog: [x, z, yaw]; DOG_R its footprint radius
 export const DOG_R = 0.3;
-export const dogAt = (park, scaleFactor) => {
-  const [bx, bz] = benchAt(scaleFactor);
+export const dogAt = (park, layout, aspect) => {
+  const [bx, bz] = benchAt(layout, aspect);
   const [dx, dz, yaw] = park.dog;
   return [bx + dx, bz + dz, yaw];
 };
 
 // The mailbox's foot [x, z] (ParkProps) and the avatar's [x, z] by layout
 export const MAILBOX_AT = [1, 0.5];
-const isPhone = (layout) => layout === "portrait" || layout === "landscape";
 export const avatarAt = (layout) => [0, isPhone(layout) ? -1 : 0];
 
 // The railing along the sidewalk stands this far in front of the facades
@@ -423,7 +460,7 @@ export const pathPebbles = (park) => {
 // railing, clear of the path and its pebbles, the pond and its rocks, the
 // beds, lamp posts, tree trunks, both benches, the dog, the mailbox, the
 // avatar's feet and (desktop) the contact card: [x, z, seed]
-export const lawnTufts = (park, layout, scaleFactor, aspect) => {
+export const lawnTufts = (park, layout, aspect) => {
   const random = createRandom(11);
   const project = restProjector(layout, aspect);
   const ez = isPhone(layout) ? 9 : 5;
@@ -434,8 +471,8 @@ export const lawnTufts = (park, layout, scaleFactor, aspect) => {
   const samples = pathSamples(park);
   const pond = [park.pond.x, park.pond.z, park.pond.rx, park.pond.rz];
   const rocks = pondRocks(park);
-  const seats = benches(park, scaleFactor);
-  const [dogX, dogZ] = dogAt(park, scaleFactor);
+  const seats = benches(park, layout, aspect);
+  const [dogX, dogZ] = dogAt(park, layout, aspect);
   const avatar = avatarAt(layout);
   const tufts = [];
   for (let i = 0; i < park.tufts; i++) {

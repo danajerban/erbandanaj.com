@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { BENCH, MAILBOX_AT } from "../../lib/parkLayout";
+import { BENCH, MAILBOX_AT, benchShift } from "../../lib/parkLayout";
 import { PARK_LAYER, parkSolidMaterial } from "../../lib/parkMaterials";
 import { timeOfDay } from "../../lib/timeOfDay";
 import { Balloon } from "../Balloon";
@@ -75,22 +75,24 @@ const createStrings = () => {
   return mesh;
 };
 
-export default function ParkProps({ park, scaleFactor, prefersReducedMotion }) {
+export default function ParkProps({ park, layout, aspect, prefersReducedMotion }) {
   const root = useRef();
   const balloons = useRef([]);
   const balloonMaterials = useRef([]);
   const clock = useRef(0);
   // Each balloon's spring: its angle and angular velocity
   const springs = useRef(BALLOONS.map(() => ({ angle: 0, velocity: 0 })));
-  // The tie point, Contact-local: through the bench's transform
+  // The bench group's x (parkLayout), and the tie point, Contact-local:
+  // through the bench's transform
+  const shift = benchShift(layout, aspect);
   const tie = useMemo(() => {
     const matrix = new THREE.Matrix4().compose(
-      new THREE.Vector3(-2 * scaleFactor + BENCH.x, 0, BENCH.z),
+      new THREE.Vector3(shift + BENCH.x, 0, BENCH.z),
       new THREE.Quaternion().setFromAxisAngle(UP, BENCH.yaw),
       new THREE.Vector3(BENCH.scale, BENCH.scale, BENCH.scale),
     );
     return BENCH_TIE_RAW.clone().applyMatrix4(matrix);
-  }, [scaleFactor]);
+  }, [shift]);
   const strings = useMemo(createStrings, []);
   useEffect(() => () => strings.geometry.dispose(), [strings]);
 
@@ -158,7 +160,7 @@ export default function ParkProps({ park, scaleFactor, prefersReducedMotion }) {
 
   return (
     <group ref={root}>
-      <group position-x={-2 * scaleFactor}>
+      <group position-x={shift}>
         <ParkBench scale={BENCH.scale} position-x={BENCH.x} position-z={BENCH.z} rotation-y={BENCH.yaw} />
       </group>
       {BALLOONS.map(({ color, scale }, i) => (

@@ -221,7 +221,7 @@ const PHONE_SECTION_Z = -4;
 const HALF_FOV = THREE.MathUtils.degToRad(21);
 
 // benchParts: Park Bench.glb's meshes as [geometry, day colour]
-const buildGarden = (park, layout, aspect, isMobile, scaleFactor, benchParts) => {
+const buildGarden = (park, layout, aspect, isMobile, benchParts) => {
   const sink = new ParkSink(park);
   const random = createRandom(24);
   const shade = crownShade(park);
@@ -240,15 +240,15 @@ const buildGarden = (park, layout, aspect, isMobile, scaleFactor, benchParts) =>
   const box = new THREE.Box3().setFromArray(sink.position);
   const centre = box.getCenter(new THREE.Vector3());
   bench(sink, benchParts, park.bench2);
-  dog(sink, dogAt(park, scaleFactor));
+  dog(sink, dogAt(park, layout, aspect));
   pebbles(sink, pathPebbles(park));
   rocks(sink, pondRocks(park), random);
-  tufts(sink, lawnTufts(park, layout, scaleFactor, aspect));
+  tufts(sink, lawnTufts(park, layout, aspect));
   return sink.build([centre.x, 0, centre.z]);
 };
 
 export default function ParkGarden({ park, layout }) {
-  const { isMobile, scaleFactor } = useMobile();
+  const { isMobile } = useMobile();
   const { nodes, materials } = useGLTF("/models/Park Bench.glb");
   // Rounded, as in ContactSection: rebuilt only when the aspect really changes
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
@@ -257,12 +257,12 @@ export default function ParkGarden({ park, layout }) {
       [nodes["Park_Bench_Cube-Mesh"].geometry, materials.Metal.color],
       [nodes["Park_Bench_Cube-Mesh_1"].geometry, materials.Wood.color],
     ];
-    const { geometry, origin } = buildGarden(park, layout, aspect, isMobile, scaleFactor, benchParts);
+    const { geometry, origin } = buildGarden(park, layout, aspect, isMobile, benchParts);
     const m = new THREE.Mesh(geometry, parkSolidMaterial);
     m.position.fromArray(origin);
     m.layers.set(PARK_LAYER);
     return m;
-  }, [park, layout, aspect, isMobile, scaleFactor, nodes, materials]);
+  }, [park, layout, aspect, isMobile, nodes, materials]);
   useEffect(() => () => mesh.geometry.dispose(), [mesh]);
   return <primitive object={mesh} />;
 }

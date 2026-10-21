@@ -4,7 +4,7 @@
 // axis; the story window behind his head; the path not ending at the café
 // door. Samples the same curve the ground draws (pathCurve).
 // The lawn's small things, at each layout's named screen sizes (the first
-// bench moves with the width): a bench, the dog or a pond rock on the path,
+// bench moves with the aspect): a bench, the dog or a pond rock on the path,
 // in the pond, a bed, on a lamp post or a tree trunk, behind the railing,
 // on the other bench (the dog lies at the first bench's foot, nowhere else;
 // the first bench itself is older than this check and is not held to it);
@@ -39,7 +39,7 @@ import {
 import { MOON_AT } from "../src/lib/timeOfDay.js";
 
 const SAMPLES = 200;
-// Screen sizes per layout [W, H]: the first bench sits at −2·W/1920 + BENCH.x
+// Screen sizes per layout [W, H]: the first bench sits at benchShift + BENCH.x
 const SIZES = {
   desktop: [[1800, 987], [1280, 800], [1920, 1080], [2560, 1440]],
   tall: [[1024, 1366]],
@@ -117,11 +117,10 @@ for (const [key, park] of Object.entries(PARK)) {
 
   for (const [W, H] of SIZES[key]) {
     const at = `${key} ${W}x${H}`;
-    const sf = W / 1920;
     const aspect = W / H;
     const project = restProjector(key, aspect);
-    const seats = benches(park, sf);
-    const dog = dogAt(park, sf);
+    const seats = benches(park, key, aspect);
+    const dog = dogAt(park, key, aspect);
     // The first bench (ParkProps) predates this check: only the second is
     // held to the plan here; both are held to the new props below
     [seats[1]].forEach((bench) => {
@@ -159,7 +158,7 @@ for (const [key, park] of Object.entries(PARK)) {
     const [ax, az] = avatarAt(key);
     if (Math.hypot(dog[0] - ax, dog[1] - az) < DOG_R + 0.4) fail(at, "the dog at the avatar's feet");
     // Grass tufts: never on the path, in the pond or a bed, under a bench or the dog
-    const tufts = lawnTufts(park, key, sf, aspect);
+    const tufts = lawnTufts(park, key, aspect);
     tufts.forEach(([x, z]) => {
       const q = [x, z];
       if (nearest(q) - half < 0 || ellipse(q, pondEllipse, 0) < 0 || park.beds.some((bed) => ellipse(q, bed, 0) < 0)) fail(at, `tuft at [${x.toFixed(2)}, ${z.toFixed(2)}] on the path, pond or a bed`);
