@@ -2,7 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
-import { layoutOf } from "../lib/coast";
+import { dryX, layoutOf } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
 
 // Beach props around the laptop on Home, in the sunset palette: a striped
@@ -13,8 +13,10 @@ import { createRandom } from "../lib/lowPoly";
 // the cooler in its shade, which is cast away from the sun. Low-poly and flat, their light baked into the vertex colors (a
 // key from the sunset behind and to the right, a faint fill from the camera
 // side). Two draw calls: the flat things (towel, baked shadows) that lie on
-// the sand, then the solid props. A lazy chunk mounted after the first
-// visible frame, compiled while hidden, then faded in, like BeachDecor.
+// the sand, then the solid props. On phones also a sandcastle (TOYS), in the
+// same two draw calls. A lazy chunk mounted
+// after the first visible frame, compiled while hidden, then faded in, like
+// BeachDecor.
 //
 // Home-local coordinates (y = 0 floor, +z toward the camera). Everything is
 // laid out around the laptop (HomeSection's `laptop`: x, z, yaw, scale), in
@@ -82,6 +84,24 @@ const SHADE_ELEVATION = THREE.MathUtils.degToRad(75);
 // canopy's top still shows: about 75° to the ground on screen
 const LEAN = THREE.MathUtils.degToRad(20);
 const TURN = THREE.MathUtils.degToRad(40);
+// Phones only, where the beach is emptier round the avatar: a little
+// sandcastle with a terracotta flag beside him. By layout (portrait or
+// landscape), where it touches the sand as a screen fraction [x from the
+// left, y from the top], with its size (Home units: the keep's). Clear of
+// the avatar, the title, the palms, the props round the laptop, the grass
+// and ShoreLife's shells, crabs and turtle.
+const TOYS = {
+  portrait: {
+    castle: [[0.375, 0.583], 0.12],
+  },
+  landscape: {
+    castle: [[0.57, 0.625], 0.2],
+  },
+};
+// The camera's tilt down toward (0, 1, 0) and half its vertical field
+// (SceneCanvas: fov 42)
+const PITCH = Math.atan(0.1);
+const HALF_FOV_TAN = Math.tan(THREE.MathUtils.degToRad(21));
 
 const hex = (c) => new THREE.Color(c);
 const TOWEL_STRIPES = ["#f6e6c8", "#ee6f57", "#f4a950", "#ee6f57", "#f6e6c8", "#6e3a5e"].map(hex);
@@ -107,6 +127,11 @@ const STEEL = hex("#cfcbc8");
 const CORAL = hex("#ef6a55");
 const CREAM = hex("#f7e8cc");
 const POLE = hex("#efe4d4");
+// Damp packed sand for the castle, a terracotta flag on a driftwood stick
+const CASTLE = hex("#e6aa72");
+const CASTLE_TOP = hex("#f2c08c");
+const FLAG = hex("#c4573a");
+const STICK = hex("#8a6448");
 
 // Baked light: the sunset key behind and to the right (BeachDecor's
 // SUN_DIR), a faint fill from the camera side, the sky from above
@@ -445,6 +470,55 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
     }
   }
   shadow(cooler, 0, 0, W * 0.72, D * 0.7, 0.45, 0.003);
+
+  // Phones: the sandcastle (TOYS). Last,
+  // so everything above keeps its seeded looks.
+  const toys = isMobile && TOYS[layout];
+  if (toys) {
+    // The point on the sand at a screen fraction
+    const onSand = ([fx, fy]) => {
+      const up = (1 - 2 * fy) * HALF_FOV_TAN;
+      const ray = new THREE.Vector3((2 * fx - 1) * HALF_FOV_TAN * aspect, up * Math.cos(PITCH) - Math.sin(PITCH), -Math.cos(PITCH) - up * Math.sin(PITCH));
+      return CAMERA.clone().addScaledVector(ray, -CAMERA.y / ray.y).setY(0);
+    };
+    const facing = (p) => Math.atan2(CAMERA.x - p.x, CAMERA.z - p.z);
+
+    // Sandcastle: a keep on a mound, a tower each side joined by a front
+    // wall with a gate, battlements round the keep's top and a terracotta
+    // pennant on a stick; turned a little off square to the camera
+    const [castleAt, keep] = toys.castle;
+    const c = onSand(castleAt);
+    // Its mound clear of the wet sand
+    c.setX(Math.min(c.x, dryX(c.z, isMobile, aspect) - 1.45 * keep));
+    const castle = matrixOf(c.x, 0, c.z, facing(c) - 0.35, keep);
+    const sand = (normal) => (normal.y > 0.6 ? CASTLE_TOP : CASTLE).clone().offsetHSL(0, 0, (random() - 0.5) * 0.04);
+    add(solid, cylinder(1.05, 1.3, 0.25, 8), part(0, 0.125, 0), castle, sand);
+    add(solid, cylinder(0.5, 0.56, 1, 6), part(0, 0.75, -0.15), castle, sand);
+    for (let k = 0; k < 6; k++) {
+      const a = (k / 6) * Math.PI * 2 + Math.PI / 6;
+      add(solid, box(0.18, 0.18, 0.18), part(0.42 * Math.sin(a), 1.34, -0.15 + 0.42 * Math.cos(a), 0, a), castle, sand);
+    }
+    for (const x of [-0.72, 0.72]) {
+      add(solid, cylinder(0.27, 0.32, 0.7, 6), part(x, 0.6, 0.3), castle, sand);
+      add(solid, cylinder(0, 0.3, 0.32, 6), part(x, 1.11, 0.3), castle, sand);
+    }
+    add(solid, box(1.3, 0.42, 0.2), part(0, 0.46, 0.45), castle, sand);
+    add(solid, box(0.3, 0.3, 0.04), part(0, 0.4, 0.56), castle, () => SHADOW);
+    add(solid, cylinder(0.025, 0.03, 0.95, 4), part(0, 1.72, -0.15), castle, () => STICK);
+    const pennant = [
+      [0, 0],
+      [0.55, 0.13],
+      [0, 0.28],
+    ];
+    add(
+      solid,
+      prism(...[-0.02, 0.02].map((y) => pennant.map(([x, z]) => new THREE.Vector3(x, y, z)))),
+      part(0.02, 2.17, -0.15, -Math.PI / 2),
+      castle,
+      () => FLAG,
+    );
+    shadow(castle, 0, 0, 1.4, 1.1, 0.35, 0.003);
+  }
 
   const group = new THREE.Group();
   for (const [sink, material, order] of [
