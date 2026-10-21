@@ -567,13 +567,14 @@ a {
 }
 
 .menu__buttons {
+  --pill-x: 0.9rem;
   display: flex;
   gap: 1rem;
   align-items: center;
   /* The glass pill grows outward: padding and negative margin cancel, so the
      links never move when it appears. */
-  padding: 0.5rem 0.9rem;
-  margin: -0.5rem -0.9rem;
+  padding: 0.5rem var(--pill-x);
+  margin: -0.5rem calc(-1 * var(--pill-x));
   border-radius: 8px;
   transition: background-color 0.25s ease-out;
 }
@@ -977,8 +978,16 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     display: none;
   }
 
+  /* Under 360px wide the links, their gaps and the pill's sides shrink
+     with the width (320px: 14px type, 10px gaps), so the pill stays inside
+     the side gutters; from 360px on, 1rem type and 1rem gaps */
+  .menu__buttons {
+    --pill-x: clamp(0.75rem, 6vw - 7.2px, 0.9rem);
+    gap: clamp(0.625rem, 15vw - 38px, 1rem);
+  }
+
   .menu__button {
-    font-size: 1rem;
+    font-size: clamp(0.875rem, 5vw - 2px, 1rem);
   }
 
   /* Phones: the mouse becomes a small glass pill, "Swipe up" with an
