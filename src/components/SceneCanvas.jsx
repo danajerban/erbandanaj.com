@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, lazy, useCallback, useState } from "react";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
+import { HOME_FOG } from "../lib/sky";
 // Desktop only, mounted after the first visible frame: fps monitor + DPR
 // ladder (see DesktopQuality). Static import: it has no heavy dependency of
 // its own, and this module is already a lazy chunk.
@@ -40,7 +41,7 @@ function SceneCanvas() {
       dpr={!isMobile && qualityDpr != null ? qualityDpr : [1, isMobile ? 1.5 : 2]}
       gl={{ alpha: true }}
     >
-      <fog attach="fog" args={["#f0c6b7", 10, 50]} />
+      <fog attach="fog" args={[HOME_FOG, 10, 50]} />
       {/* Reduced motion: the damped scroll must not glide after input stops.
           A 0.001 s smoothing time settles within one frame (maath's damp snaps
           under its epsilon), and the speed cap comes off so a section jump

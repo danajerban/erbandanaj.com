@@ -5,13 +5,14 @@ import { Color, MathUtils } from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
+import { HOME_FOG } from "../lib/sky";
 import { moonAt, timeOfDay } from "../lib/timeOfDay";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { NightSky } from "./NightSky";
 
 // One value per section rest: Home (today's values), Skills, Projects, Contact
 const KEYS = {
-  fog: ["#f0c6b7", "#f0b39a", "#9890b9", "#283260"],
+  fog: [HOME_FOG, "#f0b39a", "#9890b9", "#283260"],
   hemiSky: ["#f6cbb6", "#eab3ae", "#c8c0dc", "#8d9dd0"],
   hemiGround: ["#b8674a", "#9a5848", "#6a4d5c", "#5a4652"],
   hemi: [0.35, 0.4, 0.6, 0.85],
@@ -38,8 +39,11 @@ const lerpColor = (out, name, k, f) => out.lerpColors(colors[name][k], colors[na
 const HOLD = ANIMATION_CONSTANTS.DISSOLVE_START;
 
 // Safari's bars (iOS 26 paints them in the page's background-color) and
-// Chrome Android's theme-color: the sky's top stop at each rest
-const BAR = ["#e4a39d", "#b48fa6", "#2c3c76", "#0b1231"].map((hex) => parseInt(hex.slice(1), 16));
+// Chrome Android's theme-color: the sky's top stop at each rest. Home's is
+// repeated as literals in index.css (--scene-bar-color) and index.html's
+// theme-color, which paint before this chunk loads
+const HOME_BAR = "#e4a39d";
+const BAR = [HOME_BAR, "#b48fa6", "#2c3c76", "#0b1231"].map((hex) => parseInt(hex.slice(1), 16));
 // Bar writes per section (<= 96 over a full scroll); each repaints the root once.
 // Written as background-color on html and body (not inherited, so only those
 // two restyle); a custom property on html would restyle the whole document
@@ -75,7 +79,7 @@ const paint = (s, dom) => {
     dom.bar = bar;
     root.style.backgroundColor = bar;
     document.body.style.backgroundColor = bar;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", bar || "#e4a39d");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", bar || HOME_BAR);
   }
   const mode = skyMode(s);
   if (mode !== dom.mode) {
@@ -157,7 +161,7 @@ export default function TimeOfDay() {
       root.style.backgroundColor = "";
       document.body.style.backgroundColor = "";
       delete root.dataset.sky;
-      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#e4a39d");
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", HOME_BAR);
       Object.assign(state, { layers: [], op: "", bar: "", mode: "" });
     };
   }, []);
