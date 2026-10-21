@@ -2,6 +2,7 @@ import { useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useLayoutEffect, useRef } from "react";
 import { Color, MathUtils } from "three";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
 import { moonAt, timeOfDay } from "../lib/timeOfDay";
@@ -33,8 +34,8 @@ const COLORS = ["fog", "hemiSky", "hemiGround", "keyColor", "fillColor", "shadow
 const colors = Object.fromEntries(COLORS.map((name) => [name, KEYS[name].map((hex) => new Color(hex))]));
 const at = (name, k, f) => KEYS[name][k] + (KEYS[name][k + 1] - KEYS[name][k]) * f;
 const lerpColor = (out, name, k, f) => out.lerpColors(colors[name][k], colors[name][k + 1], f);
-// s holds still this far either side of each rest (DISSOLVE_START's span)
-const HOLD = 0.06;
+// s holds still this far either side of each rest, until the section starts to dissolve
+const HOLD = ANIMATION_CONSTANTS.DISSOLVE_START;
 
 // Safari's bars (iOS 26 paints them in the page's background-color) and
 // Chrome Android's theme-color: the sky's top stop at each rest

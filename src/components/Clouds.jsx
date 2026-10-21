@@ -2,6 +2,7 @@ import { useScroll } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
 
@@ -26,9 +27,8 @@ const LAYER = 8;
 const DEPTH = 21;
 const FADE_SECONDS = 2.5;
 // Leaving Home: over this span of the scroll toward Skills (in sections)
-// they fade out, with the sea and the gulls (Birds' LEAVE_START/LEAVE_END)
-const LEAVE_START = 0.06;
-const LEAVE_END = 0.48;
+// they fade out, with the section, the sea and the gulls
+const { DISSOLVE_START: LEAVE_START, DISSOLVE_END: LEAVE_END } = ANIMATION_CONSTANTS;
 
 // Per bank, in sun units (the screen's short side times the sun's scale):
 // x, its middle's offset right of the sun's center; y, its middle's height
