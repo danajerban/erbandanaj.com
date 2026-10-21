@@ -30,7 +30,7 @@ const DETAIL_PHONE = { railing: "band", chalkStrokes: false, windowPlants: false
 // - row: the house row's left end x, its facade plane z and its scale; the
 //   H3/H4 party wall sits within ±0.25 of the avatar's axis.
 // - path: [x, z] points of the gravel path (pathCurve), from the bottom of
-//   the screen to the café door at row.z + 1.3; pathW its width.
+//   the screen to the café door at row.z + CAFE_PATH_END; pathW its width.
 // - lamps: [x, z] lamp posts; cafeLamp hangs the café string lights,
 //   pondLamp throws the warm streak on the pond (null: none); lampR is the
 //   reach of a lamp's pool and of its warmth on faces (nightShade).
@@ -277,8 +277,9 @@ export const houseSpans = (park) => {
 
 const cafeX = (park, fraction) => houseSpans(park)[CAFE].x0 + fraction * HOUSES[CAFE].W * park.row.scale;
 
-// The café's door: [x, z] on its facade
+// The café's door: [x, z] on its facade; the path ends CAFE_PATH_END in front of it
 export const cafeDoor = (park) => [cafeX(park, HOUSES[CAFE].door.at), park.row.z];
+export const CAFE_PATH_END = 1.3;
 
 // The café's big window centre: [x, y, z], just in front of its facade
 export const cafeWindow = (park) => [cafeX(park, 0.64), 0.72 * park.row.scale, park.row.z + 0.02];

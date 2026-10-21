@@ -7,7 +7,7 @@
 // bench moves with the aspect): a bench, the dog or a pond rock on the path,
 // in the pond, a bed, on a lamp post or a tree trunk, behind the railing,
 // on the other bench (the dog lies at the first bench's foot, nowhere else;
-// the first bench itself is older than this check and is not held to it);
+// the first bench is checked only for overlap with the second);
 // a grass tuft or pebble where it should not grow or lie; on desktop any of
 // them in the contact card's corner (CARD_ZONE), on phones and the iPad the
 // second bench in the card's band (y > 0.70); and any of them within 2r of
@@ -16,6 +16,7 @@
 import {
   BENCH,
   BENCH_HALF,
+  CAFE_PATH_END,
   DOG_R,
   HOUSE,
   HOUSES,
@@ -93,8 +94,8 @@ for (const [key, park] of Object.entries(PARK)) {
   if (Math.abs(story) < HOUSE.unlitAxis) fail(key, `story window at x ${story.toFixed(2)}`);
   const [doorX, doorZ] = cafeDoor(park);
   const [endX, endZ] = park.path[park.path.length - 1];
-  if (Math.abs(endX - doorX) > 0.05 || Math.abs(endZ - (doorZ + 1.3)) > 0.05)
-    fail(key, `path ends at [${endX}, ${endZ}], the café door is at [${doorX.toFixed(2)}, ${(doorZ + 1.3).toFixed(2)}]`);
+  if (Math.abs(endX - doorX) > 0.05 || Math.abs(endZ - (doorZ + CAFE_PATH_END)) > 0.05)
+    fail(key, `path ends at [${endX}, ${endZ}], the café door is at [${doorX.toFixed(2)}, ${(doorZ + CAFE_PATH_END).toFixed(2)}]`);
 
   // The lawn's small things
   const pondEllipse = [park.pond.x, park.pond.z, park.pond.rx, park.pond.rz];
@@ -121,25 +122,25 @@ for (const [key, park] of Object.entries(PARK)) {
     const project = restProjector(key, aspect);
     const seats = benches(park, key, aspect);
     const dog = dogAt(park, key, aspect);
-    // The first bench (ParkProps) predates this check: only the second is
-    // held to the plan here; both are held to the new props below
-    [seats[1]].forEach((bench) => {
-      const i = 1;
+    // The second bench against the plan (the first is checked only for
+    // overlap with it, below)
+    {
+      const bench = seats[1];
       const clear = Math.min(...path.map((q) => benchClear(q, bench, half + 0.1)));
-      if (clear < 0) fail(at, `bench ${i} on the path (${clear.toFixed(2)})`);
+      if (clear < 0) fail(at, `bench 1 on the path (${clear.toFixed(2)})`);
       const rim = Array.from({ length: 64 }, (_, k) => [pondEllipse[0] + pondEllipse[2] * Math.cos((k / 64) * 2 * Math.PI), pondEllipse[1] + pondEllipse[3] * Math.sin((k / 64) * 2 * Math.PI)]);
-      if (benchClear([pondEllipse[0], pondEllipse[1]], bench, 0) < 0 || rim.some((q) => benchClear(q, bench, 0.1) < 0)) fail(at, `bench ${i} in the pond`);
+      if (benchClear([pondEllipse[0], pondEllipse[1]], bench, 0) < 0 || rim.some((q) => benchClear(q, bench, 0.1) < 0)) fail(at, "bench 1 in the pond");
       park.beds.forEach((bed, j) => {
         const edge = Array.from({ length: 32 }, (_, k) => [bed[0] + bed[2] * Math.cos((k / 32) * 2 * Math.PI), bed[1] + bed[3] * Math.sin((k / 32) * 2 * Math.PI)]);
-        if (edge.some((q) => benchClear(q, bench, 0.05) < 0)) fail(at, `bench ${i} on bed ${j}`);
+        if (edge.some((q) => benchClear(q, bench, 0.05) < 0)) fail(at, `bench 1 on bed ${j}`);
       });
-      park.lamps.forEach((lamp, j) => benchClear(lamp, bench, 0.15) < 0 && fail(at, `bench ${i} on lamp ${j}`));
-      park.trees.forEach((tree, j) => benchClear(tree, bench, 0.2 * tree[2]) < 0 && fail(at, `bench ${i} on tree ${j}`));
-      rocks.forEach(([x, z, size], j) => benchClear([x, z], bench, size) < 0 && fail(at, `bench ${i} on rock ${j}`));
-      if (benchClear(MAILBOX_AT, bench, 0.2) < 0) fail(at, `bench ${i} on the mailbox`);
-      if (benchClear(avatarAt(key), bench, 0.35) < 0) fail(at, `bench ${i} on the avatar`);
-      if (bench[1] - BENCH_HALF.along < railing) fail(at, `bench ${i} behind the railing`);
-    });
+      park.lamps.forEach((lamp, j) => benchClear(lamp, bench, 0.15) < 0 && fail(at, `bench 1 on lamp ${j}`));
+      park.trees.forEach((tree, j) => benchClear(tree, bench, 0.2 * tree[2]) < 0 && fail(at, `bench 1 on tree ${j}`));
+      rocks.forEach(([x, z, size], j) => benchClear([x, z], bench, size) < 0 && fail(at, `bench 1 on rock ${j}`));
+      if (benchClear(MAILBOX_AT, bench, 0.2) < 0) fail(at, "bench 1 on the mailbox");
+      if (benchClear(avatarAt(key), bench, 0.35) < 0) fail(at, "bench 1 on the avatar");
+      if (bench[1] - BENCH_HALF.along < railing) fail(at, "bench 1 behind the railing");
+    }
     // The benches apart: no point of one's outline inside the other
     const outline = ([x, z, yaw]) => [-1, 1].flatMap((a) => [-1, 1].map((b) => [
       x + a * BENCH_HALF.across * Math.cos(yaw) + b * BENCH_HALF.along * Math.sin(yaw),
@@ -183,7 +184,7 @@ for (const [key, park] of Object.entries(PARK)) {
       for (const [fx, fy] of screen) moonClear = Math.min(moonClear, Math.hypot((fx - moon[0]) * W, (fy - moon[1]) * H));
     }
     if (key !== "desktop" && outline3(seats[1]).some((q) => project(q)[1] > CARD_BAND)) fail(at, "the second bench in the card's band");
-    if (moonClear < 2 * r) fail(at, `a new prop ${moonClear.toFixed(0)} px from the moon (2r ${(2 * r).toFixed(0)})`);
+    if (moonClear < 2 * r) fail(at, `a lawn prop ${moonClear.toFixed(0)} px from the moon (2r ${(2 * r).toFixed(0)})`);
     console.log(`  ${at}: ${tufts.length} tufts, ${pebbles.length} pebbles, ${rocks.length} rocks; moon clear by ${moonClear.toFixed(0)} px (2r ${(2 * r).toFixed(0)})`);
   }
 
