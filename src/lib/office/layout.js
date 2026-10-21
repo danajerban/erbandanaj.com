@@ -32,9 +32,10 @@ export const officeLayout = (isMobile, aspect) => {
 
 // Phone portrait only: the desk group (desk, its items, monitor, desk lamp,
 // desk glow, the screen, the desk lights) and the snake plant scale about
-// `pivot` so the monitor reads on a phone. Composition data, not a
-// performance gate; allowed 1.0–1.3.
-export const VIGNETTE = { scale: 1.2, pivot: [1.35, 0, BACK] };
+// `pivot` so the monitor reads on a phone. The pivot lies left of the
+// monitor, so the scaled monitor grows to the right, clear of the avatar's
+// shoulder. Composition data, not a performance gate; allowed 1.0–1.3.
+export const VIGNETTE = { scale: 1.2, pivot: [1.05, 0, BACK] };
 const vignetteScale = (layout) => (layout === "portrait" ? VIGNETTE.scale : 1);
 
 export const vignetteMatrix = (layout) => {
@@ -92,9 +93,9 @@ export const transformLights = (lights, matrix) => {
 // The owner's desk: centre x, centre z, top height
 export const DESK = { DX: 1.3, DZ: -1.43, TOP: 0.73 };
 
-// The monitor screen in the room frame (27", 16:9, 3 mm in front of the
-// panel), through the vignette
-const SCREEN = { position: [1.35, 1.065, -1.497], rotationX: -0.087, size: [0.597, 0.336] };
+// The monitor screen in the room frame (32", 16:9, 3 mm in front of the
+// panel's face, same tilt), through the vignette
+const SCREEN = { position: [1.35, 1.1016, -1.4971], rotationX: -0.087, size: [0.708, 0.398] };
 const screens = new Map();
 export const monitorScreen = (layout) => {
   if (!screens.has(layout)) {

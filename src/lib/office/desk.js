@@ -12,10 +12,10 @@ import { bevelBox, box, contactShadow, cylinder, cylinderBetween, ellipse, fan, 
 // and its broad room fill, the monitor light bar (only in front of its
 // plane) and the screen's spill
 export const DESK_LIGHTS = [
-  { p: new THREE.Vector3(1.72, 1.18, -1.38), color: LIGHT.desk, R: 1.0, w: 0.7, cone: true },
-  { p: new THREE.Vector3(1.72, 1.18, -1.38), color: LIGHT.desk, R: 3.5, w: 0.8 },
-  { p: new THREE.Vector3(1.35, 1.262, -1.48), color: LIGHT.lightBar, R: 0.6, w: 0.5, front: -1.5 },
-  { p: new THREE.Vector3(1.35, 1.065, -1.45), color: LIGHT.screen, R: 1.2, w: 0.35 },
+  { p: new THREE.Vector3(1.8, 1.21, -1.38), color: LIGHT.desk, R: 1.0, w: 0.7, cone: true },
+  { p: new THREE.Vector3(1.8, 1.21, -1.38), color: LIGHT.desk, R: 3.5, w: 0.8 },
+  { p: new THREE.Vector3(1.35, 1.334, -1.48), color: LIGHT.lightBar, R: 0.7, w: 0.5, front: -1.5 },
+  { p: new THREE.Vector3(1.35, 1.1, -1.45), color: LIGHT.screen, R: 1.4, w: 0.35 },
 ];
 
 const { DX, DZ, TOP } = DESK;
@@ -279,7 +279,7 @@ const buildPouch = (s) => {
 
 // MacBook Pro 14" open on its aluminium stand: the base tilted 20° (front
 // down), the lid open 105° with a dim video call on its screen
-const LAPTOP = { x: 0.83, zFront: -1.446, yFront: 0.8044, tilt: (20 * Math.PI) / 180, open: (105 * Math.PI) / 180 };
+const LAPTOP = { x: 0.78, zFront: -1.446, yFront: 0.8044, tilt: (20 * Math.PI) / 180, open: (105 * Math.PI) / 180 };
 const buildLaptop = (s) => {
   const { silver } = PALETTE;
   const [W, D, H] = [0.312, 0.221, 0.0155];
@@ -312,36 +312,37 @@ const buildLaptop = (s) => {
   });
 };
 
-// The 27" monitor: black panel tilted 5° back, VESA mount, neck and plate;
-// the light bar on top (its underside strip glows) with the webcam
-const PANEL = { x: 1.35, y: 1.065, z: -1.515, tilt: -0.087, w: 0.615, h: 0.37, d: 0.03 };
-const BAR = { y: 1.262, z: -1.49, r: 0.012, half: 0.225 };
+// The 32" monitor: black panel tilted 5° back (its face 3 mm behind
+// layout.js SCREEN), VESA mount, neck and plate; the light bar on top (its
+// underside strip glows) with the webcam
+const PANEL = { x: 1.35, y: 1.1, z: -1.515, tilt: -0.087, w: 0.729, h: 0.439, d: 0.03 };
+const BAR = { y: 1.334, z: -1.493, r: 0.014, half: 0.267 };
 const buildMonitor = (s, sides) => {
   const steel = PALETTE.steel;
   const { x } = PANEL;
-  box(s, [x - 0.11, x + 0.11], [TOP, TOP + 0.012], [-1.66, -1.48], C.plate, { omit: "-y" });
-  box(s, [x - 0.02, x + 0.02], [TOP + 0.012, 1.1], [-1.5825, -1.5375], steel, { omit: "-y+y" });
-  box(s, [x - 0.05, x + 0.05], [0.98, 1.1], [-1.545, -1.525], steel, { omit: "+z" });
+  box(s, [x - 0.13, x + 0.13], [TOP, TOP + 0.014], [-1.68, -1.475], C.plate, { omit: "-y" });
+  box(s, [x - 0.024, x + 0.024], [TOP + 0.014, 1.15], [-1.587, -1.533], steel, { omit: "-y+y" });
+  box(s, [x - 0.06, x + 0.06], [1.0, 1.15], [-1.55, -1.53], steel, { omit: "+z" });
   inFrame(s, frame(x, PANEL.y, PANEL.z, 0, rotX(PANEL.tilt)), () => {
     const [hw, hh, hd] = [PANEL.w / 2, PANEL.h / 2, PANEL.d / 2];
     box(s, [-hw, hw], [-hh, hh], [-hd, hd], steel);
-    box(s, [-0.2, 0.2], [-0.15, 0.12], [-hd - 0.015, -hd], steel, { omit: "+z" });
+    box(s, [-0.237, 0.237], [-0.178, 0.142], [-hd - 0.018, -hd], steel, { omit: "+z" });
   });
   // Light bar, its clamp over the panel and the counterweight behind
   const [xa, xb] = [x - BAR.half, x + BAR.half];
   cylinderBetween(s, v3(xa, BAR.y, BAR.z), v3(xb, BAR.y, BAR.z), BAR.r, BAR.r, sides, steel);
-  box(s, [x - 0.02, x + 0.02], [1.249, 1.262], [-1.545, -1.49], steel, { omit: "-y" });
-  box(s, [x - 0.03, x + 0.03], [1.2, 1.256], [-1.56, -1.536], steel);
+  box(s, [x - 0.024, x + 0.024], [BAR.y - 0.015, BAR.y], [-1.552, BAR.z], steel, { omit: "-y" });
+  box(s, [x - 0.036, x + 0.036], [BAR.y - 0.074, BAR.y - 0.008], [-1.566, -1.54], steel);
   const n = v3(0, -0.5, 0.866);
-  const t = v3(0, 0.866, 0.5).multiplyScalar(0.004);
+  const t = v3(0, 0.866, 0.5).multiplyScalar(0.005);
   const q = v3(0, BAR.y, BAR.z).addScaledVector(n, BAR.r + 0.0008);
   const at = (px, sign) => v3(px, q.y + sign * t.y, q.z + sign * t.z);
   const emissive = LIGHT.lightBar.clone().multiplyScalar(1.4);
-  polygon(s, [at(xa + 0.01, -1), at(xb - 0.01, -1), at(xb - 0.01, 1), at(xa + 0.01, 1)], LIGHT.lightBar, { emissive }, n);
+  polygon(s, [at(xa + 0.012, -1), at(xb - 0.012, -1), at(xb - 0.012, 1), at(xa + 0.012, 1)], LIGHT.lightBar, { emissive }, n);
   const top = BAR.y + BAR.r;
-  box(s, [x - 0.035, x + 0.035], [top, top + 0.025], [BAR.z - 0.015, BAR.z + 0.015], steel, { omit: "-y" });
-  const lens = v3(x, top + 0.0125, BAR.z + 0.0154);
-  fan(s, lens, ellipse(lens, 0.005, 0.005, 6, "xy"), C.grille, C.grille, { normal: v3(0, 0, 1) });
+  box(s, [x - 0.04, x + 0.04], [top, top + 0.03], [BAR.z - 0.018, BAR.z + 0.018], steel, { omit: "-y" });
+  const lens = v3(x, top + 0.015, BAR.z + 0.0184);
+  fan(s, lens, ellipse(lens, 0.006, 0.006, 6, "xy"), C.grille, C.grille, { normal: v3(0, 0, 1) });
 };
 
 // Two small black speakers behind the monitor, grilles to the front
@@ -356,8 +357,8 @@ const buildSpeakers = (s, sides) => {
 
 // Cream MagSafe stand: round base, a slab leaning back, the silver puck
 const buildMagSafe = (s, sides) => {
-  cylinder(s, [1.66, -1.45], [TOP, TOP + 0.012], [0.045, 0.043], sides, PALETTE.ceramic, { caps: "end" });
-  inFrame(s, frame(1.66, TOP + 0.012, -1.455, 0, rotX(-0.26)), () => {
+  cylinder(s, [1.76, -1.45], [TOP, TOP + 0.012], [0.045, 0.043], sides, PALETTE.ceramic, { caps: "end" });
+  inFrame(s, frame(1.76, TOP + 0.012, -1.455, 0, rotX(-0.26)), () => {
     bevelBox(s, [-0.028, 0.028], [0, 0.135], [-0.012, 0], 0.004, PALETTE.ceramic);
     cylinderBetween(s, v3(0, 0.1, 0), v3(0, 0.1, 0.006), 0.027, 0.027, sides, PALETTE.silver, { caps: "end" });
   });
@@ -366,7 +367,7 @@ const buildMagSafe = (s, sides) => {
 // Architect lamp: navy base, chrome pole, black arm forward-left to the
 // round head (= DESK_LIGHTS[0].p), tipped toward the room so its warm inner
 // disc shows
-const LAMP = { base: [1.85, -1.62], poleTop: 1.21, head: v3(1.72, 1.18, -1.38) };
+const LAMP = { base: [1.88, -1.62], poleTop: 1.24, head: v3(1.8, 1.21, -1.38) };
 const buildDeskLamp = (s, sides) => {
   const [bx, bz] = LAMP.base;
   cylinder(s, [bx, bz], [TOP, TOP + 0.025], [0.11, 0.105], sides + 4, C.lampBase, { caps: "end" });
@@ -438,14 +439,14 @@ const buildBonsai = (s, [x, z], yaw, clusters, random) => {
 // Contact blobs: on the oak, on the felt
 const buildBlobs = (s) => {
   const oak = [
-    [0.83, -1.55, 0.17, 0.12],
-    [1.35, -1.57, 0.13, 0.1],
-    [1.85, -1.62, 0.13, 0.13],
+    [0.78, -1.55, 0.17, 0.12],
+    [1.35, -1.578, 0.155, 0.12],
+    [1.88, -1.62, 0.13, 0.13],
     [1.1, -1.68, 0.05, 0.055],
     [1.62, -1.68, 0.05, 0.055],
-    [1.66, -1.45, 0.055, 0.055],
+    [1.76, -1.45, 0.055, 0.055],
     [0.72, -1.36, 0.11, 0.06],
-    [1.8, -1.25, 0.085, 0.065],
+    [1.83, -1.24, 0.085, 0.065],
     [1.92, -1.38, 0.085, 0.065],
   ];
   // Each 0.4 mm above the last, so overlapping blobs never z-fight
@@ -497,12 +498,12 @@ const buildDeskGlow = (glow) => {
   const inMat = (x, z) => x > MAT.x[0] && x < MAT.x[1] && z > MAT.z[0] && z < MAT.z[1];
   const surface = (x, z) => (inMat(x, z) ? MAT_Y : TOP) + 0.003;
   const deskClip = [[X0, X1], [Z0, Z1]];
-  pool(glow, { c: [1.72, -1.38], ra: 0.45, rb: 0.45, color: LIGHT.desk.clone().multiplyScalar(0.45), clip: deskClip, height: surface, step: 0.09 });
-  pool(glow, { c: [1.35, -1.4], ra: 0.25, rb: 0.125, color: LIGHT.lightBar.clone().multiplyScalar(0.35), clip: [MAT.x, MAT.z], height: () => MAT_Y + 0.003, step: 0.07 });
+  pool(glow, { c: [1.8, -1.38], ra: 0.45, rb: 0.45, color: LIGHT.desk.clone().multiplyScalar(0.45), clip: deskClip, height: surface, step: 0.09 });
+  pool(glow, { c: [1.35, -1.4], ra: 0.3, rb: 0.14, color: LIGHT.lightBar.clone().multiplyScalar(0.35), clip: [MAT.x, MAT.z], height: () => MAT_Y + 0.003, step: 0.07 });
   const wallClip = [[X0, X1 + 0.6], [TOP, 2.3]];
   const wall = BACK + 0.003;
-  pool(glow, { c: [1.35, 1.06], ra: 0.45, rb: 0.3, color: LIGHT.bias.clone().multiplyScalar(0.12), clip: wallClip, plane: "xy", at: wall, step: 0.1 });
-  pool(glow, { c: [1.72, 1.05], ra: 0.6, rb: 0.6, color: LIGHT.desk.clone().multiplyScalar(0.15), clip: wallClip, plane: "xy", at: wall, step: 0.12 });
+  pool(glow, { c: [1.35, 1.1], ra: 0.53, rb: 0.36, color: LIGHT.bias.clone().multiplyScalar(0.12), clip: wallClip, plane: "xy", at: wall, step: 0.1 });
+  pool(glow, { c: [1.8, 1.08], ra: 0.6, rb: 0.6, color: LIGHT.desk.clone().multiplyScalar(0.15), clip: wallClip, plane: "xy", at: wall, step: 0.12 });
 };
 
 // Desk, its items, laptop, monitor body, light bar, desk lamp, bonsai ×2,
@@ -529,7 +530,7 @@ export const buildDesk = (out, ctx) => {
   buildDeskLamp(s, 12);
   // MOBILE_PERF: 8 bonsai foliage clusters on mobile — revert by removing the ternary
   const clusters = isMobile ? 8 : 14;
-  buildBonsai(s, [1.8, -1.25], 0.15, clusters, random);
+  buildBonsai(s, [1.83, -1.24], 0.15, clusters, random);
   buildBonsai(s, [1.92, -1.38], -0.2, clusters, random);
   buildDeskGlow(out.glow);
 };
