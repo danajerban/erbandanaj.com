@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { PALETTE, hex } from "./bake";
-import { RUG_Y } from "./layout";
+import { FLOOR_Y, RUG_Y, WINDOW } from "./layout";
 import { box, contactShadow, cylinder, cylinderBetween, polygon, prism, v3 } from "./shapes";
 
 // Projects: the black mesh office chair (desk corner step), at { x, z, yaw }
@@ -59,8 +59,14 @@ export const buildOfficeChair = (out, ctx, { x, z, yaw }) => {
   const s = out.solid;
   // MOBILE_PERF: 5-sided caster and lift cylinders on mobile — revert by removing the ternary
   const sides = ctx.isMobile ? 5 : 8;
-  contactShadow(s, x, z, 0.3, 0.3, PALETTE.sand, RUG_Y, 12);
-  s.push(new THREE.Matrix4().makeTranslation(x, RUG_Y, z).multiply(new THREE.Matrix4().makeRotationY(yaw)));
+  // The shadow lies on the rug when it fits on it, else on the floor (the
+  // rug, above it, then hides the part under its edge)
+  const r = 0.3;
+  const { x: rx, z: rz } = WINDOW.projects.rug;
+  const onRug = x - r > rx[0] && x + r < rx[1] && z - r > rz[0] && z + r < rz[1];
+  const y = onRug ? RUG_Y : FLOOR_Y;
+  contactShadow(s, x, z, r, r, onRug ? PALETTE.sand : PALETTE.floorOak[1], y, 12);
+  s.push(new THREE.Matrix4().makeTranslation(x, y, z).multiply(new THREE.Matrix4().makeRotationY(yaw)));
 
   // Chrome 5-star base on casters, the hub and the gas lift
   const hub = v3(0, 0.1, 0);

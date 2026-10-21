@@ -110,17 +110,20 @@ export const monitorScreen = (layout) => {
 };
 
 // Yaw follows HomeSection: an object faces (sin yaw, cos yaw). The office
-// chair stands turned toward the side window; on a phone held upright it
-// stands pulled out just left of the avatar, turned to the desk, so it reads
-// with the desk (composition data).
+// chair stands pulled out at the right end of the desk, just in front of
+// it, turned to the desk and the monitor. Where the desk's right end nears
+// the screen edge (an upright iPad) or the desk is scaled up (VIGNETTE, a
+// phone held upright), it turns side-on to the camera, so it hides less of
+// the desk.
 const CHAIR = {
-  default: { x: -0.95, z: -0.75, yaw: Math.PI + 0.6 },
-  portrait: { x: -0.12, z: -0.75, yaw: Math.PI - 1.0 },
+  default: { x: 1.62, z: -0.8, yaw: Math.PI + 1.05 },
+  tall: { x: 1.42, z: -0.8, yaw: Math.PI + 1.45 },
+  portrait: { x: 1.75, z: -0.8, yaw: Math.PI + 1.45 },
 };
 export const chairAt = (layout) => CHAIR[layout] ?? CHAIR.default;
-// The snake plant on the floor in the corner right of the desk (inside the
-// vignette, so on a phone held upright it stands closer to the desk, clear
-// of the backpack)
+// The snake plant on the floor in the corner right of the desk, between
+// the chair and the backpack (inside the vignette, so on a phone held
+// upright it stands closer to the desk to stay in that gap)
 const SNAKE_PLANT = {
   default: { x: 2.32, z: -1.6, yaw: 0.4 },
   portrait: { x: 2.15, z: -1.62, yaw: 0.4 },
