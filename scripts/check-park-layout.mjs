@@ -11,8 +11,8 @@
 // a grass tuft or pebble where it should not grow or lie; on desktop any of
 // them in the contact card's corner (CARD_ZONE), on phones and the iPad the
 // second bench in the card's band (y > 0.70); and any of them within 2r of
-// the moon (moonAt) at the Contact rest.
-// Usage: node scripts/check-park-layout.mjs
+// the moon (moonAt) at the Contact rest. Silent when all is clear.
+// Usage: node scripts/check-park-layout.mjs (pnpm lint runs it)
 import {
   BENCH,
   BENCH_HALF,
@@ -185,14 +185,10 @@ for (const [key, park] of Object.entries(PARK)) {
     }
     if (key !== "desktop" && outline3(seats[1]).some((q) => project(q)[1] > CARD_BAND)) fail(at, "the second bench in the card's band");
     if (moonClear < 2 * r) fail(at, `a lawn prop ${moonClear.toFixed(0)} px from the moon (2r ${(2 * r).toFixed(0)})`);
-    console.log(`  ${at}: ${tufts.length} tufts, ${pebbles.length} pebbles, ${rocks.length} rocks; moon clear by ${moonClear.toFixed(0)} px (2r ${(2 * r).toFixed(0)})`);
   }
-
-  console.log(`${key}: party wall ${wall.toFixed(2)}, story window ${story.toFixed(2)}, path-pond ${pathPond.toFixed(2)}`);
 }
 
 if (failures) {
   console.log(`check-park-layout: ${failures} failure(s)`);
   process.exit(1);
 }
-console.log("check-park-layout: all clear");
