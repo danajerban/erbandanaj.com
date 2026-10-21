@@ -1021,6 +1021,21 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
 
 /* RESPONSIVE */
 
+/* The phones' bottom clearance, shared by the cards and the "Swipe up"
+   pill: --bottom-clearance is 6rem or, on a home-indicator phone, clear of
+   Safari's floating toolbar (the inset plus 4.5rem); --toolbar-clearance is
+   that toolbar clearance alone (the min() is 0 without an inset);
+   --short-phone-drop is the spacing both drop to on upright phones shorter
+   than about 2:1 */
+:root {
+  --bottom-clearance: max(6rem, calc(env(safe-area-inset-bottom) + 4.5rem));
+  --toolbar-clearance: min(
+    calc(env(safe-area-inset-bottom) * 1000),
+    calc(env(safe-area-inset-bottom) + 4.5rem)
+  );
+  --short-phone-drop: calc(60vh - 120vw + 3.6rem);
+}
+
 @media (max-width: 990px) {
   :root {
     /* No blur on mobile (MOBILE_PERF below), so the glass is a little denser
@@ -1030,7 +1045,7 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
 
   .mobile--section--bottom {
     align-items: flex-end;
-    padding-bottom: max(6rem, calc(env(safe-area-inset-bottom) + 4.5rem));
+    padding-bottom: var(--bottom-clearance);
   }
 
   .mobile--section--left {
@@ -1202,7 +1217,7 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     background: var(--glass-color);
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: max(6rem, calc(env(safe-area-inset-bottom) + 4.5rem));
+    margin-bottom: var(--bottom-clearance);
     color: var(--text-color);
     font-size: 0.6875rem;
     font-weight: 600;
@@ -1238,16 +1253,12 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
    large viewport) is about 120px shorter than the screen, so every iPhone
    there drops fully; the gate goes by the smaller layout viewport (an
    iPhone SE's is 375x549), and tablets have their own rules from 600px. A
-   home-indicator phone keeps its toolbar clearance (the inset plus 4.5rem;
-   the min() is 0 without an inset). */
+   home-indicator phone keeps its --toolbar-clearance. */
 @media (max-width: 990px) and (orientation: portrait) and (not (min-width: 600px)) and (max-aspect-ratio: 3/4) {
   .scroll-down {
     margin-bottom: max(
-      clamp(3rem, 60vh - 120vw + 3.6rem, 6rem),
-      min(
-        calc(env(safe-area-inset-bottom) * 1000),
-        calc(env(safe-area-inset-bottom) + 4.5rem)
-      )
+      clamp(3rem, var(--short-phone-drop), 6rem),
+      var(--toolbar-clearance)
     );
   }
 
@@ -1255,11 +1266,8 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
      sit lower under the 3D section titles */
   .mobile--section--bottom {
     padding-bottom: max(
-      clamp(4.5rem, 60vh - 120vw + 3.6rem, 6rem),
-      min(
-        calc(env(safe-area-inset-bottom) * 1000),
-        calc(env(safe-area-inset-bottom) + 4.5rem)
-      )
+      clamp(4.5rem, var(--short-phone-drop), 6rem),
+      var(--toolbar-clearance)
     );
   }
 }
