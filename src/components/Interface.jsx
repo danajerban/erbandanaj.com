@@ -9,8 +9,9 @@ import { useMobile } from "../contexts/MobileContext";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { projectAtom } from "../store";
 
-// Card entrance: fade in and rise, once per page load (viewport `once`, no
-// storage). The rise is on the cards themselves — never on `.projects`, whose
+// Card entrance: fade in and rise, once per page load (no storage), when
+// the section's fade with its room first passes ENTER_AT (useSectionFades):
+// the visitor sees it, it never plays under a faded-out section. The rise is on the cards themselves — never on `.projects`, whose
 // CSS translateX an inline motion transform would override. A section's
 // cards are staggered by the shared constant via the container's variant. The
 // entrance animates `--enter`, which the card's CSS opacity multiplies with
@@ -43,11 +44,16 @@ const cardVariantsReduced = {
 // card's own opacity multiplies (index.css): an opacity on an ancestor would
 // switch off the cards' backdrop blur. Written only when its step changes;
 // at 0 the section is hidden and inert, so its cards take no tap or focus.
+// It also returns which sections have entered: one state change per section
+// per page load.
 const FADE_STEPS = 40;
+const ENTER_AT = 0.5;
 const FADED_SECTIONS = ["skills", "projects", "contact"];
 const useSectionFades = (scrollData) => {
   const refs = useRef([]);
   const fades = useRef(FADED_SECTIONS.map(() => 1));
+  const enteredRef = useRef(FADED_SECTIONS.map(() => false));
+  const [entered, setEntered] = useState(enteredRef.current);
   useFrame(() => {
     const position = scrollData.offset * (scrollData.pages - 1);
     FADED_SECTIONS.forEach((name, i) => {
@@ -62,6 +68,10 @@ const useSectionFades = (scrollData) => {
             )) *
             FADE_STEPS,
         ) / FADE_STEPS;
+      if (fade >= ENTER_AT && !enteredRef.current[i]) {
+        enteredRef.current = enteredRef.current.map((e, j) => e || j === i);
+        setEntered(enteredRef.current);
+      }
       const el = refs.current[i];
       if (!el || fade === fades.current[i]) return;
       el.style.setProperty("--fade", fade);
@@ -72,9 +82,10 @@ const useSectionFades = (scrollData) => {
       fades.current[i] = fade;
     });
   });
-  return (i) => (el) => {
+  const fadeRef = (i) => (el) => {
     refs.current[i] = el;
   };
+  return { fadeRef, entered };
 };
 
 // Phone carousels (Skills, Projects): one card at a time, snapped to the
@@ -157,7 +168,7 @@ export const Interface = () => {
       setHasScrolled(newHasScrolled);
     }
   });
-  const fadeRef = useSectionFades(scrollData);
+  const { fadeRef, entered } = useSectionFades(scrollData);
   const [shownProject, setProject] = useAtom(projectAtom);
   const { isMobile } = useMobile();
   const reduceMotion = useReducedMotion();
@@ -169,8 +180,7 @@ export const Interface = () => {
     [setProject],
   );
   const projectsCarousel = useCarousel(isMobile, showProject);
-  // Mobile: the section is only "in view" once its top 70% has scrolled past.
-  const viewport = { once: true, margin: isMobile ? "-70% 0px 0px 0px" : undefined };
+  const entrance = (i) => (entered[i] ? "visible" : "hidden");
   return (
     <div className="interface">
       <div className="sections">
@@ -217,9 +227,8 @@ export const Interface = () => {
               aria-label="Skills"
               tabIndex={isMobile ? 0 : undefined}
               initial="hidden"
-              whileInView="visible"
+              animate={entrance(0)}
               variants={groupVariants}
-              viewport={viewport}
             >
               {config.skills.map((skill, idx) => (
                 <motion.div
@@ -260,9 +269,8 @@ export const Interface = () => {
               aria-label="Projects"
               tabIndex={isMobile ? 0 : undefined}
               initial="hidden"
-              whileInView="visible"
+              animate={entrance(1)}
               variants={groupVariants}
-              viewport={viewport}
             >
               {config.projects.map((project, idx) => (
                 <motion.div
@@ -320,9 +328,8 @@ export const Interface = () => {
           <motion.div
             className="contact"
             initial="hidden"
-            whileInView="visible"
+            animate={entrance(2)}
             variants={cardEntrance}
-            viewport={{ once: true }}
           >
             <p className="contact__eyebrow">Get in touch</p>
             <h1 className="contact__name">{config.contact.name}</h1>
