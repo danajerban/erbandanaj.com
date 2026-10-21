@@ -296,6 +296,7 @@ a {
 @media (not (max-width: 990px)) and (orientation: landscape) {
   .section:has(> .carousel > :is(.skills, .projects)) {
     flex-direction: column;
+    justify-content: flex-start;
   }
 
   .section--right:has(> .carousel > .skills) {
@@ -317,10 +318,21 @@ a {
   }
 }
 
-/* Short desktop windows (700px tall and less): compact cards, so the six
+/* Nearly square desktop windows (3:2 and squarer, landscape iPads): the
+   skill cards narrow so they start right of the bookcase, which ends about
+   a quarter of the window height right of the centre */
+@media (not (max-width: 990px)) and (orientation: landscape) and (max-aspect-ratio: 3/2) {
+  .skill {
+    width: clamp(16rem, min(50vw, 37.5rem) - 25vh - 1.5rem, 20rem);
+  }
+}
+
+/* Short desktop windows (700px tall and less, or 800px when 4:3 or
+   squarer, where the skill cards are narrower): compact cards, so the six
    skills fit under the pill and the four projects under the logo down to
    about 560px */
-@media (not (max-width: 990px)) and (orientation: landscape) and (max-height: 700px) {
+@media (not (max-width: 990px)) and (orientation: landscape) and (max-height: 700px),
+  (not (max-width: 990px)) and (orientation: landscape) and (max-aspect-ratio: 4/3) and (max-height: 800px) {
   .skill {
     padding: 0.375rem 0.875rem;
     margin-bottom: 0.25rem;
