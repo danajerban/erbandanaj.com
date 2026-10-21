@@ -629,6 +629,45 @@ a {
   }
 }
 
+/* Short desktop windows (680px tall and less): a compact contact card,
+   lower on the lawn, so it keeps clear of the 3D CONTACT letters */
+@media (not (max-width: 990px)) and (max-height: 680px) {
+  .section--contact {
+    padding-bottom: 0.75rem;
+  }
+
+  .contact {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .contact__eyebrow {
+    font-size: 0.7rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .contact__name {
+    font-size: 1.5rem;
+  }
+
+  .contact__address {
+    font-size: 0.95rem;
+    margin-top: 0.1rem;
+  }
+
+  .contact__socials a {
+    gap: 0.25rem;
+  }
+
+  .contact__socials__icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .contact__socials__label {
+    font-size: 0.75rem;
+  }
+}
+
 /* MENU */
 
 .menu {
