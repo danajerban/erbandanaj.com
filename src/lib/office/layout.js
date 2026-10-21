@@ -130,6 +130,14 @@ const SNAKE_PLANT = {
 };
 export const snakePlantAt = (layout) => SNAKE_PLANT[layout] ?? SNAKE_PLANT.default;
 
+// The left corner, where the back wall meets the window wall: a light-oak
+// wardrobe against the back wall, clear of the side window's lace (x -1.875)
+// and the arch casing (x -0.52); its legs stand behind the rug. A framed
+// print hangs on the back wall between it and the arch. Room frame, true
+// scale; the print's x, y are its centre.
+export const WARDROBE = { x: [-1.74, -1.0], depth: 0.44, height: 1.9, legs: 0.1 };
+export const PRINT = { x: -0.76, y: 1.36, w: 0.26, h: 0.34 };
+
 // Both titles stand on the floor in front of the furniture, like CONTACT
 // in the park (SectionTitle's own size and depth, turned toward the camera
 // by TITLE_TURN), clear of the cards: Skills left of them, Projects right of

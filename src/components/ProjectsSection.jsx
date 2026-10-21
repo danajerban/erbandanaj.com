@@ -7,7 +7,9 @@ import { buildBackpack, buildDesk, DESK_LIGHTS } from "../lib/office/desk";
 import {
   FRONT_Z,
   OFFICE_LAYER,
+  PRINT,
   TITLE_TURN,
+  WARDROBE,
   chairAt,
   monitorScreen,
   officeLayout,
@@ -17,6 +19,7 @@ import {
   vignetteMatrix,
 } from "../lib/office/layout";
 import { buildSnakePlant } from "../lib/office/plants";
+import { buildWardrobeCorner } from "../lib/office/wardrobeCorner";
 import { MonitorScreen } from "./MonitorScreen";
 import { OfficeCorner } from "./OfficeCorner";
 import { SectionGroup } from "./SectionGroup";
@@ -25,8 +28,10 @@ import { SectionTitle } from "./SectionTitle";
 // The screen's mesh sits at the furniture's origin, so it dissolves with it
 const SCREEN_ORIGIN = [0, 0, FRONT_Z];
 
-// The chair and the backpack at true scale; the desk group and the snake
-// plant through the (phone portrait) desk vignette
+// The chair, the backpack and the wardrobe corner at true scale; the desk
+// group and the snake plant through the (phone portrait) desk vignette. The
+// wardrobe corner comes last, so its grain draws leave the desk's seeded
+// randoms as they were.
 const buildDeskCorner = (out, ctx) => {
   buildOfficeChair(out, ctx, chairAt(ctx.layout));
   buildBackpack(out, ctx);
@@ -37,6 +42,7 @@ const buildDeskCorner = (out, ctx) => {
   buildSnakePlant(out, ctx, snakePlantAt(ctx.layout));
   out.solid.pop();
   out.glow.pop();
+  buildWardrobeCorner(out, ctx, WARDROBE, PRINT);
 };
 
 // Projects: the office's desk corner, the owner's real desk (blue hour: the
