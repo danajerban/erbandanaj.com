@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
 import { moonAt, timeOfDay } from "../lib/timeOfDay";
 
-// The night sky's render layer (1–8 Home, 9 here, 10 office, 11 park)
+// The night sky's render layer (1–8 and 12 Home, 9 here, 10 office, 11 park)
 const LAYER = 9;
 // The evening star, the first to show (blue hour): clear of the office
 // walls, the old town's roofs, the menu and the moon, per layout
