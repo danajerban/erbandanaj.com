@@ -3,11 +3,10 @@ import { PALETTE, hex } from "./bake";
 import { FLOOR_Y } from "./layout";
 import { contactShadow, cylinder, fan, polygon, v3 } from "./shapes";
 
-// Projects: the snake plant on the floor beside the desk (desk corner
-// step), at { x, z, yaw } (layout.js SNAKE_PLANT); out = { solid, glow },
-// ctx = { isMobile, layout, random }. As in IMG_3657: a glossy white pot on
-// a saucer, dark clay pebbles with white stones, banded sword leaves with
-// yellow edges.
+// Projects: the snake plant on the floor beside the desk, at { x, z, yaw }
+// (layout.js SNAKE_PLANT); out = { solid, glow }, ctx = { isMobile, layout,
+// random }. A glossy white pot on a saucer, dark clay pebbles with white
+// stones, banded sword leaves with yellow edges.
 
 const SAUCER = { r: 0.14, h: 0.015 };
 const POT = { r0: 0.115, r1: 0.13, h: 0.2, rim: 0.01, soil: 0.018 };

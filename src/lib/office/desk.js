@@ -3,7 +3,7 @@ import { LIGHT, PALETTE, hex } from "./bake";
 import { BACK, DESK, FLOOR_Y } from "./layout";
 import { bevelBox, box, contactShadow, cylinder, cylinderBetween, ellipse, fan, polygon, prism, tube, v3 } from "./shapes";
 
-// Projects: the owner's desk from the photos (desk corner step).
+// Projects: the owner's desk from the photos.
 // out = { solid: OfficeSink, glow: GlowSink }; ctx = { isMobile, layout,
 // random }; room-frame coordinates (ProjectsSection pushes the desk
 // vignette onto both sinks around buildDesk).

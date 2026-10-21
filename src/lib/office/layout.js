@@ -169,7 +169,7 @@ export const PRINT = { x: -0.76, y: 1.36, w: 0.26, h: 0.34 };
 // 754). On a phone held upright shorter than PORTRAIT_OVERHEAD (the SE and
 // 16:9 Android phones) the floor in front of the avatar lies under the
 // card, so both titles hang overhead instead: above the avatar's hat,
-// under the menu, and clear of the moon (timeOfDay MOON_AT). From the mini
+// under the menu, and clear of the moon (lib/timeOfDay moonAt). From the mini
 // up the floor spot clears the card. A tablet in
 // the phone UI (768x1024 and up) has a wide stretch of bare floor between
 // the avatar and its short card, so there the floor spot comes forward to

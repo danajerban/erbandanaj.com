@@ -3,9 +3,8 @@ import { AO, PALETTE, hex } from "./bake";
 import { BACK, FLOOR_Y, RUG_Y, T, WINDOW } from "./layout";
 import { bevelBox, box, cylinder, cylinderBetween, ellipse, fan, orientedTri, polygon, strip, tube, v3 } from "./shapes";
 
-// Skills: the reading corner (reading corner step): armchair, fiddle-leaf
-// fig, side table with a pilea, bookcase, books, pothos, a print on the
-// side wall.
+// Skills: the reading corner: armchair, fiddle-leaf fig, side table with a
+// pilea, bookcase, books, pothos, a print on the side wall.
 // out = { solid: OfficeSink, glow: GlowSink }; ctx = { isMobile, layout,
 // random }; room-frame coordinates.
 
