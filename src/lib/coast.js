@@ -38,7 +38,7 @@ export const layoutOf = (isMobile, aspect) => (aspect > 1 ? (isMobile ? "landsca
 export const PALM_Z = {
   desktop: [-4.2, -4.9, -3.45],
   landscape: [-5.8, -6.7, -5],
-  portrait: [-5.8, -8.5],
+  portrait: [-7.5, -8.06, -6.9],
 };
 const POINT_WIDTH = 0.2;
 // Screen fraction the shore reaches at the bottom edge (just past the right

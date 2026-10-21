@@ -46,18 +46,20 @@ const PALMS = {
   desktop: [{ ...FAN[0], inland: 0.31 }, { ...FAN[1], inland: 0.59 }, FAN[2]],
   landscape: [{ ...FAN[0], inland: 0.39 }, { ...FAN[1], inland: 0.88 }, FAN[2]],
   // An upright screen has no room for the group between the avatar and the
-  // sun over the sea: two palms stand inland left of the avatar instead,
-  // `foot` a screen fraction from the left at their depth — a short one in
-  // front, leaning away to the left, and behind it a taller, nearly straight
-  // one, its crown up to the left of the avatar's head
+  // sun over the sea: the same three stand inland left of the avatar
+  // instead, `foot` a screen fraction from the left at their depth, the
+  // swept crown up to the left of the avatar's head
   portrait: [
-    { scale: 0.6, yaw: 0.5, bend: 1.2, seed: 37, foot: 0.22 },
-    { scale: 0.88, yaw: Math.PI - 0.29, bend: 0.5, seed: 11, foot: 0.25 },
+    { ...FAN[0], foot: 0.235 },
+    { ...FAN[1], foot: 0.205 },
+    { ...FAN[2], foot: 0.28 },
   ],
 };
-// Mobile held sideways: the whole group a touch smaller (each palm scales
-// about its foot), so the crowns stay below the menu on the short screen
-const SIZE = { desktop: 1, landscape: 0.9, portrait: 1 };
+// The whole group's size by layout (each palm scales about its foot):
+// mobile held sideways a touch smaller, so the crowns stay below the menu
+// on the short screen; upright smaller still, so the crowns fit between the
+// left edge and the avatar
+const SIZE = { desktop: 1, landscape: 0.9, portrait: 0.7 };
 
 // The laptop rests on the sand left of the avatar, on a beach towel
 // with a cooler beside it (BeachProps) and sand under them (BeachDecor):
