@@ -7,6 +7,7 @@ import { RGBELoader } from "three-stdlib";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
+import { SUN_SCREEN } from "../lib/sky";
 import { sectionAtom } from "../store";
 import { Avatar } from "./Avatar";
 import { SilentErrorBoundary } from "./ErrorBoundary";
@@ -65,18 +66,10 @@ const gateSection = (() => {
   return hash !== config.sections[0] && config.sections.includes(hash) ? hash : null;
 })();
 
-// Sun placement as a screen fraction (x from the left, y from the top), so it
-// holds at every viewport size; the CSS sky's radial warmth
-// (--scene-sun-x/--scene-sun-y in index.css) and the index.html splash's copy
-// of this sun are centered on the same fractions — keep them together when
-// moving either. The camera pitches down at the origin, so its eye-level
-// horizon crosses the screen ≈37 % from the top: the sun sits a little above
-// that line, low over the sea. The quad sits SUN_DEPTH units down the view
+// The sun quad sits at SUN_SCREEN (lib/sky), SUN_DEPTH units down the view
 // axis: beyond the ContactShadows box (30×30 around the origin), which
 // renders every mesh inside it into the floor shadow — a quad in there draws
 // a dark strip on the floor.
-// Mobile (both orientations): over the sea on the right, as on desktop.
-const SUN_SCREEN = { desktop: [0.855, 0.278], mobile: [0.8, 0.31] };
 const SUN_DEPTH = 22;
 // The sun is drawn in sun units: the short side of the screen, times this
 const SUN_SCALE = { desktop: 1.25, mobile: 1.375 };

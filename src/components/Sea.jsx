@@ -6,6 +6,7 @@ import { ANIMATION_CONSTANTS, getSectionsDistance } from "../constants/animation
 import { useMobile } from "../contexts/MobileContext";
 import { SWASH, coastX } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
+import { SUN_SCREEN } from "../lib/sky";
 
 // The sea on Home: from the island's shore (lib/coast) to the right edge of
 // the screen and out to the far distance, where its edge is the horizon the
@@ -40,9 +41,6 @@ const LAYER = 2;
 const FADE_SECONDS = 1.2;
 // Camera: SceneCanvas (position [0, 0.5, 5], looking at the origin)
 const CAMERA_Z = 5;
-// Mirror of SUN_SCREEN in Experience.jsx (screen fractions, x from the left,
-// y from the top) — keep them together
-const SUN_SCREEN = { desktop: [0.855, 0.278], mobile: [0.8, 0.31] };
 // Half-width of the sun's glow along the horizon, in short sides of the
 // screen (the sun is sized by the short side), fitted to the CSS sky + sun
 // quad just above the water line

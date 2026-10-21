@@ -12,8 +12,8 @@ import { layoutOf } from "../lib/coast";
 // lining on the edges facing the sun (brightest nearest it) and soft wisps
 // trailing off their ends; a softer, hazier layer behind the front one.
 // Part of the sky, like the sun (Experience): placed in view space from the
-// sun's screen place and size (the `sun` and `scale` props, Experience's
-// SUN_SCREEN and SUN_SCALE), so they hold at every viewport. Home only:
+// sun's screen place and size (the `sun` and `scale` props: lib/sky's
+// SUN_SCREEN and Experience's SUN_SCALE), so they hold at every viewport. Home only:
 // they fade out as the visitor leaves it, with the sea and the gulls. Their
 // shapes are noise, drifting slowly; reduced motion holds them still.
 //
