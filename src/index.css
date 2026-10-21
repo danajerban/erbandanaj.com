@@ -1060,6 +1060,24 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   }
 }
 
+/* Phones held upright, shorter than about 2:1: the 3D beach frames by the
+   height and the towel and the laptop sit lower on the screen, so the pill
+   drops with the shape (to 3rem at 16:9) and stays on the open sand under
+   them; 390x844 and taller keep 6rem. A home-indicator phone keeps its
+   toolbar clearance (the inset plus 4.5rem; the min() is 0 without an
+   inset). */
+@media (max-width: 990px) and (orientation: portrait) and (max-aspect-ratio: 3/5) {
+  .scroll-down {
+    margin-bottom: max(
+      clamp(3rem, 60vh - 120vw + 3.6rem, 6rem),
+      min(
+        calc(env(safe-area-inset-bottom) * 1000),
+        calc(env(safe-area-inset-bottom) + 4.5rem)
+      )
+    );
+  }
+}
+
 /* Phone portrait: the four links under the name, past a line; a tenth
    smaller than in landscape, so the card's top clears the CONTACT letters
    while its bottom stays above Safari's floating toolbar */
