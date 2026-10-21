@@ -3,8 +3,8 @@ import { AO, PALETTE, hex } from "./bake";
 import { BACK, FLOOR_Y, RUG_Y } from "./layout";
 import { bevelBox, box, cylinder, cylinderBetween, ellipse, fan, orientedTri, polygon, strip, tube, v3 } from "./shapes";
 
-// Skills: the reading corner (reading corner step): armchair, side table,
-// bookcase, books, pothos.
+// Skills: the reading corner (reading corner step): armchair, fiddle-leaf
+// fig, side table, bookcase, books, pothos.
 // out = { solid: OfficeSink, glow: GlowSink }; ctx = { isMobile, layout,
 // random }; room-frame coordinates.
 
@@ -24,6 +24,10 @@ const COLOR = {
   skyGlow: hex("#f6b38f"),
   sun: hex("#ffd9a0"),
   island: hex("#6f8f4a"),
+  bark: hex("#7a5a3c"),
+  soil: hex("#3a2a22"),
+  fig: hex("#3f6f35"),
+  figLight: hex("#5e8f45"),
 };
 const UP = v3(0, 1, 0);
 const DEG = Math.PI / 180;
@@ -139,6 +143,88 @@ const buildThrow = (sink, sand) => {
     const x = xs[0] + 0.01 + k * 0.047;
     const y = hem(x);
     orientedTri(sink, v3(x - 0.008, y, lift), v3(x + 0.008, y, lift), v3(x, y - 0.03, lift), shade(sand, 0.85), {}, v3(0, 0, 1));
+  }
+};
+
+// Fiddle-leaf fig in a terracotta pot in the window corner: a slim trunk
+// and a side branch, broad leaves turned up and out, the lower ones drooping;
+// the canopy stays clear of the lace (z −1.71) and the left wall
+const FIG = { x: -2.5, z: -1.15, leaves: 34 };
+const FIG_POT = [[0, 0.13], [0.29, 0.165], [0.3, 0.18], [0.36, 0.18]];
+const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+const leafSpan = new THREE.Vector3();
+const leafLift = new THREE.Vector3();
+
+// The fiddle shape: [along the midrib, half width] from the stalk to the
+// blunt tip, widest near the tip
+const FIDDLE = [[0.3, 0.32], [0.62, 0.5], [0.88, 0.42]];
+
+// A broad leaf from `base` along `dir` (unit), its face turned toward
+// `facing`, the halves folded up a little along the midrib, both sides
+// drawn; the two halves take slightly different greens
+const broadLeaf = (sink, base, dir, facing, length, width, colors) => {
+  leafSpan.crossVectors(facing, dir);
+  if (leafSpan.lengthSq() < 1e-6) leafSpan.set(1, 0, 0);
+  leafSpan.normalize();
+  leafLift.crossVectors(leafSpan, dir).normalize();
+  const spine = [0, ...FIDDLE.map(([t]) => t), 1].map((t) => base.clone().addScaledVector(dir, length * t));
+  const half = (sx, color) => {
+    const edge = FIDDLE.map(([t, w]) =>
+      base.clone().addScaledVector(dir, length * t).addScaledVector(leafSpan, sx * w * width).addScaledVector(leafLift, -0.15 * w * width),
+    );
+    const tris = [[spine[0], edge[0], spine[1]]];
+    for (let i = 0; i < FIDDLE.length - 1; i++) tris.push([spine[i + 1], edge[i], edge[i + 1]], [spine[i + 1], edge[i + 1], spine[i + 2]]);
+    tris.push([spine[FIDDLE.length], edge[FIDDLE.length - 1], spine[FIDDLE.length + 1]]);
+    for (const [a, b, c] of tris) {
+      sink.tri(a, b, c, color);
+      sink.tri(a, c, b, color);
+    }
+  };
+  half(1, colors[0]);
+  half(-1, colors[1]);
+};
+
+const buildFig = (sink, random) => {
+  const { x, z } = FIG;
+  for (let k = 0; k < FIG_POT.length - 1; k++) {
+    const [[y0, r0], [y1, r1]] = [FIG_POT[k], FIG_POT[k + 1]];
+    cylinder(sink, [x, z], [FLOOR_Y + y0, FLOOR_Y + y1], [r0, r1], 14, k === 1 ? shade(COLOR.terracotta, 0.9) : COLOR.terracotta, { caps: false });
+  }
+  polygon(sink, ellipse(v3(x, FLOOR_Y + 0.335, z), 0.17, 0.17, 14), COLOR.soil, {}, UP);
+  const trunk = [v3(x, 0.3, z), v3(x + 0.01, 0.8, z + 0.01), v3(x + 0.03, 1.38, z + 0.02)];
+  const branches = [
+    [v3(x + 0.01, 0.78, z + 0.01), v3(x + 0.13, 0.95, z + 0.07), v3(x + 0.22, 1.08, z + 0.12)],
+    [v3(x + 0.01, 0.92, z + 0.01), v3(x - 0.1, 1.06, z + 0.05), v3(x - 0.17, 1.16, z + 0.08)],
+  ];
+  tube(sink, trunk, 0.016, 5, COLOR.bark);
+  for (const branch of branches) tube(sink, branch, 0.01, 4, COLOR.bark);
+  const along = (path, t) => {
+    const f = t * (path.length - 1);
+    const i = Math.min(path.length - 2, Math.floor(f));
+    return path[i].clone().lerp(path[i + 1], f - i);
+  };
+  for (let k = 0; k < FIG.leaves; k++) {
+    // Two leaves in five on the branches; more leaves toward each tip
+    const host = k % 5 === 2 ? branches[0] : k % 5 === 4 ? branches[1] : trunk;
+    const t = 1 - (1 - (k + 0.5) / FIG.leaves) ** 1.3;
+    const at = host === trunk ? along(trunk, 0.38 + 0.62 * t) : along(host, 0.25 + 0.75 * random());
+    const a = k * GOLDEN;
+    // Lower leaves droop, the top ones reach up
+    const rise = host === trunk ? -0.35 + 1.4 * t + random() * 0.25 : 0.05 + random() * 0.45;
+    const dir = v3(Math.cos(a), rise, Math.sin(a) * 0.8 + 0.15).normalize();
+    const length = 0.24 + random() * 0.08;
+    // A short stalk, then the leaf; the canopy keeps off the lace and the wall
+    const reach = length + 0.04;
+    if (at.z + dir.z * reach < -1.62) dir.z = Math.abs(dir.z);
+    if (at.x + dir.x * reach < -2.92) dir.x = Math.abs(dir.x);
+    dir.normalize();
+    const stalk = at.clone().addScaledVector(dir, 0.04);
+    tube(sink, [at, stalk], 0.004, 3, COLOR.bark);
+    const tone = 0.85 + random() * 0.3;
+    const green = COLOR.fig.clone().lerp(COLOR.figLight, random() * 0.6).multiplyScalar(tone);
+    // Each leaf faces up, out from the trunk and a little toward the room
+    const facing = v3(dir.x, 0, dir.z).normalize().multiplyScalar(0.7).add(v3(0, 0.75, 0.35)).normalize();
+    broadLeaf(sink, stalk, dir, facing, length, 0.18 + random() * 0.05, [green, shade(green, 0.82)]);
   }
 };
 
@@ -432,6 +518,7 @@ const buildContactBlobs = (sink) => {
   placed(sink, frame(ARMCHAIR.x, 0, ARMCHAIR.z, { yaw: ARMCHAIR.yaw }), () => {
     blob(sink, [0, 0], [0.5, 0.5], sand, { y: RUG_Y, onRug: true });
   });
+  blob(sink, [FIG.x, FIG.z], [0.24, 0.24], floorOak[0]);
   blob(sink, [TABLE.x, TABLE.z + 0.04], [0.21, 0.19], sand, { y: RUG_Y, onRug: true });
   blob(sink, [(SHELF.x[0] + SHELF.x[1]) / 2, (SHELF.z[0] + SHELF.z[1]) / 2], [0.5, 0.19], floorOak[0]);
 };
@@ -446,4 +533,6 @@ export const buildReadingCorner = (out, ctx) => {
   buildVase(solid, SHELF.levels[3]);
   buildPhoto(solid, SHELF.levels[3]);
   buildPothos(solid, ctx.random);
+  // After the books and the pothos, so their random draws stay as they were
+  buildFig(solid, ctx.random);
 };
