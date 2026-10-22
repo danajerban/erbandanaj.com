@@ -2,7 +2,8 @@ import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import { useMobile } from "../contexts/MobileContext";
 import { getSectionsDistance } from "../constants/animation";
-import { PARK, PHONE_SECTION_Z, TITLE_TURN, parkLayoutOf, titleAt, titleInSky } from "../lib/parkLayout";
+import { sceneLayoutOf } from "../lib/coast";
+import { PARK, PHONE_SECTION_Z, TITLE_TURN, titleAt, titleInSky } from "../lib/parkLayout";
 import { PARK_LAYER, parkStats, useParkClock } from "../lib/parkMaterials";
 import { timeOfDay } from "../lib/timeOfDay";
 import ParkGarden from "./park/ParkGarden";
@@ -23,7 +24,7 @@ export const ContactSection = () => {
   // Rounded, so the park rebuilds only when the aspect really changes; the
   // ground, the garden and the props read it from here
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
-  const key = parkLayoutOf(isMobile, aspect);
+  const key = sceneLayoutOf(isMobile, aspect);
   const park = PARK[key];
   const camera = useThree((state) => state.camera);
   useEffect(() => {

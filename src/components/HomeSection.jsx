@@ -3,7 +3,7 @@ import { useThree } from "@react-three/fiber";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
-import { PALM_Z, dryX, layoutOf } from "../lib/coast";
+import { PALM_Z, dryX, layoutOf, sceneLayoutOf } from "../lib/coast";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { MacBookPro } from "./MacBookPro";
 import { PalmTree } from "./PalmTree";
@@ -185,14 +185,9 @@ const CAP = 1.01;
 // sunset light on it, outlines each letter in terracotta
 const PHONE_TITLE = { color: "#ffcda0", envMapIntensity: 0.3, bevelSize: 0.04 };
 
-// An upright screen past the breakpoint (an iPad Pro held upright) has
-// the desktop's avatar, big in the middle, and the menu's logo top left:
-// its palms, laptop and title keep clear of both
-const spotOf = (isMobile, layout) => (!isMobile && layout === "portrait" ? "tall" : layout);
-
 const palmLayout = (isMobile, aspect) => {
   const layout = layoutOf(isMobile, aspect);
-  const spot = spotOf(isMobile, layout);
+  const spot = sceneLayoutOf(isMobile, aspect);
   return PALMS[spot].map(({ inland = 0, foot, ...spec }, i) => {
     const z = PALM_Z[layout][i];
     const scale = spec.scale * SIZE[spot];
@@ -208,11 +203,10 @@ export const HomeSection = ({ revealed }) => {
   const { isMobile, prefersReducedMotion } = useMobile();
   // Rounded, so the palms rebuild only when the aspect really changes
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
-  const layout = layoutOf(isMobile, aspect);
   const palms = useMemo(() => palmLayout(isMobile, aspect), [isMobile, aspect]);
   // The dry line's x at depth z, where the beach dressing ends
   const dry = useMemo(() => (z) => dryX(z, isMobile, aspect), [isMobile, aspect]);
-  const spot = spotOf(isMobile, layout);
+  const spot = sceneLayoutOf(isMobile, aspect);
   const laptop = useMemo(() => laptopOf(spot, aspect), [spot, aspect]);
   // The title's width and height at scale 1, measured once its font loads
   // (hidden until then)

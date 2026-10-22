@@ -2,7 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
-import { coastX, dryX, layoutOf } from "../lib/coast";
+import { coastX, dryX, layoutOf, sceneLayoutOf } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
 
 // Two seashells, a starfish, two crabs and a sea turtle on the Home beach, in
@@ -104,7 +104,7 @@ const CREATURES = {
     { kind: TURTLE, z: 1.3, range: [1.15, 1.45], first: 5 },
   ],
 };
-const creatureList = (isMobile, aspect) => CREATURES[isMobile ? "mobile" : layoutOf(isMobile, aspect) === "portrait" ? "tall" : "desktop"];
+const creatureList = (isMobile, aspect) => CREATURES[isMobile ? "mobile" : sceneLayoutOf(isMobile, aspect)];
 // Phones, either way round: one more crab, standing in the sand beside
 // BeachProps' sandcastle (TOYS castle), facing the viewer a little off
 // square: where it stands as a screen fraction [x from the left, y from the

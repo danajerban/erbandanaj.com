@@ -1,6 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from "three";
 import { byAspect } from "./aspectRows.js";
-import { layoutOf } from "./coast.js";
 import { createRandom } from "./lowPoly.js";
 
 // The night park on Contact: every layout number in one place, so tuning the
@@ -10,14 +9,6 @@ import { createRandom } from "./lowPoly.js";
 // the pure lib modules only), so node can import it: scripts/check-park-layout.mjs runs
 // the overlap check on these numbers, and the moon gate is checked against
 // the same table outside the repo.
-
-// The layout key: Home's composition by the screen's shape (aspect rounded to
-// 0.01, as HomeSection reads it), and an upright screen past the breakpoint
-// (an iPad Pro held upright) is "tall" — the same keys as the moon's (timeOfDay).
-export const parkLayoutOf = (isMobile, aspect) => {
-  const layout = layoutOf(isMobile, Math.round(aspect * 100) / 100);
-  return !isMobile && layout === "portrait" ? "tall" : layout;
-};
 
 // Details whose smallest side drops under 3 CSS px on a phone are left out
 // or thickened there: composition, not MOBILE_PERF. fine: the door knobs

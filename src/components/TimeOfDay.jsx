@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import { Color, MathUtils } from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
-import { layoutOf } from "../lib/coast";
+import { sceneLayoutOf } from "../lib/coast";
 import { HOME_FOG } from "../lib/sky";
 import { moonAt, timeOfDay } from "../lib/timeOfDay";
 import { SilentErrorBoundary } from "./ErrorBoundary";
@@ -131,8 +131,7 @@ export default function TimeOfDay() {
   const scene = useThree((state) => state.scene);
   // Rounded as in HomeSection, so the layout key flips only on a real change
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
-  const shape = layoutOf(isMobile, aspect);
-  const layout = !isMobile && shape === "portrait" ? "tall" : shape;
+  const layout = sceneLayoutOf(isMobile, aspect);
   const objects = useRef({});
   const last = useRef(-1);
   const dom = useRef({ layers: [], op: "", bar: "", mode: "" });

@@ -33,6 +33,14 @@ const COAST_DEEP_Z = -4.5;
 // of the breakpoint (an iPad Pro held upright is past it), a wide one the
 // desktop one, or on mobile the landscape one
 export const layoutOf = (isMobile, aspect) => (aspect > 1 ? (isMobile ? "landscape" : "desktop") : "portrait");
+// The layout key the scene's parts are keyed by: layoutOf, and an upright
+// screen past the breakpoint (an iPad Pro held upright) is "tall": it has
+// the desktop's avatar, big in the middle, and the menu's logo top left,
+// which its palms, laptop, titles and moon keep clear of
+export const sceneLayoutOf = (isMobile, aspect) => {
+  const layout = layoutOf(isMobile, aspect);
+  return !isMobile && layout === "portrait" ? "tall" : layout;
+};
 // Home-local z of each palm's foot (HomeSection), by layout: the sand point
 // runs along them, and falls away over POINT_WIDTH (in log-depth) beyond
 export const PALM_Z = {

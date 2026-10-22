@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { layoutOf } from "../coast";
 
 // The office: Skills and Projects are two corners of one small room, each
 // built in its own room frame (y = 0 the floor, +z toward the camera, x = 0
@@ -22,13 +21,6 @@ export const SLAB = 0.14; // floor slab thickness
 // The open hallway arch at room x 0 in both back walls: jambs to `spring`,
 // a semicircular head up to `top`
 export const ARCH = { x: 0.45, spring: 1.65, top: 2.1 };
-
-// Layout key: lib/coast's layoutOf, and an upright screen past the
-// breakpoint (an iPad held upright) is "tall" (HomeSection's rule)
-export const officeLayout = (isMobile, aspect) => {
-  const layout = layoutOf(isMobile, aspect);
-  return !isMobile && layout === "portrait" ? "tall" : layout;
-};
 
 // Phone portrait only: the desk group (desk, its items, monitor, desk lamp,
 // desk glow, the screen, the desk lights) and the snake plant scale about

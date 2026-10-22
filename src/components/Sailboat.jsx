@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
-import { layoutOf } from "../lib/coast";
+import { sceneLayoutOf } from "../lib/coast";
 import { TriangleSink, glslSrgb } from "../lib/lowPoly";
 
 // A small low-poly sloop far out on the sunset sea on Home: a terracotta
@@ -43,13 +43,13 @@ const { DISSOLVE_START: LEAVE_START, DISSOLVE_END: LEAVE_END } = ANIMATION_CONST
 const CAMERA_Z = 5;
 const CAMERA_HEIGHT = 1.5;
 
-// Where it sails, by composition (HomeSection's: an upright screen past the
-// breakpoint is "tall"): x, the middle of its hull as a screen fraction from
-// the left; depth, its distance down the floor from the camera; size, its
-// length as a fraction of the screen's height; haze, how far its colours
-// lean toward the sky over the far water. The mast (MAST, in lengths)
-// stays under the eye-level horizon, and on upright and sideways screens the
-// masthead stays below the nearest dolphin's water line (Dolphin's SPOT).
+// Where it sails, by composition (lib/coast sceneLayoutOf): x, the middle of
+// its hull as a screen fraction from the left; depth, its distance down the
+// floor from the camera; size, its length as a fraction of the screen's
+// height; haze, how far its colours lean toward the sky over the far water.
+// The mast (MAST, in lengths) stays under the eye-level horizon, and on
+// upright and sideways screens the masthead stays below the nearest dolphin's
+// water line (Dolphin's SPOT).
 const SPOT = {
   desktop: { x: 0.735, depth: 45, size: 0.035, haze: 0.3 },
   landscape: { x: 0.735, depth: 12.5, size: 0.06, haze: 0.12 },
@@ -274,8 +274,7 @@ export default function Sailboat({ sun }) {
   const camera = useThree((state) => state.camera);
   const size = useThree((state) => state.size);
   const aspect = size.width / size.height;
-  const layout = layoutOf(isMobile, aspect);
-  const spot = SPOT[!isMobile && layout === "portrait" ? "tall" : layout];
+  const spot = SPOT[sceneLayoutOf(isMobile, aspect)];
   const mesh = useMemo(createBoat, []);
   const scroll = useScroll();
   const ready = useRef(false);

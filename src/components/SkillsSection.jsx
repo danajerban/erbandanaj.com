@@ -1,7 +1,8 @@
 import { useThree } from "@react-three/fiber";
 import { getSectionsDistance } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
-import { OFFICE_LAYER, TITLE_TURN, officeLayout, titleAt } from "../lib/office/layout";
+import { sceneLayoutOf } from "../lib/coast";
+import { OFFICE_LAYER, TITLE_TURN, titleAt } from "../lib/office/layout";
 import { buildReadingCorner, READING_LIGHTS } from "../lib/office/readingCorner";
 import { OfficeCorner } from "./OfficeCorner";
 import { SectionGroup } from "./SectionGroup";
@@ -13,7 +14,7 @@ export const SkillsSection = () => {
   const { isMobile } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
-  const layout = officeLayout(isMobile, aspect);
+  const layout = sceneLayoutOf(isMobile, aspect);
   const height = useThree((state) => state.size.height);
   return (
     <SectionGroup

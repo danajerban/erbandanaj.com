@@ -2,9 +2,10 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
+import { sceneLayoutOf } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
 import { KEY } from "../lib/office/bake";
-import { BACK, FRONT_Z, OFFICE_LAYER, WINDOW, officeLayout, place } from "../lib/office/layout";
+import { BACK, FRONT_Z, OFFICE_LAYER, WINDOW, place } from "../lib/office/layout";
 import { createOfficeMaterials, officeLight } from "../lib/office/materials";
 import { buildRoom } from "../lib/office/room";
 import { GlowSink, LaceSink, OfficeSink } from "../lib/office/sink";
@@ -57,7 +58,7 @@ export const OfficeCorner = ({ corner, lights, build, children }) => {
   const camera = useThree((state) => state.camera);
   // Rounded, so the room rebuilds only when the layout really changes
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
-  const layout = officeLayout(isMobile, aspect);
+  const layout = sceneLayoutOf(isMobile, aspect);
   const group = useRef();
 
   const materials = useMemo(() => {

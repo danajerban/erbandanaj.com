@@ -2,6 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { Suspense, useMemo } from "react";
 import { getSectionsDistance } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
+import { sceneLayoutOf } from "../lib/coast";
 import { buildOfficeChair } from "../lib/office/chair";
 import { buildBackpack, buildDesk, DESK_LIGHTS } from "../lib/office/desk";
 import {
@@ -12,7 +13,6 @@ import {
   WARDROBE,
   chairAt,
   monitorScreen,
-  officeLayout,
   snakePlantAt,
   titleAt,
   transformLights,
@@ -51,7 +51,7 @@ export const ProjectsSection = () => {
   const { isMobile } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
   const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
-  const layout = officeLayout(isMobile, aspect);
+  const layout = sceneLayoutOf(isMobile, aspect);
   const height = useThree((state) => state.size.height);
   const lights = useMemo(() => transformLights(DESK_LIGHTS, vignetteMatrix(layout)), [layout]);
   return (

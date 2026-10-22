@@ -7,12 +7,12 @@ import { byAspect } from "./aspectRows.js";
 // modules import this file, so it stays off the path to the first frame.
 // Until <TimeOfDay> runs, every field holds its Home value.
 
-// The moon's centre in screen fractions, by layout (the HomeSection keys: an
-// upright screen past the breakpoint is "tall") and aspect. Phones: per
-// layout. Desktop and tall: [aspect, x, y] rows, linear between, held at
-// the ends: upright screens high and left of the corner; squarish ones high,
-// above the near lamp posts and below the menu; wide ones over the pond;
-// very wide ones further left, clear of the far tree.
+// The moon's centre in screen fractions, by layout (lib/coast sceneLayoutOf)
+// and aspect. Phones: per layout. Desktop and tall: [aspect, x, y] rows,
+// linear between, held at the ends: upright screens high and left of the
+// corner; squarish ones high, above the near lamp posts and below the menu;
+// wide ones over the pond; very wide ones further left, clear of the far
+// tree.
 const MOON_PHONE = { portrait: [0.76, 0.17], landscape: [0.87, 0.2] };
 const MOON_DESKTOP = [
   [0.75, 0.82, 0.12],
