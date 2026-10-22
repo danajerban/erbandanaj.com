@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { PHONE_TITLE_OVERHEAD_BELOW } from "../coast";
 
 // The office: Skills and Projects are two corners of one small room, each
 // built in its own room frame (y = 0 the floor, +z toward the camera, x = 0
@@ -175,9 +176,10 @@ export const PRINT = { x: -0.76, y: 1.36, w: 0.26, h: 0.34 };
 // (index.css), so on phones the room a title has above them goes by the
 // canvas's height (CSS px; in iOS Safari the large viewport, about 120 px
 // less than the screen: an iPhone SE 589, a mini 704, a 402x874 iPhone
-// 754). On a phone held upright shorter than PORTRAIT_OVERHEAD (the SE and
-// 16:9 Android phones) the floor in front of the avatar lies under the
-// card, so both titles hang overhead instead: above the avatar's hat,
+// 754). On a phone held upright shorter than lib/coast
+// PHONE_TITLE_OVERHEAD_BELOW (the SE and 16:9 Android phones) the floor in
+// front of the avatar lies under the card, so both titles hang overhead
+// instead: above the avatar's hat,
 // under the menu, and clear of the moon (lib/timeOfDay moonAt). From the mini
 // up the floor spot clears the card. A tablet in
 // the phone UI (768x1024 and up) has a wide stretch of bare floor between
@@ -208,14 +210,13 @@ const TITLE_AT = {
     lowLandscape: [-5.2, 0.85, -0.6],
   },
 };
-const PORTRAIT_OVERHEAD = 680;
 const TABLET = { aspect: [0.5, 0.69], height: [830, 1024] };
 const LOW_LANDSCAPE = [393, 320];
 // height: the canvas's CSS height
 export const titleAt = (corner, layout, aspect, height) => {
   const spots = TITLE_AT[corner];
   if (layout === "portrait") {
-    if (height < PORTRAIT_OVERHEAD) return spots.overhead;
+    if (height < PHONE_TITLE_OVERHEAD_BELOW) return spots.overhead;
     return mix(spots.portrait, spots.tablet, Math.min(ramp(aspect, TABLET.aspect), ramp(height, TABLET.height)));
   }
   if (layout === "landscape") return mix(spots.landscape, spots.lowLandscape, ramp(height, LOW_LANDSCAPE));

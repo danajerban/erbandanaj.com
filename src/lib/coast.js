@@ -43,6 +43,12 @@ export const sceneLayoutOf = (isMobile, aspect) => {
   const layout = layoutOf(isMobile, aspect);
   return !isMobile && layout === "portrait" ? "tall" : layout;
 };
+// A phone held upright with a canvas shorter than this (CSS px: the iPhone
+// SE and 16:9 Android phones; a mini and taller are not) has its section
+// cards over the floor in front of the avatar, so the SKILLS, PROJECTS and
+// CONTACT titles hang overhead instead (lib/office/layout titleAt,
+// lib/parkLayout titleInSky)
+export const PHONE_TITLE_OVERHEAD_BELOW = 680;
 // Home-local z of each palm's foot (HomeSection), by layout: the sand point
 // runs along them, and falls away over POINT_WIDTH (in log-depth) beyond
 export const PALM_Z = {

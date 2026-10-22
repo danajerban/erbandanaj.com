@@ -1,6 +1,7 @@
 import { CatmullRomCurve3, Vector3 } from "three";
 import { byAspect } from "./aspectRows.js";
 import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN } from "./camera.js";
+import { PHONE_TITLE_OVERHEAD_BELOW } from "./coast.js";
 import { createRandom } from "./lowPoly.js";
 
 // The night park on Contact: every layout number in one place, so tuning the
@@ -341,7 +342,7 @@ const TITLE_DESKTOP = [
   [1.45, -2.35, 0.5, 1],
 ];
 const TITLE_PHONE = {
-  portrait: { lawn: [-1.1, 0, 0.5], sky: [-1.6, 2.9, -2], skyBelow: 680 },
+  portrait: { lawn: [-1.1, 0, 0.5], sky: [-1.6, 2.9, -2], skyBelow: PHONE_TITLE_OVERHEAD_BELOW },
   landscape: { lawn: [-1.1, 0, 0.5], sky: [-3.5, 2.3, -1], skyBelow: 380 },
 };
 export const titleInSky = (layout, height) => isPhone(layout) && height < TITLE_PHONE[layout].skyBelow;
