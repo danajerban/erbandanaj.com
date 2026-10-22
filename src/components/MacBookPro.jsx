@@ -14,9 +14,10 @@ export function MacBookPro(props) {
   // A silver MacBook Pro: neutral aluminium (mat16, also on the underside
   // below) that the sunset light warms by itself, and a glass trackpad
   // (mat17: smooth, a faint reflection). mat17's base primitive also holds
-  // the front notch and the speaker grilles, whose triangles come last
-  // (indices 300 on): a second group draws them in aluminium. Settings only,
-  // on the cached GLTF (the model has a single instance).
+  // the front notch, drawn as glass with the trackpad, and the side speaker
+  // grilles, whose 24 triangles come last (indices 300 on): a second group
+  // draws them in aluminium. Settings only, on the cached GLTF (the model has
+  // a single instance).
   useLayoutEffect(() => {
     const { mat16: aluminium, mat17: glass } = materials;
     aluminium.color.set("#c9cbce");
