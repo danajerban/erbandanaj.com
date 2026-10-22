@@ -207,6 +207,9 @@ const useCarousel = (enabled, onChange) => {
       if (!frame) frame = requestAnimationFrame(read);
     };
     el.addEventListener("scroll", onScroll, { passive: true });
+    // Turned back on (a tablet rotated through the desktop grid): the scroll
+    // position may have moved without a scroll event
+    read();
     return () => {
       el.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(frame);
