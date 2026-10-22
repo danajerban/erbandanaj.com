@@ -10,8 +10,8 @@ import { PALETTE } from "./bake";
 // uniforms in onBeforeCompile.
 
 // Room ambient: the afterglow's warm white, then blue hour's light cool
-export const AFTERGLOW = new THREE.Color("#fff0e4");
-export const ROOM_BLUE = new THREE.Color("#d6d6e6");
+const AFTERGLOW = new THREE.Color("#fff0e4");
+const ROOM_BLUE = new THREE.Color("#d6d6e6");
 
 const inject = (source, chunk, code) => source.replace(`#include <${chunk}>`, `$&\n${code}`);
 
