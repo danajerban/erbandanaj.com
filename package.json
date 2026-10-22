@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Interactive 3D portfolio built with React, Three.js (R3F), and Vite.",
-  "homepage": "https://www.erbandanaj.com",
+  "homepage": "https://www.erbandanaj.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/danajerban/erbandanaj.com.git"
