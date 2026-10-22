@@ -5,9 +5,9 @@
   --primary-color: #4668ee;
   /* Sunset over a coral coast: dusty rose overhead settling to the rose-peach
      base, with the sun's deep red warmth spread along the horizon round the
-     3D sun (--scene-sun-x/-y mirror SUN_SCREEN in Experience.jsx, and
-     --scene-sun-rx/-ry scale with its SUN_SCALE; the mobile block below
-     moves them). The index.html splash repeats the resolved gradient as
+     3D sun (--scene-sun-x/-y mirror SUN_SCREEN in src/lib/sky.js, and
+     --scene-sun-rx/-ry scale with Experience.jsx's SUN_SCALE; the mobile
+     block below moves them). The index.html splash repeats the resolved gradient as
      literals — it paints before this file arrives — so change the two
      together. */
   --scene-sky-color: #efc5b8;
