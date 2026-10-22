@@ -3,6 +3,7 @@ import { useThree } from "@react-three/fiber";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
+import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN, PITCH } from "../lib/camera";
 import { PALM_Z, dryX, layoutOf, sceneLayoutOf } from "../lib/coast";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { MacBookPro } from "./MacBookPro";
@@ -108,17 +109,13 @@ const TITLE = {
   portrait: { at: [0.5, 0.145], depth: 8, box: [0.924, 0.121] },
   tall: { at: [0.5, 0.155], depth: 8, box: [0.858, 0.11] },
 };
-// Camera: SceneCanvas (position [0, 0.5, 5], fov 42, looking at the
-// origin), so Home-local at (0, 1.5, 5), pitched down toward (0, 1, 0)
-const HALF_FOV_TAN = Math.tan((21 * Math.PI) / 180);
-const PITCH = Math.atan(0.1);
-// Home-local point at a screen fraction, `depth` down the view
+// Home-local point at a screen fraction, `depth` down the view (lib/camera)
 const onScreen = ([fx, fy], depth, aspect) => {
   const up = (1 - 2 * fy) * HALF_FOV_TAN * depth;
   return [
     (2 * fx - 1) * HALF_FOV_TAN * aspect * depth,
-    1.5 - depth * Math.sin(PITCH) + up * Math.cos(PITCH),
-    5 - depth * Math.cos(PITCH) - up * Math.sin(PITCH),
+    CAMERA_HEIGHT - depth * Math.sin(PITCH) + up * Math.cos(PITCH),
+    CAMERA_Z - depth * Math.cos(PITCH) - up * Math.sin(PITCH),
   ];
 };
 // The menu over the title, in CSS px (index.css .menu): on phones the
@@ -160,7 +157,7 @@ const titlePlacement = (spot, aspect, height, size) => {
     }
   }
   const position = onScreen([fx, fy], depth, aspect);
-  const [dx, dy, dz] = [-position[0], 1.5 - position[1], 5 - position[2]];
+  const [dx, dy, dz] = [-position[0], CAMERA_HEIGHT - position[1], CAMERA_Z - position[2]];
   return {
     position,
     rotation: [-Math.asin(dy / Math.hypot(dx, dy, dz)), Math.atan2(dx, dz), 0, "YXZ"],
@@ -194,7 +191,7 @@ const palmLayout = (isMobile, aspect) => {
     const x =
       foot === undefined
         ? dryX(z, isMobile, aspect) - (FOOT_MARGIN + inland) * scale
-        : (foot - 0.5) * 2 * HALF_FOV_TAN * aspect * (5 - z);
+        : (foot - 0.5) * 2 * HALF_FOV_TAN * aspect * (CAMERA_Z - z);
     return { ...spec, x, z, scale };
   });
 };

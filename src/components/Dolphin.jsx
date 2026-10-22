@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
+import { CAMERA_HEIGHT, CAMERA_Z } from "../lib/camera";
 import { layoutOf } from "../lib/coast";
 import { createRandom, glslLinear, glslSrgb } from "../lib/lowPoly";
 import { SCENE_VISIBLE_MARK } from "../lib/sceneVisible";
@@ -66,11 +67,6 @@ const LEAP_SECONDS = [1.2, 1.6];
 // Leaving Home: over this span of the scroll toward Skills (in sections) it
 // fades out, with the section and the sea
 const { DISSOLVE_START: LEAVE_START, DISSOLVE_END: LEAVE_END } = ANIMATION_CONSTANTS;
-
-// Camera: SceneCanvas (position [0, 0.5, 5]; its group, and so the floor,
-// sits at y = -1)
-const CAMERA_Z = 5;
-const CAMERA_HEIGHT = 1.5;
 
 // Where they leap, by layout (lib/coast layoutOf): band, the stretch of the
 // screen (fractions from the left) the dolphins keep to, each leap somewhere

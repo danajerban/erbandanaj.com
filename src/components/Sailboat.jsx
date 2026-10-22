@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
+import { CAMERA_HEIGHT, CAMERA_Z } from "../lib/camera";
 import { sceneLayoutOf } from "../lib/coast";
 import { TriangleSink, glslSrgb } from "../lib/lowPoly";
 
@@ -38,10 +39,6 @@ import { TriangleSink, glslSrgb } from "../lib/lowPoly";
 const LAYER = 12;
 const FADE_SECONDS = 2.5;
 const { DISSOLVE_START: LEAVE_START, DISSOLVE_END: LEAVE_END } = ANIMATION_CONSTANTS;
-// Camera: SceneCanvas (position [0, 0.5, 5]; its group, and so the floor,
-// sits at y = -1)
-const CAMERA_Z = 5;
-const CAMERA_HEIGHT = 1.5;
 
 // Where it sails, by composition (lib/coast sceneLayoutOf): x, the middle of
 // its hull as a screen fraction from the left; depth, its distance down the

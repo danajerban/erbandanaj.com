@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
-import { layoutOf } from "../lib/coast";
+import { CAMERA_HEIGHT, CAMERA_Z } from "../lib/camera";
+import { D_NEAR, layoutOf } from "../lib/coast";
 import { TriangleSink, createRandom } from "../lib/lowPoly";
 
 // Beach dressing on Home: a band of golden sand along the shore, from past
@@ -40,16 +41,13 @@ const FADE_SECONDS = 1.2;
 // Skills (in sections; ANIMATION_CONSTANTS DISSOLVE_START, DISSOLVE_END): the
 // sand goes with the water it borders, gone LEAVE_SAND of the way in
 const LEAVE_SAND = 0.35;
-// Camera: SceneCanvas (position [0, 0.5, 5], fov 42), 1.5 above the Home
-// floor
-const CAMERA_Z = 5;
 // How far apart two spots on the floor look on screen, in Home units across
 // at the first one's depth: across, the second one's x shrinks with its
-// distance; in depth, seen this low, a step shows 1.5 / distance as long as
-// a step across
+// distance; in depth, seen this low (lib/camera), a step shows CAMERA_HEIGHT
+// / distance as long as a step across
 const onScreen = (x1, z1, x2, z2) => {
   const [d1, d2] = [CAMERA_Z - z1, CAMERA_Z - z2];
-  return Math.hypot(x1 - (x2 * d1) / d2, (1.5 * (z1 - z2)) / d2);
+  return Math.hypot(x1 - (x2 * d1) / d2, (CAMERA_HEIGHT * (z1 - z2)) / d2);
 };
 
 // The band, in Home units at prop size 1 (smaller on mobile): its least
@@ -64,12 +62,12 @@ const BAND_TAPER = 5;
 const LAND_FADE = 0.45;
 const BERM = 0.02;
 // Rows along the shore: from where the sea holds its shore line straight
-// toward the camera (Sea D_NEAR, just below the bottom of the screen) up the
-// screen in even steps (in 1 / distance), but never further apart than
+// toward the camera (lib/coast D_NEAR, just below the bottom of the screen)
+// up the screen in even steps (in 1 / distance), but never further apart than
 // ROW_STEP, so the outline follows the sand point. Desktop: Home slides away
 // along z as the visitor leaves, so the band runs on toward (and behind) the
 // camera, straight like the sea's shore there, and fades out at its end.
-const NEAR_Z = CAMERA_Z - 2.2;
+const NEAR_Z = CAMERA_Z - D_NEAR;
 const ROW_SCREEN = 0.012;
 const ROW_STEP = 0.4;
 const SLIDE_ROWS = [4.2, 5.6, 7, 8.4];

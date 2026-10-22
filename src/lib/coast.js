@@ -1,3 +1,5 @@
+import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN, PITCH } from "./camera.js";
+
 // Home island shoreline, shared by the sea and everything on the beach, and
 // the screen-shape rule (layoutOf) the scene lays out by. Home-local floor
 // coordinates: y = 0 is the floor, +z toward the camera; water lies where
@@ -63,9 +65,10 @@ export const SWASH = {
   edge: 0.004,
 };
 
-// Camera: SceneCanvas (position [0, 0.5, 5], fov 42)
-const CAMERA_Z = 5;
-const HALF_FOV_TAN = Math.tan((42 / 2) * (Math.PI / 180));
+// Distance from the camera (along -z) of the sea's nearest row (Sea), just
+// past the bottom of the screen: nearer than that the sea, and the sand band
+// along it (BeachDecor), hold the shore line straight
+export const D_NEAR = 2.2;
 // Distance from the camera (along -z) where the floor leaves the bottom of
 // the screen, and of the deepest point
 const FRONT_D = 3;
@@ -118,3 +121,12 @@ export const coastX = (z, isMobile, aspect) => {
 export const dryX = (z, isMobile, aspect) =>
   coastX(z, isMobile, aspect) -
   (SWASH.runup[isMobile ? "mobile" : "desktop"] + SWASH.edge) * screenWidth(depthOf(z), aspect);
+
+// The point [x, z] on the floor at a screen fraction [fx from the left, fy
+// from the top]; aspect: the canvas's width / height
+export const onSand = ([fx, fy], aspect) => {
+  const up = (1 - 2 * fy) * HALF_FOV_TAN;
+  const [rx, ry, rz] = [(2 * fx - 1) * HALF_FOV_TAN * aspect, up * Math.cos(PITCH) - Math.sin(PITCH), -Math.cos(PITCH) - up * Math.sin(PITCH)];
+  const along = -CAMERA_HEIGHT / ry;
+  return [rx * along, CAMERA_Z + rz * along];
+};

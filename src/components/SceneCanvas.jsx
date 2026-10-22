@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, lazy, useCallback, useState } from "react";
 import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
+import { CAMERA_FOV, CAMERA_POSITION } from "../lib/camera";
 import { HOME_FOG } from "../lib/sky";
 // Desktop only, mounted after the first visible frame: fps monitor + DPR
 // ladder (see DesktopQuality). Static import: it has no heavy dependency of
@@ -35,7 +36,7 @@ function SceneCanvas() {
   const onReveal = useCallback(() => setRevealed(true), []);
   return (
     <Canvas
-      camera={{ position: [0, 0.5, 5], fov: 42 }}
+      camera={{ position: CAMERA_POSITION, fov: CAMERA_FOV }}
       frameloop={frameloop}
       // MOBILE_PERF: limit DPR on mobile — revert by removing the ternary
       dpr={!isMobile && qualityDpr != null ? qualityDpr : [1, isMobile ? 1.5 : 2]}

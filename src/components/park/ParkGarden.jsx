@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
+import { HALF_FOV_TAN } from "../../lib/camera";
 import { createRandom } from "../../lib/lowPoly";
 import {
   RAILING_FRONT,
-  REST_HALF_FOV_TAN,
   dogAt,
   lanterns,
   lawnTufts,
@@ -233,7 +233,7 @@ const buildGarden = (park, layout, aspect, benchParts) => {
   // The railing runs across the view at its depth, past both screen edges
   // (and further left on phones, where the section slides in)
   const z = park.row.z + RAILING_FRONT;
-  const half = REST_HALF_FOV_TAN * (restEyeZ(layout) - z) * aspect + 0.5;
+  const half = HALF_FOV_TAN * (restEyeZ(layout) - z) * aspect + 0.5;
   railing(sink, park, -half - park.groundLeftExtra, half, random);
   // Origin at the content's centre: the near beds melt before the far row
   // (the lawn's small things below spread to the screen's bottom: they melt

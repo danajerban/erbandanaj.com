@@ -1,5 +1,6 @@
 import { CatmullRomCurve3, Vector3 } from "three";
 import { byAspect } from "./aspectRows.js";
+import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN } from "./camera.js";
 import { createRandom } from "./lowPoly.js";
 
 // The night park on Contact: every layout number in one place, so tuning the
@@ -383,25 +384,23 @@ export const avatarAt = (layout) => [0, isPhone(layout) ? -1 : 0];
 // The railing along the sidewalk stands this far in front of the facades
 export const RAILING_FRONT = 1.55;
 
-// The camera at Contact rest, Contact-local: the eye REST_EYE_Y above the
-// floor at restEyeZ (the camera's z 5 in SceneCanvas; on phones the section
+// The camera at Contact rest, Contact-local (lib/camera): the eye
+// CAMERA_HEIGHT above the floor at restEyeZ (CAMERA_Z; on phones the section
 // sits PHONE_SECTION_Z back, ContactSection), looking at the point 1 above
-// the floor 5 ahead; fov 42. project([x, y, z]) gives [fx, fy], the screen
+// the floor 5 ahead. project([x, y, z]) gives [fx, fy], the screen
 // fractions (0..1 from the top left).
 export const PHONE_SECTION_Z = -4;
-export const REST_EYE_Y = 1.5;
-export const restEyeZ = (layout) => 5 - (isPhone(layout) ? PHONE_SECTION_Z : 0);
-export const REST_HALF_FOV_TAN = Math.tan((21 * Math.PI) / 180);
+export const restEyeZ = (layout) => CAMERA_Z - (isPhone(layout) ? PHONE_SECTION_Z : 0);
 const REST_LOOK = Math.hypot(0.5, 5);
 export const restProjector = (layout, aspect) => {
   const ez = restEyeZ(layout);
   const [fy, fz] = [-0.5 / REST_LOOK, -5 / REST_LOOK];
   const [uy, uz] = [5 / REST_LOOK, -0.5 / REST_LOOK];
   return ([x, y, z]) => {
-    const [dy, dz] = [y - REST_EYE_Y, z - ez];
+    const [dy, dz] = [y - CAMERA_HEIGHT, z - ez];
     const depth = dy * fy + dz * fz;
     const up = dy * uy + dz * uz;
-    return [(x / (depth * REST_HALF_FOV_TAN * aspect) + 1) / 2, (1 - up / (depth * REST_HALF_FOV_TAN)) / 2];
+    return [(x / (depth * HALF_FOV_TAN * aspect) + 1) / 2, (1 - up / (depth * HALF_FOV_TAN)) / 2];
   };
 };
 
@@ -485,7 +484,7 @@ export const lawnTufts = (park, layout, aspect) => {
   for (let i = 0; i < park.tufts; i++) {
     const depth = 1 / (farInv + (nearInv - farInv) * random());
     const z = ez - (depth * REST_LOOK - 0.75) / 5;
-    const half = depth * REST_HALF_FOV_TAN * aspect;
+    const half = depth * HALF_FOV_TAN * aspect;
     const x = (random() * 2 - 1) * half;
     const at = [x, z];
     const seed = random();

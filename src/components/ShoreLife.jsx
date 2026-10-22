@@ -2,7 +2,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
-import { coastX, dryX, layoutOf, sceneLayoutOf } from "../lib/coast";
+import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN } from "../lib/camera";
+import { coastX, dryX, layoutOf, onSand, sceneLayoutOf } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
 
 // Two seashells, a starfish, two crabs and a sea turtle on the Home beach, in
@@ -34,22 +35,11 @@ import { createRandom } from "../lib/lowPoly";
 const SEED = 7;
 const LAYER = 3;
 const FADE_SECONDS = 1.2;
-// Camera: SceneCanvas (position [0, 0.5, 5], fov 42): the screen's height in
-// Home units at depth z
-const CAMERA_Z = 5;
-const screenHeightAt = (z) => 2 * Math.tan(THREE.MathUtils.degToRad(21)) * (CAMERA_Z - z);
-// The camera in Home-local coordinates (the Home group rests 1 below the
-// world origin), for turning the creatures toward the viewer
-const CAMERA_HOME = new THREE.Vector3(0, 1.5, CAMERA_Z);
-// Its tilt down toward (0, 1, 0) and half its vertical field
-const PITCH = Math.atan(0.1);
-const HALF_FOV_TAN = Math.tan(THREE.MathUtils.degToRad(21));
-// The point on the sand at a screen fraction
-const onSand = ([fx, fy], aspect) => {
-  const up = (1 - 2 * fy) * HALF_FOV_TAN;
-  const ray = V((2 * fx - 1) * HALF_FOV_TAN * aspect, up * Math.cos(PITCH) - Math.sin(PITCH), -Math.cos(PITCH) - up * Math.sin(PITCH));
-  return CAMERA_HOME.clone().addScaledVector(ray, -CAMERA_HOME.y / ray.y).setY(0);
-};
+// The screen's height in Home units at depth z (lib/camera)
+const screenHeightAt = (z) => 2 * HALF_FOV_TAN * (CAMERA_Z - z);
+// The camera in Home-local coordinates, for turning the creatures toward
+// the viewer
+const CAMERA_HOME = new THREE.Vector3(0, CAMERA_HEIGHT, CAMERA_Z);
 // How far short of the dry line the creatures (in every pose, shadows
 // included) and the dry-sand shell stay: a hundredth of the screen's width
 // or height at their depth, whichever is longer
@@ -841,7 +831,8 @@ const placeCreatures = (isMobile, aspect, palms, outlines) => {
   const byCastle = isMobile && CASTLE_CRAB[layoutOf(isMobile, aspect)];
   if (byCastle) {
     const [at, span] = byCastle;
-    const home = onSand(at, aspect);
+    const [x, z] = onSand(at, aspect);
+    const home = V(x, 0, z);
     const scale = span / CRAB_SPAN;
     const yaw = Math.atan2(CAMERA_HOME.x - home.x, CAMERA_HOME.z - home.z) - 0.3;
     // Clear of the wet sand

@@ -4,7 +4,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ANIMATION_CONSTANTS, getSectionsDistance } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
-import { SWASH, coastX } from "../lib/coast";
+import { CAMERA_Z } from "../lib/camera";
+import { D_NEAR, SWASH, coastX } from "../lib/coast";
 import { createRandom, glslSrgb } from "../lib/lowPoly";
 import { SUN_SCREEN } from "../lib/sky";
 
@@ -39,18 +40,15 @@ import { SUN_SCREEN } from "../lib/sky";
 const SEED = 11;
 const LAYER = 2;
 const FADE_SECONDS = 1.2;
-// Camera: SceneCanvas (position [0, 0.5, 5], looking at the origin)
-const CAMERA_Z = 5;
 // Half-width of the sun's glow along the horizon, in short sides of the
 // screen (the sun is sized by the short side), fitted to the CSS sky + sun
 // quad just above the water line
 const SUN_GLOW_WIDTH = { desktop: 0.4, mobile: 0.5 };
 
 // Rows run from just past the bottom of the screen (D = distance from the
-// camera along -z) to the horizon; a few more reach back under and behind
-// the camera, so the near edge stays out of sight while Home slides away
-// along z on desktop.
-const D_NEAR = 2.2;
+// camera along -z; lib/coast D_NEAR) to the horizon; a few more reach back
+// under and behind the camera, so the near edge stays out of sight while
+// Home slides away along z on desktop.
 const D_FAR = 900;
 const D_BEHIND = [-8, -2, 0.8];
 // Screen fraction drawn past the shore on the land side: room for the swash

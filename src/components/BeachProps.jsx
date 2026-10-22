@@ -2,7 +2,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
-import { dryX, layoutOf } from "../lib/coast";
+import { CAMERA_HEIGHT, CAMERA_Z } from "../lib/camera";
+import { dryX, layoutOf, onSand } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
 
 // Beach props around the laptop on Home, in the sunset palette: a striped
@@ -29,8 +30,8 @@ import { createRandom } from "../lib/lowPoly";
 const SEED = 9;
 const LAYER = 7;
 const FADE_SECONDS = 1.2;
-// Camera: SceneCanvas (position [0, 0.5, 5]), 1.5 above the Home floor
-const CAMERA = new THREE.Vector3(0, 1.5, 5);
+// The camera, Home-local (lib/camera)
+const CAMERA = new THREE.Vector3(0, CAMERA_HEIGHT, CAMERA_Z);
 
 // By layout (lib/coast layoutOf), in laptop units from the laptop's middle:
 // towel [x, z, turn]; sunglasses and earbuds [x, z, turn]; cooler
@@ -109,10 +110,6 @@ const TOYS = {
 const FOOTPRINT = [0.15, 0.065];
 const STRIDE = 0.3;
 const GAIT = 0.055;
-// The camera's tilt down toward (0, 1, 0) and half its vertical field
-// (SceneCanvas: fov 42)
-const PITCH = Math.atan(0.1);
-const HALF_FOV_TAN = Math.tan(THREE.MathUtils.degToRad(21));
 
 const hex = (c) => new THREE.Color(c);
 const TOWEL_STRIPES = ["#f6e6c8", "#ee6f57", "#f4a950", "#ee6f57", "#f6e6c8", "#6e3a5e"].map(hex);
@@ -489,17 +486,16 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
   const toys = isMobile && TOYS[layout];
   if (toys) {
     // The point on the sand at a screen fraction
-    const onSand = ([fx, fy]) => {
-      const up = (1 - 2 * fy) * HALF_FOV_TAN;
-      const ray = new THREE.Vector3((2 * fx - 1) * HALF_FOV_TAN * aspect, up * Math.cos(PITCH) - Math.sin(PITCH), -Math.cos(PITCH) - up * Math.sin(PITCH));
-      return CAMERA.clone().addScaledVector(ray, -CAMERA.y / ray.y).setY(0);
+    const sandAt = (at) => {
+      const [x, z] = onSand(at, aspect);
+      return new THREE.Vector3(x, 0, z);
     };
     const facing = (p) => Math.atan2(CAMERA.x - p.x, CAMERA.z - p.z);
 
     // Footprints: a walk along a smooth curve through the trail's spots,
     // from the dry line to the avatar's feet, left and right in turn, the
     // toes toward him; the older ones nearer the water fainter
-    const [from, via, to] = toys.trail.map(onSand);
+    const [from, via, to] = toys.trail.map(sandAt);
     from.setX(Math.min(from.x, dryX(from.z, isMobile, aspect) - FOOTPRINT[0] / 2));
     const along = (t) =>
       from
@@ -534,7 +530,7 @@ const buildProps = (laptop, isMobile, aspect, materials) => {
     // wall with a gate, battlements round the keep's top and a terracotta
     // pennant on a stick; turned a little off square to the camera
     const [castleAt, keep] = toys.castle;
-    const c = onSand(castleAt);
+    const c = sandAt(castleAt);
     // Its mound clear of the wet sand
     c.setX(Math.min(c.x, dryX(c.z, isMobile, aspect) - 1.45 * keep));
     const castle = matrixOf(c.x, 0, c.z, facing(c) - 0.35, keep);

@@ -1,7 +1,8 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { HOUSES, REST_EYE_Y, cafeWindow, houseSpans, pathCurve, restEyeZ } from "../../lib/parkLayout";
+import { CAMERA_HEIGHT } from "../../lib/camera";
+import { HOUSES, cafeWindow, houseSpans, pathCurve, restEyeZ } from "../../lib/parkLayout";
 import { LANTERN_WARMTH, PARK_LAYER, parkGroundMaterial } from "../../lib/parkMaterials";
 
 // The park's ground: one mesh of RGBA vertex colours, drawn first among the
@@ -197,8 +198,8 @@ const buildGround = (park, layout, aspect, camera) => {
   const forward = camera.getWorldDirection(new THREE.Vector3());
   const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   const ez = restEyeZ(layout);
-  const depthOf = (z) => -REST_EYE_Y * forward.y + (z - ez) * forward.z;
-  const zOf = (depth) => ez + (depth + REST_EYE_Y * forward.y) / forward.z;
+  const depthOf = (z) => -CAMERA_HEIGHT * forward.y + (z - ez) * forward.z;
+  const zOf = (depth) => ez + (depth + CAMERA_HEIGHT * forward.y) / forward.z;
   const halfWidth = (z) => depthOf(z) * tan * aspect;
   const nearInv = 1 / depthOf(front);
   const farInv = 1 / depthOf(back);
