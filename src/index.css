@@ -1113,8 +1113,8 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     border-radius: 8px;
   }
 
-  /* Three lines at most at 393px, so the carousel (as tall as its tallest
-     card) keeps clear of the PROJECTS letters */
+  /* Tighter lines keep the carousel (as tall as its tallest card) short,
+     clear of the PROJECTS letters */
   .project__details__description {
     line-height: 1.3;
   }
