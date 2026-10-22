@@ -186,14 +186,12 @@ export default function TimeOfDay() {
     objects.current = found;
     last.current = -1;
     return () => {
-      timeOfDay.t = 0;
       apply(0, scene, found);
     };
   }, [scene, isMobile]);
 
   useFrame(() => {
     const t = MathUtils.clamp(scroll.offset * (scroll.pages - 1), 0, 3);
-    timeOfDay.t = t;
     const k = Math.min(Math.floor(t), 2);
     const s = k + MathUtils.smoothstep(t - k, HOLD, 1 - HOLD);
     if (s === last.current) return;

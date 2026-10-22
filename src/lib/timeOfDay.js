@@ -29,8 +29,7 @@ const MOON_DESKTOP = [
 export const moonAt = (layout, aspect) => MOON_PHONE[layout] ?? byAspect(MOON_DESKTOP, aspect);
 
 export const timeOfDay = {
-  t: 0, // section position, clamped to 0..3
-  s: 0, // eased t: holds still around each section's rest
+  s: 0, // eased section position (0..3): holds still around each section's rest
   night: 0, // s / 3
   lamps: 0, // lamp bulbs, windows, string lights: 0, 0.5, 1, 1 at the rests
   stars: 0, // 0, 0, 0.15, 1 at the rests
