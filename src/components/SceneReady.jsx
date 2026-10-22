@@ -1,19 +1,20 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { hideInitialLoader } from "../lib/initialLoader";
-import { prewarm, whenSectionsWarm } from "../lib/prewarm";
+import { prewarm, prewarmContactShadows, whenSectionsWarm } from "../lib/prewarm";
 
 // Mounts inside the splash-gate <Suspense> boundary, so it runs only once
 // every gated asset (GLBs, environment HDR, Home title font) is live.
 //
 // The canvas frameloop is "never" until then. Before the first visible frame
 // the whole scene is pre-warmed while the splash still covers it: shader
-// programs compile off the main thread and textures upload, then two frames
-// are advanced under the splash for whatever only a draw can warm (GPU
-// pipeline state, the contact-shadow depth pass, geometry buffers). Only then
-// does the loop start, and the first frame it renders is the one that reveals
-// the scene. Every pre-warm is bounded and never rejects (lib/prewarm), so
-// this always fires within that bound — well inside the splash failsafe.
+// programs (the contact shadows' too) compile off the main thread and
+// textures upload, then two frames are advanced under the splash for
+// whatever only a draw can warm (GPU pipeline state, the contact-shadow
+// depth pass, geometry buffers). Only then does the loop start, and the
+// first frame it renders is the one that reveals the scene. Every pre-warm
+// is bounded and never rejects (lib/prewarm), so this always fires within
+// that bound — well inside the splash failsafe.
 
 export const SceneReady = ({ onWarm, onReveal }) => {
   const get = useThree((state) => state.get);
@@ -23,7 +24,7 @@ export const SceneReady = ({ onWarm, onReveal }) => {
   useEffect(() => {
     let live = true;
     const { gl, scene, camera, advance } = get();
-    prewarm(gl, scene, camera, scene)
+    Promise.all([prewarmContactShadows(gl, scene, camera), prewarm(gl, scene, camera, scene)])
       .then(whenSectionsWarm)
       .then(() => {
         if (!live) return;

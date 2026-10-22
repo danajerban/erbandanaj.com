@@ -5,6 +5,9 @@
 // at the first draw call, not at link time) and geometry buffers — sections
 // handle those with one hidden draw (see SectionGroup).
 
+import { Color, Group, Mesh, MeshDepthMaterial, PlaneGeometry, ShaderMaterial, WebGLRenderTarget } from "three";
+import { HorizontalBlurShader, VerticalBlurShader } from "three-stdlib";
+
 const pending = new Map();
 
 const initTextures = (gl, object) => {
@@ -24,10 +27,8 @@ const initTextures = (gl, object) => {
 // the content still renders, it just compiles on its first visible frame.
 const WARM_TIMEOUT_MS = 10000;
 
-// `targetScene` supplies the fog and environment, so the programs compiled here
-// are the ones the real render uses. Never rejects; resolves after success,
-// failure, or the bound.
-export const prewarm = (gl, object, camera, targetScene, label = "Scene") => {
+// Never rejects; resolves after success, failure, or the bound.
+const bounded = (work, label) => {
   let timer;
   const timeout = new Promise((resolve) => {
     timer = window.setTimeout(() => {
@@ -35,10 +36,75 @@ export const prewarm = (gl, object, camera, targetScene, label = "Scene") => {
       resolve();
     }, WARM_TIMEOUT_MS);
   });
-  const compile = gl.compileAsync(object, camera, targetScene).then(() => initTextures(gl, object));
-  return Promise.race([compile, timeout])
+  return Promise.race([work, timeout])
     .catch((error) => console.error(`${label} pre-warm failed:`, error))
     .finally(() => window.clearTimeout(timer));
+};
+
+// `targetScene` supplies the fog and environment, so the programs compiled here
+// are the ones the real render uses.
+export const prewarm = (gl, object, camera, targetScene, label = "Scene") =>
+  bounded(gl.compileAsync(object, camera, targetScene).then(() => initTextures(gl, object)), label);
+
+// drei's ContactShadows draws the scene through its own depth material and
+// blurs the result with two shader passes. Those programs are not in the scene
+// graph, so compileAsync never sees them, and the first frame used to link
+// them on the main thread (about 1.4 s on a cold phone GPU). Their GLSL is
+// compiled here in parallel with the scene's instead: the blurs with the same
+// shaders and the same (light-free) state, so drei's passes reuse these very
+// programs; the depth pass through a stand-in that writes the same GLSL —
+// drei's material is private, so three gives it programs of its own, but the
+// GPU's shader cache hands back the compiled code, and the stand-in's programs
+// are released once that is done. The two strings are drei 10.7.8's
+// ContactShadows edits, verbatim; if they drift, the prewarm only stops
+// helping. Never rejects; resolves within WARM_TIMEOUT_MS.
+const SHADOW_DEPTH_UNIFORM = `uniform vec3 ucolor;
+           void main() {
+          `;
+const SHADOW_DEPTH_COLOR = "vec4( ucolor * fragCoordZ * 2.0, ( 1.0 - fragCoordZ ) * 1.0 );";
+
+export const prewarmContactShadows = (gl, scene, camera) => {
+  const depth = new MeshDepthMaterial();
+  depth.onBeforeCompile = (shader) => {
+    shader.uniforms = { ...shader.uniforms, ucolor: { value: new Color() } };
+    shader.fragmentShader = shader.fragmentShader
+      .replace("void main() {", SHADOW_DEPTH_UNIFORM)
+      .replace("vec4( vec3( 1.0 - fragCoordZ ), opacity );", SHADOW_DEPTH_COLOR);
+  };
+  const plane = new PlaneGeometry();
+  const blurs = new Group().add(
+    new Mesh(plane, new ShaderMaterial(HorizontalBlurShader)),
+    new Mesh(plane, new ShaderMaterial(VerticalBlurShader)),
+  );
+  // drei renders every pass into a render target (no tone mapping, linear
+  // output), so the programs are compiled for one too
+  const target = new WebGLRenderTarget(1, 1);
+  const previousTarget = gl.getRenderTarget();
+  // Every object drei's depth pass draws takes the stand-in for the compile:
+  // compile() picks each object's program variant (skinning, morphs) from it
+  const swapped = [];
+  scene.traverse((o) => {
+    if (!(o.isMesh || o.isPoints || o.isLine || o.isSprite) || !o.material) return;
+    const materials = Array.isArray(o.material) ? o.material : [o.material];
+    if (materials.every((m) => m.allowOverride !== false)) {
+      swapped.push([o, o.material]);
+      o.material = depth;
+    }
+  });
+  gl.setRenderTarget(target);
+  let work;
+  try {
+    work = Promise.all([gl.compileAsync(scene, camera, scene), gl.compileAsync(blurs, camera, blurs)]);
+  } catch (error) {
+    work = Promise.reject(error);
+  } finally {
+    for (const [o, material] of swapped) o.material = material;
+    gl.setRenderTarget(previousTarget);
+  }
+  return bounded(work, "Contact shadows").finally(() => {
+    depth.dispose();
+    target.dispose();
+  });
 };
 
 export const prewarmSection = (name, gl, object, camera, scene) => {
