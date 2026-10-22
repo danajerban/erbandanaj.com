@@ -41,20 +41,20 @@ export const config = {
   ],
   projects: [
     {
-      name: "Vila Emes",
-      description:
-        "Astro-powered hotel website for a local family business, optimized for speed, SEO, and multilingual discovery.",
-      image: "/projects/project13.webp",
-      icon: "/icons/vilaemes.png",
-      link: "https://vilaemes.com/",
-    },
-    {
       name: "Student Card Albania",
       description:
         "ISIC platform for Albanian students to buy digital or physical cards and access local and global benefits.",
       image: "/projects/project14.webp",
       icon: "/icons/studentcard.png",
       link: "https://studentcard.al/",
+    },
+    {
+      name: "The Coaching Masters",
+      description:
+        "Video learning, social community, marketplace, and AI coaching platform serving 16K+ users.",
+      image: "/projects/project12.webp",
+      icon: "/icons/coachingmasters.png",
+      link: "https://thecoachingmasters.com/",
     },
     {
       name: "Bioloupe",
@@ -65,12 +65,12 @@ export const config = {
       link: "https://bioloupe.com/",
     },
     {
-      name: "The Coaching Masters",
+      name: "Vila Emes",
       description:
-        "Video learning, social community, marketplace, and AI coaching platform serving 16K+ users.",
-      image: "/projects/project12.webp",
-      icon: "/icons/coachingmasters.png",
-      link: "https://thecoachingmasters.com/",
+        "Astro-powered hotel website for a local family business, optimized for speed, SEO, and multilingual discovery.",
+      image: "/projects/project13.webp",
+      icon: "/icons/vilaemes.png",
+      link: "https://vilaemes.com/",
     },
   ],
   contact: {
