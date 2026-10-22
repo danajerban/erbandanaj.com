@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useMobile } from "../contexts/MobileContext";
 import { CAMERA_HEIGHT, CAMERA_Z } from "../lib/camera";
-import { dryX, layoutOf, onSand } from "../lib/coast";
+import { LEAN, SHADE_ELEVATION, TURN, dryX, laptopPropsOf, layoutOf, onSand } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
 import { useRoundedAspect } from "../lib/useRoundedAspect";
 
@@ -34,41 +34,6 @@ const FADE_SECONDS = 1.2;
 // The camera, Home-local (lib/camera)
 const CAMERA = new THREE.Vector3(0, CAMERA_HEIGHT, CAMERA_Z);
 
-// By layout (lib/coast layoutOf), in laptop units from the laptop's middle:
-// towel [x, z, turn]; sunglasses and earbuds [x, z, turn]; cooler
-// [x, z, size]; the umbrella's pole foot [x, z] and canopy [radius, rise,
-// height of its middle]. The umbrella keeps its size on screen when the
-// laptop's changes (HomeSection LAPTOP). Everywhere the cooler sits in the
-// umbrella's shade beside the laptop, the pole's foot behind it and to its
-// left, clear of its lid, the canopy leaning over it. The canopy never hides
-// the laptop, the title or the avatar: on wide screens and upright ones past
-// the breakpoint (an iPad Pro held upright, `tall`: the big avatar to the
-// laptop's right) they stand on the laptop's left, the canopy under the
-// title; on phones held upright (the laptop at the left edge) behind its
-// right side, the cooler short of the shore strip where the crab walks.
-const SPOTS = {
-  wide: {
-    towel: [0, 0.3, 0.1],
-    glasses: [1.05, 1.7, 0.35],
-    earbuds: [-1.5, 1.3, -0.2],
-    cooler: [-2.62, -2.05, 0.72],
-    umbrella: { foot: [-1.98, -4.1], canopy: [3.33, 0.67, 4.67] },
-  },
-  portrait: {
-    towel: [0, 0.3, 0.1],
-    glasses: [1.05, 1.7, 0.35],
-    earbuds: [-1.5, 1.3, -0.2],
-    cooler: [3.02, -1.21, 0.665],
-    umbrella: { foot: [3.99, -3.75], canopy: [2.89, 0.67, 5] },
-  },
-  tall: {
-    towel: [0, 0.3, 0.1],
-    glasses: [1.05, 1.7, 0.35],
-    earbuds: [-1.5, 1.3, -0.2],
-    cooler: [-1.41, -2.98, 0.65],
-    umbrella: { foot: [-0.42, -5.03], canopy: [2.89, 0.74, 5] },
-  },
-};
 const TOWEL = [3.8, 5];
 // Height of the towel over the floor (Home units): under the laptop's keyboard
 const TOWEL_Y = 0.004;
@@ -77,15 +42,6 @@ const CORD = 0.03;
 // The cooler, in laptop units: about the laptop's width, its walls' thickness
 const COOLER_SIZE = [2.9, 1.7, 1.9, 0.16];
 const BEVEL = 0.22;
-// The shade falls away from the sun, which its baked light sets behind and
-// to the right (SUN below), but steeper than that key so the shade stays
-// near the umbrella: this elevation
-const SHADE_ELEVATION = THREE.MathUtils.degToRad(75);
-// The umbrella's pole leans this far off upright, to the right across the
-// view, toward the sun, turned TURN of the way toward the camera so the
-// canopy's top still shows: about 75° to the ground on screen
-const LEAN = THREE.MathUtils.degToRad(20);
-const TURN = THREE.MathUtils.degToRad(40);
 // Phones only, where the beach is emptier round the avatar: a little
 // sandcastle with a terracotta flag beside him (ShoreLife sets a crab
 // beside it) and a trail of footprints from the water up to his feet. By
@@ -261,7 +217,7 @@ const createSink = () => {
 const buildProps = (laptop, isMobile, aspect, materials) => {
   const random = createRandom(SEED);
   const layout = layoutOf(isMobile, aspect);
-  const spots = SPOTS[layout !== "portrait" ? "wide" : isMobile ? "portrait" : "tall"];
+  const spots = laptopPropsOf(isMobile, aspect);
   const flat = createSink();
   const solid = createSink();
   const [a, b, c, n, centroid] = [0, 0, 0, 0, 0].map(() => new THREE.Vector3());

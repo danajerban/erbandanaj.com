@@ -1,7 +1,8 @@
 import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN, PITCH } from "./camera.js";
 
-// Home island shoreline, shared by the sea and everything on the beach, and
-// the screen-shape rule (layoutOf) the scene lays out by. Home-local floor
+// Home island shoreline, shared by the sea and everything on the beach, the
+// screen-shape rule (layoutOf) the scene lays out by, the screen-to-sand ray
+// (onSand) and the props round the laptop (laptopPropsOf). Home-local floor
 // coordinates: y = 0 is the floor, +z toward the camera; water lies where
 // x > coastX(z), and nothing wet (waves washing up the sand, foam, wet-sand
 // sheen) ever reaches left of dryX(z).
@@ -136,3 +137,58 @@ export const onSand = ([fx, fy], aspect) => {
   const along = -CAMERA_HEIGHT / ry;
   return [rx * along, CAMERA_Z + rz * along];
 };
+
+// The beach props round the laptop on Home (BeachProps builds them;
+// BeachDecor keeps its grass and coconuts off them), in laptop units from
+// the laptop's middle (HomeSection's `laptop`: +x to the right of its
+// keyboard, +z in front of it): towel [x, z, turn]; sunglasses and earbuds
+// [x, z, turn]; cooler [x, z, size]; the umbrella's pole foot [x, z] and
+// canopy [radius, rise, height of its middle]. The umbrella keeps its size
+// on screen when the laptop's changes (HomeSection LAPTOP). Everywhere the
+// cooler sits in the umbrella's shade beside the laptop, the pole's foot
+// behind it and to its left, clear of its lid, the canopy leaning over it.
+// The canopy never hides the laptop, the title or the avatar: on wide
+// screens and upright ones past the breakpoint (an iPad Pro held upright,
+// `tall`: the big avatar to the laptop's right) they stand on the laptop's
+// left, the canopy under the title; on phones held upright (the laptop at
+// the left edge) behind its right side, the cooler short of the shore strip
+// where the crab walks.
+const LAPTOP_PROPS = {
+  wide: {
+    towel: [0, 0.3, 0.1],
+    glasses: [1.05, 1.7, 0.35],
+    earbuds: [-1.5, 1.3, -0.2],
+    cooler: [-2.62, -2.05, 0.72],
+    umbrella: { foot: [-1.98, -4.1], canopy: [3.33, 0.67, 4.67] },
+  },
+  portrait: {
+    towel: [0, 0.3, 0.1],
+    glasses: [1.05, 1.7, 0.35],
+    earbuds: [-1.5, 1.3, -0.2],
+    cooler: [3.02, -1.21, 0.665],
+    umbrella: { foot: [3.99, -3.75], canopy: [2.89, 0.67, 5] },
+  },
+  tall: {
+    towel: [0, 0.3, 0.1],
+    glasses: [1.05, 1.7, 0.35],
+    earbuds: [-1.5, 1.3, -0.2],
+    cooler: [-1.41, -2.98, 0.65],
+    umbrella: { foot: [-0.42, -5.03], canopy: [2.89, 0.74, 5] },
+  },
+};
+// Wide screens (desktop, phones held sideways) share one layout
+export const laptopPropsKey = (isMobile, aspect) => {
+  const layout = sceneLayoutOf(isMobile, aspect);
+  return layout === "portrait" || layout === "tall" ? layout : "wide";
+};
+export const laptopPropsOf = (isMobile, aspect) => LAPTOP_PROPS[laptopPropsKey(isMobile, aspect)];
+
+// The shade falls away from the sun, which BeachProps' baked light sets
+// behind and to the right (its SUN), but steeper than that key so the shade
+// stays near the umbrella: this elevation
+export const SHADE_ELEVATION = 75 * (Math.PI / 180);
+// The umbrella's pole leans this far off upright, to the right across the
+// view, toward the sun, turned TURN of the way toward the camera so the
+// canopy's top still shows: about 75° to the ground on screen
+export const LEAN = 20 * (Math.PI / 180);
+export const TURN = 40 * (Math.PI / 180);

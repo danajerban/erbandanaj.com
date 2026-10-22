@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { CAMERA_HEIGHT, CAMERA_Z } from "../lib/camera";
-import { D_NEAR, layoutOf } from "../lib/coast";
+import { D_NEAR, LEAN, SHADE_ELEVATION, TURN, laptopPropsKey, laptopPropsOf, layoutOf } from "../lib/coast";
 import { TriangleSink, createRandom } from "../lib/lowPoly";
 import { useRoundedAspect } from "../lib/useRoundedAspect";
 
@@ -87,31 +87,17 @@ const TRUNK_RADIUS = { desktop: 0.145, mobile: 0.13 };
 // grass and coconuts in front of it stay entirely clear of that on screen,
 // at any aspect; behind it (it hides them) their centers do
 const AVATAR = { desktop: { z: 0, reach: 0.061 }, mobile: { z: -5, reach: 0.031 } };
-// BeachProps' things round the laptop (its SPOTS, by layout), in laptop
-// units from its middle: circles [x, z, r] over the towel (three along its
-// length), the cooler and the umbrella's pole foot; the umbrella [foot x,
-// z, canopy radius, height], whose shade lies off its foot. They stand on
-// solid sand, and grass and coconuts keep off them and out of their way on
-// screen.
-const LAPTOP_PROPS = {
-  wide: {
-    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [-2.62, -2.05, 1.25], [-1.98, -4.1, 0.35]],
-    umbrella: [-1.98, -4.1, 3.33, 4.67],
-  },
-  portrait: {
-    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [3.02, -1.21, 1.15], [3.99, -3.75, 0.35]],
-    umbrella: [3.99, -3.75, 2.89, 5],
-  },
-  tall: {
-    circles: [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1], [-1.41, -2.98, 1.12], [-0.42, -5.03, 0.35]],
-    umbrella: [-0.42, -5.03, 2.89, 5],
-  },
-};
-// The shade off the foot, per height of canopy (BeachProps LEAN, TURN,
-// SHADE_ELEVATION): the pole leans 20° off upright, to the right across the
+// The props round the laptop (lib/coast laptopPropsOf) as circles [x, z, r] in
+// laptop units from its middle: three along the towel's length, the cooler
+// (r about its half-diagonal at its size, by laptopPropsKey) and the
+// umbrella's pole foot; the umbrella's shade lies off its foot (LEAN, TURN,
+// SHADE_ELEVATION: the pole leans 20° off upright, to the right across the
 // view turned 40° toward the camera, and the shade falls from the canopy
-// away from the sun at 75°
-const [LEAN, TURN, SHADE_ELEVATION] = [20, 40, 75].map(THREE.MathUtils.degToRad);
+// away from the sun at 75°). They stand on solid sand,
+// and grass and coconuts keep off them and out of their way on screen.
+const TOWEL_CIRCLES = [[-0.16, -1.34, 2.1], [0, 0.3, 2.1], [0.16, 1.94, 2.1]];
+const COOLER_CLEAR = { wide: 1.25, portrait: 1.15, tall: 1.12 };
+const POLE_CLEAR = 0.35;
 
 // Fallen coconuts by layout: [palm, dx, dz], a spot from that palm's foot
 // (HomeSection's palms, in order) in prop units, dx + toward the water, dz +
@@ -186,10 +172,12 @@ const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
 
   // The props round the laptop as circles [x, z, r] in Home units, the
   // umbrella's shade among them
-  const spots = LAPTOP_PROPS[layout !== "portrait" ? "wide" : isMobile ? "portrait" : "tall"];
+  const { cooler, umbrella } = laptopPropsOf(isMobile, aspect);
+  const [fx, fz] = umbrella.foot;
+  const [canopy, , tall] = umbrella.canopy;
+  const circles = [...TOWEL_CIRCLES, [cooler[0], cooler[1], COOLER_CLEAR[laptopPropsKey(isMobile, aspect)]], [fx, fz, POLE_CLEAR]];
   const [cos, sin] = [Math.cos(laptop.yaw), Math.sin(laptop.yaw)];
   const home = ([u, w, r]) => [laptop.x + (u * cos + w * sin) * laptop.scale, laptop.z + (w * cos - u * sin) * laptop.scale, r * laptop.scale];
-  const [fx, fz, canopy, tall] = spots.umbrella;
   const [footX, footZ] = home([fx, fz, 0]);
   const toCamera = new THREE.Vector3(-footX, 0, CAMERA_Z - footZ).normalize();
   const shift = new THREE.Vector3(toCamera.z, 0, -toCamera.x)
@@ -198,7 +186,7 @@ const buildDecor = (palms, dry, laptop, isMobile, aspect, materials) => {
     .multiplyScalar(Math.tan(LEAN))
     .addScaledVector(new THREE.Vector3(SUN_DIR.x, 0, SUN_DIR.z).normalize(), -1 / Math.tan(SHADE_ELEVATION))
     .multiplyScalar(tall * laptop.scale);
-  const laptopProps = [...spots.circles.map(home), [footX + shift.x, footZ + shift.z, canopy * laptop.scale]];
+  const laptopProps = [...circles.map(home), [footX + shift.x, footZ + shift.z, canopy * laptop.scale]];
 
   // The band's width: one width all along the shore, so its land side has
   // the shore's curves, wide enough to reach BAND_BEHIND inland of each
