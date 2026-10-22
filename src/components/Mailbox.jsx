@@ -6,6 +6,7 @@ Mailbox v2 by sirkitree [CC-BY] (https://creativecommons.org/licenses/by/3.0/) v
 
 import { useCursor } from "@react-three/drei";
 import { useGLTF } from "../lib/useGLTF";
+import mailboxUrl from "../assets/models/Mailbox v2.glb?url";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -75,7 +76,7 @@ const mergeGeometries = (geometries) => {
 };
 
 export function Mailbox(props) {
-  const { nodes, materials } = useGLTF("/models/Mailbox v2.glb");
+  const { nodes, materials } = useGLTF(mailboxUrl);
   const { prefersReducedMotion } = useMobile();
   const [mailboxHovered, setMailboxHovered] = useState(false);
   const mailboxHoveredRef = useRef(false);
@@ -149,4 +150,4 @@ export function Mailbox(props) {
   );
 }
 
-useGLTF.preload("/models/Mailbox v2.glb");
+useGLTF.preload(mailboxUrl);

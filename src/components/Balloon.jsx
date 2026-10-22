@@ -5,12 +5,13 @@ Balloon by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/)
 */
 
 import { useGLTF } from "../lib/useGLTF";
+import balloonUrl from "../assets/models/Balloon.glb?url";
 import { useMobile } from "../contexts/MobileContext";
 
 // materialRef: the balloon's material (ParkProps lets it glow a little at
 // night)
 export function Balloon({ color, materialRef, ...props }) {
-  const { nodes } = useGLTF("/models/Balloon.glb");
+  const { nodes } = useGLTF(balloonUrl);
   const { isMobile } = useMobile();
   return (
     <group {...props} dispose={null}>
@@ -29,4 +30,4 @@ export function Balloon({ color, materialRef, ...props }) {
   );
 }
 
-useGLTF.preload("/models/Balloon.glb");
+useGLTF.preload(balloonUrl);

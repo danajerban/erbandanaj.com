@@ -14,6 +14,7 @@ import {
 } from "../../lib/parkLayout";
 import { FLOWERS, PARK_LAYER, ParkSink, parkSolidMaterial } from "../../lib/parkMaterials";
 import { useGLTF } from "../../lib/useGLTF";
+import benchUrl from "../../assets/models/Park Bench.glb?url";
 import { bench, dog, pebbles, rocks, tufts } from "./lawnDetails";
 
 // The park's garden: round trees framing the edges, flower beds like sweets
@@ -249,7 +250,7 @@ const buildGarden = (park, layout, aspect, benchParts) => {
 };
 
 export default function ParkGarden({ park, layout, aspect }) {
-  const { nodes, materials } = useGLTF("/models/Park Bench.glb");
+  const { nodes, materials } = useGLTF(benchUrl);
   const mesh = useMemo(() => {
     const benchParts = [
       [nodes["Park_Bench_Cube-Mesh"].geometry, materials.Metal.color],

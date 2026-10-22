@@ -5,6 +5,9 @@ Command: npx gltfjsx@6.5.3 public/models/68275e863c5ab94b9eacc586.glb -o src/com
 
 import { useAnimations, useScroll } from "@react-three/drei";
 import { useGLTF } from "../lib/useGLTF";
+import avatarUrl from "../assets/models/68275e863c5ab94b9eacc586.glb?url";
+import idleUrl from "../assets/animations/Happy-Idle.glb?url";
+import walkingUrl from "../assets/animations/Walking.glb?url";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 
@@ -13,9 +16,9 @@ import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 
 export function Avatar(props) {
-  const { nodes, materials } = useGLTF("/models/68275e863c5ab94b9eacc586.glb");
-  const { animations: idleAnimation } = useGLTF("/animations/Happy-Idle.glb");
-  const { animations: walkingAnimation } = useGLTF("/animations/Walking.glb");
+  const { nodes, materials } = useGLTF(avatarUrl);
+  const { animations: idleAnimation } = useGLTF(idleUrl);
+  const { animations: walkingAnimation } = useGLTF(walkingUrl);
 
   // Clone animations and strip tracks targeting "Armature" — the Mixamo skeleton
   // root node that doesn't exist in the avatar model (whose root is "Hips")
@@ -187,6 +190,6 @@ export function Avatar(props) {
   );
 }
 
-useGLTF.preload("/models/68275e863c5ab94b9eacc586.glb");
-useGLTF.preload("/animations/Happy-Idle.glb");
-useGLTF.preload("/animations/Walking.glb");
+useGLTF.preload(avatarUrl);
+useGLTF.preload(idleUrl);
+useGLTF.preload(walkingUrl);

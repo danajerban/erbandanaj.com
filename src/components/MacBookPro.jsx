@@ -7,9 +7,10 @@ Laptop / MacBook Pro by Alex Safayan [CC-BY] (https://creativecommons.org/licens
 import { useTexture } from "@react-three/drei";
 import { useLayoutEffect } from "react";
 import { useGLTF } from "../lib/useGLTF";
+import macBookUrl from "../assets/models/MacBook Pro.glb?url";
 
 export function MacBookPro(props) {
-  const { nodes, materials } = useGLTF("/models/MacBook Pro.glb");
+  const { nodes, materials } = useGLTF(macBookUrl);
   const screenTexture = useTexture("/textures/screen.webp");
   // A silver MacBook Pro: neutral aluminium (mat16, also on the underside
   // below) that the sunset light warms by itself, and a glass trackpad
@@ -69,5 +70,5 @@ export function MacBookPro(props) {
     </group>
   );
 }
-useGLTF.preload("/models/MacBook Pro.glb");
+useGLTF.preload(macBookUrl);
 useTexture.preload("/textures/screen.webp");
