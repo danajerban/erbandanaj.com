@@ -409,11 +409,11 @@ a {
   }
 
   .projects .project__details__name {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   .projects .project__details__description {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     line-height: 1.25;
   }
 }
@@ -446,14 +446,6 @@ a {
     height: 28px;
     padding: 3px;
     border-radius: 6px;
-  }
-
-  .projects .project__details__name {
-    font-size: 0.95rem;
-  }
-
-  .projects .project__details__description {
-    font-size: 0.78rem;
   }
 }
 
@@ -524,13 +516,13 @@ a {
 .project__details__name {
   color: var(--text-color);
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   margin: 0;
 }
 
 .project__details__description {
   color: var(--text-light-color);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   line-height: 1.35;
   margin: 0;
 }
@@ -1121,14 +1113,9 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     border-radius: 8px;
   }
 
-  .project__details__name {
-    font-size: 1.25rem;
-  }
-
   /* Three lines at most at 393px, so the carousel (as tall as its tallest
      card) keeps clear of the PROJECTS letters */
   .project__details__description {
-    font-size: 0.875rem;
     line-height: 1.3;
   }
 
