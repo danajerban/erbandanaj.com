@@ -12,8 +12,8 @@ import { prewarmSection } from "../lib/prewarm";
 // contact-shadow camera, so both passes issue the draw calls (culling is off
 // for that frame) while every fragment clips away.
 const WARM_Y = 100;
-// Once pre-warmed, a section comes out of the haze over this many seconds
-// (framer-motion-3d's old rise-in: 0.6, easeInOut).
+// Once pre-warmed, a section comes out of the haze over this many seconds,
+// eased with motion's default easeInOut (below).
 const DURATION = 0.6;
 // motion's default `easeInOut` is cubicBezier(0.42, 0, 0.58, 1); solved inline
 // so the scene path does not need the motion chunk.

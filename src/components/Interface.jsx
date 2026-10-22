@@ -28,8 +28,9 @@ const cardVariants = {
     transition: { duration: ANIMATION_CONSTANTS.CARD_ENTRANCE_DURATION, ease: "easeOut" },
   },
 };
-// Reduced motion: fade only. Motion would snap `y` anyway, but cards that have
-// not entered the viewport yet would still sit 12 px down in their hidden state.
+// Reduced motion: fade only. Motion would snap `y` anyway, but cards whose
+// section has not faded in yet (ENTER_AT) would still sit CARD_RISE_PX down in
+// their hidden state.
 const cardVariantsReduced = {
   hidden: { "--enter": 0 },
   visible: {
