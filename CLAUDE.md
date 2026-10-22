@@ -1,4 +1,4 @@
-# erbandanaj.com — 3D Portfolio Website
+# erbandanaj.dev — 3D Portfolio Website
 
 ## Tech Stack
 

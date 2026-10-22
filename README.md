@@ -1,11 +1,11 @@
-# [Erban Danaj | Software Engineer](https://www.erbandanaj.com)
+# [Erban Danaj | Software Engineer](https://www.erbandanaj.dev)
 
 An interactive 3D portfolio — a scroll-driven world built with React and Three.js
 that walks through my work across four scenes: **Home → Skills → Projects →
 Contact**. The 3D environment moves as you scroll, with an animated avatar and a
 glassmorphism UI layered on top of the WebGL canvas.
 
-### Live at [erbandanaj.com](https://www.erbandanaj.com)
+### Live at [erbandanaj.dev](https://www.erbandanaj.dev)
 
 ## Highlights
 
@@ -25,7 +25,7 @@ mobile-performance conventions live in **[CLAUDE.md](CLAUDE.md)**.
 
 ## Connect
 
-- CV: [View / download (PDF)](https://www.erbandanaj.com/Erban%20Danaj%20-%20Software%20Engineer.pdf)
+- CV: [View / download (PDF)](https://www.erbandanaj.dev/Erban%20Danaj%20-%20Software%20Engineer.pdf)
 - LinkedIn: [@erban-danaj](https://www.linkedin.com/in/erban-danaj/)
 - GitHub: [@danajerban](https://github.com/danajerban)
 - Email: danajerban@gmail.com
