@@ -253,6 +253,7 @@ const CarouselDots = ({ carousel, count, label, reduceMotion }) => {
 export const Interface = ({ revealed }) => {
   const scrollData = useScroll();
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [hintGone, setHintGone] = useState(false);
   const hasScrolledRef = useRef(false);
   useFrame(() => {
     const newHasScrolled = scrollData.offset > 0;
@@ -263,7 +264,7 @@ export const Interface = ({ revealed }) => {
   });
   const { fadeRef, sectionRefs, entered } = useSectionFades(scrollData);
   const [shownProject, setProject] = useAtom(projectAtom);
-  const { isMobile } = useMobile();
+  const { isMobile, swipePill } = useMobile();
   useMenuPass(scrollData, sectionRefs, !isMobile);
   const reduceMotion = useReducedMotion();
   const cardEntrance = reduceMotion ? cardVariantsReduced : cardVariants;
@@ -283,8 +284,11 @@ export const Interface = ({ revealed }) => {
         {/* HOME */}
         <section className="section section--bottom">
           <h2 className="sr-only">Home</h2>
+          {/* Nothing bounces once the hint has faded out (`hintGone`), and
+              the pill has no wheel to bounce: a hidden endless animation
+              still restyles every frame */}
           <motion.div
-            className="scroll-down"
+            className={hintGone ? "scroll-down scroll-down--gone" : "scroll-down"}
             aria-hidden="true"
             initial={{
               opacity: 0,
@@ -292,22 +296,26 @@ export const Interface = ({ revealed }) => {
             animate={{
               opacity: hasScrolled ? 0 : 1,
             }}
+            onAnimationStart={() => setHintGone(false)}
+            onAnimationComplete={({ opacity }) => setHintGone(opacity === 0)}
           >
-            <motion.div
-              className="scroll-down__wheel"
-              initial={{
-                translateY: 0,
-              }}
-              animate={{
-                translateY: 4,
-              }}
-              transition={{
-                duration: 0.4,
-                repeatDelay: 0.5,
-                repeatType: "reverse",
-                repeat: Infinity,
-              }}
-            ></motion.div>
+            {!swipePill && !hintGone && (
+              <motion.div
+                className="scroll-down__wheel"
+                initial={{
+                  translateY: 0,
+                }}
+                animate={{
+                  translateY: 4,
+                }}
+                transition={{
+                  duration: 0.4,
+                  repeatDelay: 0.5,
+                  repeatType: "reverse",
+                  repeat: Infinity,
+                }}
+              ></motion.div>
+            )}
           </motion.div>
         </section>
         {/* SKILLS */}

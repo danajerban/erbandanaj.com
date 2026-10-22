@@ -20,6 +20,11 @@ const mediaStore = (query) => {
 };
 const mobileStore = mediaStore(`(max-width: ${MOBILE_THRESHOLD}px)`);
 const reducedMotionStore = mediaStore("(prefers-reduced-motion: reduce)");
+// Phones and touch tablets, whatever their width: the scroll hint is the
+// "Swipe up" pill instead of the mouse (index.css)
+const swipePillStore = mediaStore(
+  `(max-width: ${MOBILE_THRESHOLD}px), (hover: none) and (pointer: coarse)`,
+);
 
 export const useMobile = () => ({
   isMobile: useSyncExternalStore(mobileStore.subscribe, mobileStore.getSnapshot),
@@ -27,4 +32,5 @@ export const useMobile = () => ({
     reducedMotionStore.subscribe,
     reducedMotionStore.getSnapshot,
   ),
+  swipePill: useSyncExternalStore(swipePillStore.subscribe, swipePillStore.getSnapshot),
 });

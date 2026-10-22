@@ -1192,9 +1192,10 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
   /* Phones and touch tablets, whatever their width: the mouse becomes a
      small glass pill, "Swipe up" with an up-chevron bouncing gently on its
      right, as high as the cards' bottom padding (clear of Safari's floating
-     toolbar); it fades out once the visitor scrolls, like the mouse.
-     Reduced motion stops the bounce (the global rule below ends it at
-     rest). */
+     toolbar); it fades out once the visitor scrolls, like the mouse, and
+     stops bouncing once faded (Interface renders the pill without the
+     mouse's wheel). Reduced motion stops the bounce (the global rule
+     below ends it at rest). */
   .scroll-down {
     width: auto;
     height: auto;
@@ -1228,8 +1229,8 @@ html[data-sky="night"] :is(.skill, .project, .contact, .menu__buttons--glass) {
     animation: swipe-up 1.6s ease-in-out infinite;
   }
 
-  .scroll-down__wheel {
-    display: none;
+  .scroll-down--gone::after {
+    animation: none;
   }
 }
 
