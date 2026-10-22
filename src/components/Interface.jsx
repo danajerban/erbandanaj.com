@@ -98,10 +98,16 @@ const useSectionFades = (scrollData) => {
 // from the scroll position. Written only when its step changes.
 const PASS_STEPS = 20;
 const PASS_PX = 64;
+// Each column's section by name: its place in FADED_SECTIONS (the faded
+// section elements) and in config.sections (the scroll pages)
 const PASS_COLUMNS = [
-  { section: 0, index: config.sections.indexOf("skills"), column: ".skills", card: ".skill", band: ".menu__buttons" },
-  { section: 1, index: config.sections.indexOf("projects"), column: ".projects", card: ".project", band: ".menu__logo" },
-];
+  { name: "skills", column: ".skills", card: ".skill", band: ".menu__buttons" },
+  { name: "projects", column: ".projects", card: ".project", band: ".menu__logo" },
+].map((row) => ({
+  ...row,
+  fadeIndex: FADED_SECTIONS.indexOf(row.name),
+  pageIndex: config.sections.indexOf(row.name),
+}));
 // Layout position in the page, transforms (the scroll, the card entrance) left out
 const layoutTop = (el) => {
   let top = 0;
@@ -119,8 +125,8 @@ const useMenuPass = (scrollData, sectionRefs, enabled) => {
     // A height change re-centres a column without resizing it
     window.addEventListener("resize", measure);
     const observer = new ResizeObserver(measure);
-    for (const { section, column, band } of PASS_COLUMNS) {
-      const el = sectionRefs.current[section]?.querySelector(column);
+    for (const { fadeIndex, column, band } of PASS_COLUMNS) {
+      const el = sectionRefs.current[fadeIndex]?.querySelector(column);
       if (el) observer.observe(el);
       const menu = document.querySelector(band);
       if (menu) observer.observe(menu);
@@ -138,21 +144,21 @@ const useMenuPass = (scrollData, sectionRefs, enabled) => {
     if (dirty.current) {
       dirty.current = false;
       for (const card of cards.current) card.el.style.removeProperty("--pass");
-      cards.current = PASS_COLUMNS.flatMap(({ section, index, card, band }) => {
-        const el = sectionRefs.current[section];
+      cards.current = PASS_COLUMNS.flatMap(({ fadeIndex, pageIndex, card, band }) => {
+        const el = sectionRefs.current[fadeIndex];
         const bandBottom = document.querySelector(band)?.getBoundingClientRect().bottom;
         if (!el || bandBottom == null) return [];
         const sectionTop = layoutTop(el);
         return [...el.querySelectorAll(card)].map((cardEl) => {
           const rest = layoutTop(cardEl) - sectionTop;
-          return { el: cardEl, index, rest, band: Math.min(bandBottom, rest), pass: 1 };
+          return { el: cardEl, pageIndex, rest, band: Math.min(bandBottom, rest), pass: 1 };
         });
       });
     }
     const position = scrollData.offset * (scrollData.pages - 1);
     const height = state.size.height;
     for (const card of cards.current) {
-      const top = (card.index - position) * height + card.rest;
+      const top = (card.pageIndex - position) * height + card.rest;
       const pass =
         Math.round(MathUtils.smoothstep(top, card.band - PASS_PX, card.band) * PASS_STEPS) /
         PASS_STEPS;
