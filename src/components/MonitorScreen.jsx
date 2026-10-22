@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { config } from "../config";
 import { OFFICE_LAYER } from "../lib/office/layout";
 import { prewarm } from "../lib/prewarm";
+import { SCENE_VISIBLE_MARK } from "../lib/sceneVisible";
 import { projectAtom } from "../store";
 
 // The desk monitor's screen, showing the selected project's screenshot.
@@ -74,11 +75,11 @@ const preloadOthers = () => {
     useTexture.preload(project.image);
   });
 };
-if (performance.getEntriesByName("scene-visible").length) {
+if (performance.getEntriesByName(SCENE_VISIBLE_MARK).length) {
   preloadOthers();
 } else {
   new PerformanceObserver((list, observer) => {
-    if (!list.getEntriesByName("scene-visible").length) return;
+    if (!list.getEntriesByName(SCENE_VISIBLE_MARK).length) return;
     observer.disconnect();
     preloadOthers();
   }).observe({ type: "mark" });

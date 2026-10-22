@@ -6,6 +6,7 @@ import { ANIMATION_CONSTANTS } from "../constants/animation";
 import { useMobile } from "../contexts/MobileContext";
 import { layoutOf } from "../lib/coast";
 import { createRandom, glslLinear, glslSrgb } from "../lib/lowPoly";
+import { SCENE_VISIBLE_MARK } from "../lib/sceneVisible";
 
 // A few dolphins far out at sea on Home, the island's one rare, cinematic
 // moment: now and then two or three leap near the horizon, each time in a new
@@ -632,7 +633,7 @@ function Leaps() {
         // The first leap FIRST_LEAP after the scene appeared, or at once if
         // they are ready later than that; after a hot update that follows a
         // leap, FIRST_LEAP after the recompile
-        const shown = performance.getEntriesByName("scene-visible")[0];
+        const shown = performance.getEntriesByName(SCENE_VISIBLE_MARK)[0];
         const since = shown && !last.current ? (performance.now() - shown.startTime) / 1000 : 0;
         next.current = Math.max(0, FIRST_LEAP - since);
         ready.current = true;

@@ -2,6 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { hideInitialLoader } from "../lib/initialLoader";
 import { prewarm, prewarmContactShadows, whenSectionsWarm } from "../lib/prewarm";
+import { SCENE_VISIBLE_MARK } from "../lib/sceneVisible";
 
 // Mounts inside the splash-gate <Suspense> boundary, so it runs only once
 // every gated asset (GLBs, environment HDR, Home title font) is live.
@@ -50,7 +51,7 @@ export const SceneReady = ({ onWarm, onReveal }) => {
       revealed.current = true;
       // Measurement seam: marked here, not in hideInitialLoader, so the error
       // boundary and the failsafe never record a scene that did not render.
-      performance.mark("scene-visible");
+      performance.mark(SCENE_VISIBLE_MARK);
       hideInitialLoader();
       onReveal();
     }
