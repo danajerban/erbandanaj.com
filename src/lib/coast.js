@@ -1,11 +1,12 @@
 import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN, PITCH } from "./camera.js";
 
 // Home island shoreline, shared by the sea and everything on the beach, the
-// screen-shape rule (layoutOf) the scene lays out by, the screen-to-sand ray
-// (onSand) and the props round the laptop (laptopPropsOf). Home-local floor
-// coordinates: y = 0 is the floor, +z toward the camera; water lies where
-// x > coastX(z), and nothing wet (waves washing up the sand, foam, wet-sand
-// sheen) ever reaches left of dryX(z).
+// screen-shape rules (layoutOf, sceneLayoutOf, PHONE_TITLE_OVERHEAD_BELOW)
+// the scene lays out by, the screen-to-sand ray (onSand) and the props round
+// the laptop with the umbrella's angles (laptopPropsOf, LEAN, TURN,
+// SHADE_ELEVATION). Home-local floor coordinates: y = 0 is the floor, +z
+// toward the camera; water lies where x > coastX(z), and nothing wet (waves
+// washing up the sand, foam, wet-sand sheen) ever reaches left of dryX(z).
 //
 // The shore is a ⊂-shaped arc, sea on its right only: it comes in through the
 // right screen edge at the bottom, bends left to its deepest point at
