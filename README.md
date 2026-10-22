@@ -19,9 +19,9 @@ glassmorphism UI layered on top of the WebGL canvas.
 
 Built with **React 19** · **Vite** (JSX — no TypeScript) · **Three.js** via
 `@react-three/fiber` + `@react-three/drei` · **Motion** · **Jotai** ·
-plain CSS, and deployed on **Cloudflare Pages**. Architecture, scripts
-(`pnpm dev` / `build` / `preview` / `lint`), the key-files map, and the
-R3F / CSS / mobile-performance conventions all live in **[CLAUDE.md](CLAUDE.md)**.
+plain CSS, and deployed on **Cloudflare Pages**. Scripts: `pnpm dev` /
+`build` / `preview` / `lint`. The architecture and the R3F / CSS /
+mobile-performance conventions live in **[CLAUDE.md](CLAUDE.md)**.
 
 ## Connect
 
