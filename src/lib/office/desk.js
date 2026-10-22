@@ -19,7 +19,7 @@ const BAR = { y: 1.334, z: -1.493, r: 0.014, half: 0.267 };
 export const DESK_LIGHTS = [
   { p: LAMP.head.clone(), color: LIGHT.desk, R: 1.0, w: 0.7, cone: true },
   { p: LAMP.head.clone(), color: LIGHT.desk, R: 3.5, w: 0.8 },
-  { p: v3(PANEL.x, BAR.y, -1.48), color: LIGHT.lightBar, R: 0.7, w: 0.5, front: -1.5 },
+  { p: v3(PANEL.x, BAR.y, -1.48), color: LIGHT.lightBar, R: 0.7, w: 0.5, front: PANEL.z + PANEL.d / 2 },
   { p: v3(PANEL.x, PANEL.y, -1.45), color: LIGHT.screen, R: 1.4, w: 0.35 },
 ];
 
@@ -434,7 +434,7 @@ const buildBonsai = (s, [x, z], yaw, clusters, random) => {
 const buildBlobs = (s) => {
   const oak = [
     [0.78, -1.55, 0.17, 0.12],
-    [1.35, -1.578, 0.155, 0.12],
+    [PANEL.x, -1.578, 0.155, 0.12],
     [...LAMP.base, 0.13, 0.13],
     [1.1, -1.68, 0.05, 0.055],
     [1.62, -1.68, 0.05, 0.055],
@@ -493,10 +493,10 @@ const buildDeskGlow = (glow) => {
   const surface = (x, z) => (inMat(x, z) ? MAT_Y : TOP) + 0.003;
   const deskClip = [[X0, X1], [Z0, Z1]];
   pool(glow, { c: [LAMP.head.x, LAMP.head.z], ra: 0.45, rb: 0.45, color: LIGHT.desk.clone().multiplyScalar(0.45), clip: deskClip, height: surface, step: 0.09 });
-  pool(glow, { c: [1.35, -1.4], ra: 0.3, rb: 0.14, color: LIGHT.lightBar.clone().multiplyScalar(0.35), clip: [MAT.x, MAT.z], height: () => MAT_Y + 0.003, step: 0.07 });
+  pool(glow, { c: [PANEL.x, -1.4], ra: 0.3, rb: 0.14, color: LIGHT.lightBar.clone().multiplyScalar(0.35), clip: [MAT.x, MAT.z], height: () => MAT_Y + 0.003, step: 0.07 });
   const wallClip = [[X0, X1 + 0.6], [TOP, 2.3]];
   const wall = BACK + 0.003;
-  pool(glow, { c: [1.35, 1.1], ra: 0.53, rb: 0.36, color: LIGHT.bias.clone().multiplyScalar(0.12), clip: wallClip, plane: "xy", at: wall, step: 0.1 });
+  pool(glow, { c: [PANEL.x, PANEL.y], ra: 0.53, rb: 0.36, color: LIGHT.bias.clone().multiplyScalar(0.12), clip: wallClip, plane: "xy", at: wall, step: 0.1 });
   pool(glow, { c: [1.8, 1.08], ra: 0.6, rb: 0.6, color: LIGHT.desk.clone().multiplyScalar(0.15), clip: wallClip, plane: "xy", at: wall, step: 0.12 });
 };
 
