@@ -162,6 +162,15 @@ const useMenuPass = (scrollData, sectionRefs, enabled) => {
   });
 };
 
+// The section a hash link lands on (#skills, #projects, #contact). Its icons
+// load with the scene, so they show as soon as it does; every other icon
+// waits for the reveal, so it never competes with the scene's models on a
+// slow connection. Each icon's box is sized in CSS, so nothing shifts.
+const landingSection = (() => {
+  const hash = window.location.hash.slice(1);
+  return FADED_SECTIONS.includes(hash) ? hash : null;
+})();
+
 // Phone carousels (Skills, Projects): one card at a time, snapped to the
 // centre (CSS scroll snap), with dots underneath. The active card is read
 // from the scroll position at most once per frame while the carousel moves,
@@ -231,7 +240,7 @@ const CarouselDots = ({ carousel, count, label, reduceMotion }) => {
   );
 };
 
-export const Interface = () => {
+export const Interface = ({ revealed }) => {
   const scrollData = useScroll();
   const [hasScrolled, setHasScrolled] = useState(false);
   const hasScrolledRef = useRef(false);
@@ -256,6 +265,8 @@ export const Interface = () => {
   );
   const projectsCarousel = useCarousel(isMobile, showProject);
   const entrance = (i) => (entered[i] ? "visible" : "hidden");
+  const iconSrc = (section, src) =>
+    revealed || section === landingSection ? src : undefined;
   return (
     <div className="interface">
       <div className="sections">
@@ -315,7 +326,7 @@ export const Interface = () => {
                   <div className="skill__label">
                     <img
                       className="skill__label__image"
-                      src={skill.icon}
+                      src={iconSrc("skills", skill.icon)}
                       alt={skill.name}
                     />
                     <h2 className="skill__label__name">{skill.name}</h2>
@@ -374,7 +385,11 @@ export const Interface = () => {
                         on the card, the desk monitor shows it */}
                     <div className="project__details">
                       <div className="project__label">
-                        <img className="project__label__icon" src={project.icon} alt="" />
+                        <img
+                          className="project__label__icon"
+                          src={iconSrc("projects", project.icon)}
+                          alt=""
+                        />
                         <h2 className="project__details__name">{project.name}</h2>
                       </div>
                       <p className="project__details__description">
@@ -419,7 +434,7 @@ export const Interface = () => {
               >
                 <img
                   className="contact__socials__icon"
-                  src="/icons/linkedin.png"
+                  src={iconSrc("contact", "/icons/linkedin.png")}
                   alt=""
                 />
                 <span className="contact__socials__label">LinkedIn</span>
@@ -432,7 +447,7 @@ export const Interface = () => {
               >
                 <img
                   className="contact__socials__icon"
-                  src="/icons/github.png"
+                  src={iconSrc("contact", "/icons/github.png")}
                   alt=""
                 />
                 <span className="contact__socials__label">GitHub</span>
@@ -440,7 +455,7 @@ export const Interface = () => {
               <a href={`mailto:${config.contact.mail}`} aria-label="Send email">
                 <img
                   className="contact__socials__icon"
-                  src="/icons/gmail.png"
+                  src={iconSrc("contact", "/icons/gmail.png")}
                   alt=""
                 />
                 <span className="contact__socials__label">Email</span>
@@ -452,7 +467,7 @@ export const Interface = () => {
               >
                 <img
                   className="contact__socials__icon"
-                  src="/icons/cv.png"
+                  src={iconSrc("contact", "/icons/cv.png")}
                   alt=""
                 />
                 <span className="contact__socials__label">CV</span>
