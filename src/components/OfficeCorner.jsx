@@ -9,6 +9,7 @@ import { BACK, FRONT_Z, OFFICE_LAYER, WINDOW, place } from "../lib/office/layout
 import { createOfficeMaterials, officeLight } from "../lib/office/materials";
 import { buildRoom } from "../lib/office/room";
 import { GlowSink, LaceSink, OfficeSink } from "../lib/office/sink";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 
 // One corner of the office (Skills or Projects): the room shell and the
 // corner's furniture, baked into at most four meshes on the office layer:
@@ -56,8 +57,7 @@ const shown = (object) => {
 export const OfficeCorner = ({ corner, lights, build, children }) => {
   const { isMobile, prefersReducedMotion } = useMobile();
   const camera = useThree((state) => state.camera);
-  // Rounded, so the room rebuilds only when the layout really changes
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const aspect = useRoundedAspect();
   const layout = sceneLayoutOf(isMobile, aspect);
   const group = useRef();
 

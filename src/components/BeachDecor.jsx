@@ -7,6 +7,7 @@ import { useMobile } from "../contexts/MobileContext";
 import { CAMERA_HEIGHT, CAMERA_Z } from "../lib/camera";
 import { D_NEAR, layoutOf } from "../lib/coast";
 import { TriangleSink, createRandom } from "../lib/lowPoly";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 
 // Beach dressing on Home: a band of golden sand along the shore, from past
 // the bottom right of the screen up the water's edge to the palms and a
@@ -538,8 +539,7 @@ const buildMaterials = () => {
 export default function BeachDecor({ palms, dry, laptop }) {
   const { isMobile, prefersReducedMotion } = useMobile();
   const get = useThree((state) => state.get);
-  // Rounded like HomeSection's, so it rebuilds with the palms
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const aspect = useRoundedAspect();
   const materials = useMemo(buildMaterials, []);
   const group = useMemo(() => buildDecor(palms, dry, laptop, isMobile, aspect, materials), [palms, dry, laptop, isMobile, aspect, materials]);
   const ready = useRef(false);

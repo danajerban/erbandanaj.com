@@ -5,6 +5,7 @@ import { useMobile } from "../contexts/MobileContext";
 import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN } from "../lib/camera";
 import { coastX, dryX, layoutOf, onSand, sceneLayoutOf } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 
 // Two seashells, a starfish, two crabs and a sea turtle on the Home beach, in
 // the foreground along the near shore (lib/coast), in the palms' low-poly,
@@ -938,8 +939,7 @@ const NO_PALMS = [];
 export default function ShoreLife({ palms = NO_PALMS }) {
   const { isMobile, prefersReducedMotion } = useMobile();
   const get = useThree((state) => state.get);
-  // Rounded, so the props rebuild only when the aspect really changes
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const aspect = useRoundedAspect();
   const materials = useMemo(buildMaterials, []);
   const shells = useMemo(() => buildShells(isMobile, aspect, palms), [isMobile, aspect, palms]);
   const model = useMemo(() => buildCreatures(isMobile), [isMobile]);

@@ -20,6 +20,7 @@ import {
 } from "../lib/office/layout";
 import { buildSnakePlant } from "../lib/office/plants";
 import { buildWardrobeCorner } from "../lib/office/wardrobeCorner";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 import { MonitorScreen } from "./MonitorScreen";
 import { OfficeCorner } from "./OfficeCorner";
 import { SectionGroup } from "./SectionGroup";
@@ -50,7 +51,7 @@ const buildDeskCorner = (out, ctx) => {
 export const ProjectsSection = () => {
   const { isMobile } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const aspect = useRoundedAspect();
   const layout = sceneLayoutOf(isMobile, aspect);
   const height = useThree((state) => state.size.height);
   const lights = useMemo(() => transformLights(DESK_LIGHTS, vignetteMatrix(layout)), [layout]);

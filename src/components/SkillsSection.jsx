@@ -4,6 +4,7 @@ import { useMobile } from "../contexts/MobileContext";
 import { sceneLayoutOf } from "../lib/coast";
 import { OFFICE_LAYER, TITLE_TURN, titleAt } from "../lib/office/layout";
 import { buildReadingCorner, READING_LIGHTS } from "../lib/office/readingCorner";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 import { OfficeCorner } from "./OfficeCorner";
 import { SectionGroup } from "./SectionGroup";
 import { SectionTitle } from "./SectionTitle";
@@ -13,7 +14,7 @@ import { SectionTitle } from "./SectionTitle";
 export const SkillsSection = () => {
   const { isMobile } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const aspect = useRoundedAspect();
   const layout = sceneLayoutOf(isMobile, aspect);
   const height = useThree((state) => state.size.height);
   return (

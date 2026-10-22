@@ -7,6 +7,7 @@ import { useMobile } from "../contexts/MobileContext";
 import { sceneLayoutOf } from "../lib/coast";
 import { HOME_FOG } from "../lib/sky";
 import { moonAt, timeOfDay } from "../lib/timeOfDay";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { NightSky } from "./NightSky";
 
@@ -129,8 +130,7 @@ export default function TimeOfDay() {
   const { isMobile } = useMobile();
   const scroll = useScroll();
   const scene = useThree((state) => state.scene);
-  // Rounded as in HomeSection, so the layout key flips only on a real change
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const aspect = useRoundedAspect();
   const layout = sceneLayoutOf(isMobile, aspect);
   const objects = useRef({});
   const last = useRef(-1);

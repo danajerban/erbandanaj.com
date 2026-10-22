@@ -5,6 +5,7 @@ import { useMobile } from "../contexts/MobileContext";
 import { CAMERA_HEIGHT, CAMERA_Z } from "../lib/camera";
 import { dryX, layoutOf, onSand } from "../lib/coast";
 import { createRandom } from "../lib/lowPoly";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 
 // Beach props around the laptop on Home, in the sunset palette: a striped
 // towel under it, sunglasses and wired earbuds tossed on the towel, an
@@ -599,8 +600,7 @@ const buildMaterials = () => ({
 export default function BeachProps({ laptop }) {
   const { isMobile, prefersReducedMotion } = useMobile();
   const get = useThree((state) => state.get);
-  // Rounded like HomeSection's, so it rebuilds with the layout
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const aspect = useRoundedAspect();
   const materials = useMemo(buildMaterials, []);
   const group = useMemo(() => buildProps(laptop, isMobile, aspect, materials), [laptop, isMobile, aspect, materials]);
   const ready = useRef(false);

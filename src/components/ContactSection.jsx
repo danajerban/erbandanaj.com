@@ -6,6 +6,7 @@ import { sceneLayoutOf } from "../lib/coast";
 import { PARK, PHONE_SECTION_Z, TITLE_TURN, titleAt, titleInSky } from "../lib/parkLayout";
 import { PARK_LAYER, parkStats, useParkClock } from "../lib/parkMaterials";
 import { timeOfDay } from "../lib/timeOfDay";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 import ParkGarden from "./park/ParkGarden";
 import ParkGround from "./park/ParkGround";
 import ParkHouses from "./park/ParkHouses";
@@ -21,9 +22,8 @@ import { SectionTitle } from "./SectionTitle";
 export const ContactSection = () => {
   const { isMobile, prefersReducedMotion } = useMobile();
   const sectionsDistance = getSectionsDistance(isMobile);
-  // Rounded, so the park rebuilds only when the aspect really changes; the
-  // ground, the garden and the props read it from here
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  // The ground, the garden and the props read it from here
+  const aspect = useRoundedAspect();
   const key = sceneLayoutOf(isMobile, aspect);
   const park = PARK[key];
   const camera = useThree((state) => state.camera);

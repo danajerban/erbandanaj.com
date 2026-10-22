@@ -5,6 +5,7 @@ import { config } from "../config";
 import { useMobile } from "../contexts/MobileContext";
 import { CAMERA_HEIGHT, CAMERA_Z, HALF_FOV_TAN, PITCH } from "../lib/camera";
 import { PALM_Z, dryX, layoutOf, sceneLayoutOf } from "../lib/coast";
+import { useRoundedAspect } from "../lib/useRoundedAspect";
 import { SilentErrorBoundary } from "./ErrorBoundary";
 import { MacBookPro } from "./MacBookPro";
 import { PalmTree } from "./PalmTree";
@@ -198,8 +199,7 @@ const palmLayout = (isMobile, aspect) => {
 
 export const HomeSection = ({ revealed }) => {
   const { isMobile, prefersReducedMotion } = useMobile();
-  // Rounded, so the palms rebuild only when the aspect really changes
-  const aspect = useThree((state) => Math.round(state.viewport.aspect * 100) / 100);
+  const aspect = useRoundedAspect();
   const palms = useMemo(() => palmLayout(isMobile, aspect), [isMobile, aspect]);
   // The dry line's x at depth z, where the beach dressing ends
   const dry = useMemo(() => (z) => dryX(z, isMobile, aspect), [isMobile, aspect]);
